@@ -16,7 +16,6 @@
 	<nav id="nav">
 		<a href="/">.home()</a>
 		<a href="#/projects">.projects()</a>
-		<a href="#/about">.about()</a>
 		<a href="#/contact">.contact()</a>
 	</nav>
 	<Router {routes}/>
@@ -28,7 +27,7 @@
 		flex-direction: row;
 		justify-content: flex-end;
 		font-weight: bold;
-		font-size: 18px;
+		font-size: 24px;
 	}
 
 	#nav a {
