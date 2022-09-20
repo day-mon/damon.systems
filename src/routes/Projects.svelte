@@ -72,7 +72,7 @@
                     </div>
                 {/if}
                 <a href={repo.html_url} target="_blank" class="card-link">View on GitHub</a>
-
+                <p class="card-text"><small class="text-muted">Latest commit: {new Date(repo.updated_at).toLocaleDateString()}</small></p>
             </div>
         </div>
     {/each}
@@ -83,6 +83,15 @@
 
 <style>
     /* scroll in animation for the cards */
+
+    /** put in right corner of card */
+    .card-text {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        font-weight: bolder;
+        color: white;
+    }
 
     /* Nice purple card for repos */
     .card {
