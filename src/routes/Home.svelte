@@ -37,7 +37,9 @@
 </script>
 
 <div id="codeblock">
-    <Typewriter mode="scramble">
+    <Typewriter   disabled={localStorage.getItem('typeDone') === 'true'}
+                  on:done={() => localStorage.setItem('typeDone', 'true')}
+    >
         {text}
     </Typewriter>
 </div>
