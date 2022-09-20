@@ -25,12 +25,11 @@
         ['svelte', 'red']
     ])
 
-    const excluded = ['docker', 'Labs', 'Party-Inviter', 'SteamURLChecker', 'PittJohnstownAPI', 'personal_website']
+    const excluded = ['docker', 'Labs', 'Party-Inviter', 'PittJohnstownAPI', 'personal_website', 'School-bot']
 
     const octokit = new Octokit({});
 
     const fetchData = async () => {
-
         const {data} = await octokit.request('GET /users/{username}/repos', {
             username: 'day-mon',
         })
