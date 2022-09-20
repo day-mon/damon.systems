@@ -16,7 +16,6 @@
 	<nav id="nav">
 		<a href="/">.home()</a>
 		<a href="#/projects">.projects()</a>
-		<a href="#/contact">.contact()</a>
 	</nav>
 	<Router {routes}/>
 </main>
@@ -41,6 +40,7 @@
 			align-items: center;
 			flex-direction: column;
 			margin: 10px 0;
+			font-size: 22px;
 
 		}
 	}

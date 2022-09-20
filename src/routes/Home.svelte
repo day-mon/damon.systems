@@ -4,6 +4,8 @@
     const today = new Date()
     const age = today.getFullYear() - birthDay.getFullYear()
 
+
+
     const text = `struct Human {
         first_name: &str,
         last_name: &str,
@@ -35,9 +37,7 @@
 </script>
 
 <div id="codeblock">
-    <Typewriter
-            disabled={localStorage.getItem('typeDone') === 'true'}
-            on:done={() => localStorage.setItem('typeDone', 'true')}>
+    <Typewriter mode="scramble">
         {text}
     </Typewriter>
 </div>
@@ -60,12 +60,21 @@
     @media only screen and (max-width: 600px) {
         #codeblock {
             position: absolute;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             justify-content: flex-start;
             padding-left: 1rem;
             margin-top: 70px;
 
         }
     }
+
+    @media only screen and (max-width: 800px) {
+        #codeblock {
+            font-size: 17px;
+            margin-left: 8px;
+        }
+    }
+
+
 </style>
 
