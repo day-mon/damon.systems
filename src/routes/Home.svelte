@@ -5,14 +5,13 @@
     const age = today.getFullYear() - birthDay.getFullYear()
 
 
-
-    const text = `struct Human {
-        first_name: &str,
-        last_name: &str,
-        suffix: Option<&str>,
+    const text = `struct Human<'a> {
+        first_name: &'a str,
+        last_name:  &'a str,
+        suffix: Option<&'a str>,
         age: i8,
-        hobbies: Vec<&str>,
-        socials: HashMap<&str, &str>,
+        hobbies: Vec<&'a str>,
+        socials: HashMap<&'a str, &'a str>,
     }
 
     Human {
