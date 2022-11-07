@@ -1,9 +1,9 @@
 <script>
     import Typewriter from 'svelte-typewriter';
+
     const birthDay = new Date(2001, 2, 2)
     const today = new Date()
     const age = today.getFullYear() - birthDay.getFullYear()
-
 
     const text = `struct Human<'a> {
         first_name: &'a str,
@@ -33,11 +33,28 @@
     }`
 
 
+    window.addEventListener('DOMContentLoaded', () => {
+       // console.log the size of screen
+         console.log(window.innerWidth, window.innerHeight)
+    })
+
+    addEventListener('resize', () => {
+        console.log(window.innerWidth, window.innerHeight)
+        localStorage.setItem('typeDone', 'false')
+        location.reload()
+    })
+
+
+
+
+
+
+
 </script>
 
 <div id="codeblock">
-    <Typewriter   disabled={localStorage.getItem('typeDone') === 'true'}
-                  on:done={() => localStorage.setItem('typeDone', 'true')}
+    <Typewriter disabled={localStorage.getItem('typeDone') === 'true'}
+                on:done={() => localStorage.setItem('typeDone', 'true')}
     >
         {text}
     </Typewriter>
@@ -73,6 +90,18 @@
         #codeblock {
             font-size: 17px;
             margin-left: 8px;
+        }
+    }
+
+    @media only screen and (max-width: 1080px) {
+        #codeblock {
+            font-size: 24px;
+        }
+    }
+
+    @media only screen and (max-width: 700px) {
+        #codeblock {
+            font-size: 15px;
         }
     }
 
