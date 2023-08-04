@@ -83,7 +83,6 @@ export default function Root() {
                                 {/*</div>*/}
                             </nav>
                             <div class="flex-grow overflow-y-auto">
-                                {/* Set initial overflow-y to auto */}
                                 <Routes>
                                     <FileRoutes/>
                                 </Routes>
