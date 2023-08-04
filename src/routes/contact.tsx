@@ -5,7 +5,7 @@ export default function Contact() {
         { name: 'twitter', url: 'http://twitter.com/lisp', emoji: '🐦' },
         { name: 'instagram', url: 'https://instagram.com/adopted', emoji: '📷' },
         { name: 'github', url: 'https://github.com/day-mon', emoji: '🐙' },
-        { name: 'linkedin', url: 'https://www.linkedin.com/in/damon-montague-973472187/', emoji: '👔' },
+        { name: 'linkedin', url: 'https://www.linkedin.com/in/day-mon/', emoji: '👔' },
     ];
 
     return (

@@ -22,10 +22,40 @@
     }
 }
 
-.animate-fade-in {
-    animation: fade-in 0.5s ease-in-out;
+@keyframes fade-in-left {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
+
+.animate-fade-in {
+    animation: fade-in-left 0.5s ease-in-out;
+}
+
+
+.animate-bounce {
+    animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
 .hover-underline {
+    position: relative;
+}
+
+.hover-underline-white {
     position: relative;
 }
 
@@ -37,6 +67,16 @@
     width: 0;
     height: 2px;
     background-color: black;
+    transition: width 0.3s ease-in-out;
+}
+.hover-underline-white::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: white;
     transition: width 0.3s ease-in-out;
 }
 
