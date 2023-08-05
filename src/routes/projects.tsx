@@ -1,5 +1,5 @@
-import { createSignal, For, onMount, Show } from "solid-js";
-import { Octokit } from "octokit";
+import {createSignal, For, onMount, Show} from "solid-js";
+import {Octokit} from "octokit";
 
 interface Error {
     status: number | string;
@@ -68,13 +68,13 @@ const Projects = () => {
                 sort: "updated",
             });
         } catch (e) {
-            setError({ status: "Unknown", message: "An unexpected error has occurred" });
+            setError({status: "Unknown", message: "An unexpected error has occurred"});
             setLoading(false);
             return;
         }
 
         if (request.status !== 200) {
-            setError({ status: request.status, message: request.data });
+            setError({status: request.status, message: request.data});
             setLoading(false);
             return;
         }
@@ -98,7 +98,7 @@ const Projects = () => {
             <Show when={loading()}>
                 <div class="flex flex-col items-center justify-center space-y-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-                    <p class="animate-pulse text-lg bg-gray-200 text-transparent bg-clip-text">Loading...</p>
+                    <p class="animate-pulse text-lg bg-gray-200 text-black dark:text-white bg-clip-text">loading...</p>
                 </div>
             </Show>
             <Show when={error().message}>
@@ -127,10 +127,11 @@ const Projects = () => {
                                 <div
                                     class="border-2 border-gray-900 dark:border-white rounded-lg text-center p-4 hover:scale-105 hover:shadow-lg transition-all duration-300 animate-fade-in"
                                 >
-                                    <a href={project.html_url} target={"_blank"} class="text-lg text-center font-bold relative">
-                    <span class="hover-underline dark:hover-underline-white">
-                      {project.name.toLowerCase()}
-                    </span>
+                                    <a href={project.html_url} target={"_blank"}
+                                       class="text-lg text-center font-bold relative">
+                                        <span class="hover-underline dark:hover-underline-white">
+                                          {project.name.toLowerCase()}
+                                        </span>
                                     </a>
                                     <p class="text-center">
                                         {project.description && project.description.toLowerCase() || "no description"}
@@ -139,7 +140,8 @@ const Projects = () => {
                                     <p class="text-center text-sm">{`Last updated ${new Date(
                                         project.updated_at
                                     ).toLocaleDateString()}`}</p>
-                                    <p class={'text-base'}>Built using <span class={`text-${colorMap.get(project.language.toLowerCase())}-500`}>{project.language.toLowerCase() || "no language"}</span></p>
+                                    <p class={'text-base'}>Built
+                                        using <span>{project.language.toLowerCase() || "no language"}</span></p>
                                 </div>
                             )}
                         </For>

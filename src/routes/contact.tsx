@@ -29,8 +29,8 @@ export default function Contact() {
                 <h2 class="text-lg font-bold">other 📝</h2>
                 <hr class="w-48 h-1 mx-auto mb-4 border-0 rounded md:mb-4 bg-gradient-to-r from-black via-gray-100 to-black"/>
                 <ul class={'space-y-2'}>
-                    <li class="text-lg">📧 email: <a href="mailto:damon@montague.im" class="hover:underline">damon@montague.im</a></li>
-                    <li class='text-lg'>💬 discord: damonjr</li>
+                    <li>📧 email: <a href="mailto:damon@montague.im" class="hover:underline">damon@montague.im</a></li>
+                    <li>💬 discord: damonjr</li>
 
                 </ul>
             </div>
