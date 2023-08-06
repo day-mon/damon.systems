@@ -1,5 +1,18 @@
 import { createSignal, For, Show, Suspense, onCleanup, onMount, createEffect } from "solid-js";
-import { useLocation, A, Body, ErrorBoundary, FileRoutes, Head, Html, Meta, Routes, Scripts, Title } from "solid-start";
+import {
+    useLocation,
+    A,
+    Body,
+    ErrorBoundary,
+    FileRoutes,
+    Head,
+    Html,
+    Meta,
+    Routes,
+    Scripts,
+    Title,
+    Link
+} from "solid-start";
 import "./root.css";
 import PAGES from "~/constants";
 import Cookies from "universal-cookie";
@@ -23,11 +36,11 @@ export default function Root() {
                 <Meta name="viewport" content="width=device-width, initial-scale=1" />
                 <Meta name="description" content={`hello! i'm damon, a software engineer based in the u.s.a. with ${yoe} year${yoe > 1 ? 's' : ''} of experience.`} />
                 <Meta name="og:title" content="damon" />
-                <Meta name="description" content={`hello! i'm damon, a software engineer based in the u.s.a. with ${yoe} year${yoe > 1 ? 's' : ''} of experience.`} />
                 <Meta name="og:url" content="https://damon.systems" />
                 <Meta name="og:image" content="https://damon.systems/think.png" />
                 <Meta name={'version'} content={version} />
-                <link rel="icon" href="/favicon.ico" />
+                <Link rel="icon" href="/favicon.ico" />
+                <Link rel={'manifest'} href={'/manifest.json'} />
             </Head>
             <Body class="flex flex-grow flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-karla">
                     <Suspense>
@@ -51,18 +64,19 @@ export default function Root() {
                     <span class="mr-2">[</span>
                     <For each={PAGES}>
                         {(page, index) => (
-                            <A target="" href={`/${page.path}`} class={`mr-2 hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
+                            <>
                                 <Show when={index() !== 0}>
                                     <span class="mr-1">○</span>
                                 </Show>
-                                {page.name}
-                            </A>
+                                <A target="" href={`/${page.path}`} class={`mr-2 hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
+                                    {page.name}
+                                </A>
+                            </>
                         )}
                     </For>
                     <span class="mr-2">]</span>
                     <p>Made with <a class={'hover-underline font-bold'} href="https://start.solidjs.com/getting-started/what-is-solidstart" target="_blank">Solid Start</a></p>
                     <p>© {currentYear} Damon</p>
-
                 </footer>
             </Show>
         </Html>

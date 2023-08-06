@@ -1,13 +1,20 @@
 import {createEffect, For} from "solid-js";
-import {A} from "solid-start";
+import {A, Meta} from "solid-start";
 import PAGES from "~/constants";
 
 export default function Home() {
-    createEffect(() => {
-        document.title = "damon";
-    });
+
     return (
         <>
+            <title>damon</title>
+            <Meta property="og:title" content="damon" />
+            <Meta property="og:description" content="home" />
+            <Meta property="og:url" content="https://damon.systems" />
+            <Meta property="og:image" content="https://damon.systems/think.png" />
+            <Meta property="og:type" content="website" />
+            <Meta property="og:site_name" content="damon" />
+            <Meta property="og:locale" content="en_US" />
+
             <main class="flex justify-end items-center h-screen p-12 animate-fade-in">
                 <ul class='text-2xl space-y-4'>
                     <For each={PAGES}>{(page, _) =>
