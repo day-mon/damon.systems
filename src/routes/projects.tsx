@@ -74,7 +74,29 @@ const Projects = () => {
             >
               ↻
             </span>
-
+                                <For each={data()}>
+                                    {(project) => (
+                                        <div
+                                            class="border-2 border-gray-900 dark:border-white rounded-lg text-center p-4 hover:scale-105 hover:shadow-lg transition-all duration-300 animate-fade-in"
+                                        >
+                                            <a href={project.html_url} target={"_blank"}
+                                               class="text-lg text-center font-bold relative">
+                                        <span class="hover-underline dark:hover-underline-white">
+                                            {`${project.name.toLowerCase()} ${project.stargazers_count ? `(${project.stargazers_count} ⭐)` : ""}`}
+                                        </span>
+                                            </a>
+                                            <p class="text-center">
+                                                {project.description && project.description.toLowerCase() || "no description"}
+                                            </p>
+                                            <Show when={project.topics && project.topics.length > 0}>
+                                                <p class={'text-sm'}>{project.topics?.join(", ")}</p>
+                                            </Show>
+                                            <Show when={project.language}>
+                                                <p class={'text-sm text'}>{project.language?.toLowerCase()}</p>
+                                            </Show>
+                                        </div>
+                                    )}
+                                </For>
                             </div>
                         </div>
                     </Suspense>
