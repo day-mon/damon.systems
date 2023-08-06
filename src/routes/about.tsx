@@ -26,7 +26,7 @@ export default function About() {
             <Meta name="og:title" content="damon | about"/>
             <Meta name="og:description" content="about me"/>
             <Meta name="og:url" content="https://damon.systems/about"/>
-            <Meta name="og:image" content="https://damon.systems/about.svg"/>
+            <Meta name="og:image" content="https://damon.systems/about.png"/>
             <main class="flex flex-col justify-center items-center text-center p-6 sm:p-10 sm:h-[85vh] animate-fade-in">
                 <h1 class="text-2xl lg:text-xl italic mb-2">hi.</h1>
                 <Description
