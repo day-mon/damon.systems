@@ -25,6 +25,7 @@ export default function About() {
             <Meta name="keywords" content="damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, t, rowe, price, emerging, technologies, machine, learning, distributed, systems, engineering"/>
             <Meta name="og:title" content="damon | about"/>
             <Meta name="og:description" content="about me"/>
+            <Meta property="og:site_name" content="damon" />
             <Meta name="og:url" content="https://damon.systems/about"/>
             <Meta name="og:image" content="https://damon.systems/about.png"/>
             <main class="flex flex-col justify-center items-center text-center p-6 sm:p-10 sm:h-[85vh] animate-fade-in">

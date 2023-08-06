@@ -1,5 +1,5 @@
 import {createEffect, For} from "solid-js";
-import {BsGithub, BsInstagram, BsLinkedin, BsTwitter} from "solid-icons/bs";
+import {BsDiscord, BsGithub, BsInstagram, BsLinkedin, BsMailbox, BsTwitter} from "solid-icons/bs";
 import {IoLogoDiscord} from "solid-icons/io";
 import {AiOutlineMail} from "solid-icons/ai";
 import {Meta, Title} from "solid-start";
@@ -56,10 +56,10 @@ export default function Contact() {
                     <h2 class="text-lg font-bold">other 📝</h2>
                     <hr class="w-48 h-1 mx-auto mb-4 border-0 rounded md:mb-4 bg-gradient-to-r from-black via-gray-100 to-black"/>
                     <ul class={'space-y-2'}>
-                        <li><a href={'mailto:damon@montague.im'}><AiOutlineMail
+                        <li><a href={'mailto:damon@montague.im'}><BsMailbox
                             class="inline-block w-6 h-6"/> email: <span
                             class="hover:underline"> damon@montague.im </span></a></li>
-                        <li><IoLogoDiscord class="inline-block w-6 h-6"/> discord: <span
+                        <li><BsDiscord class="inline-block w-6 h-6"/> discord: <span
                             class="hover:underline">damonjr</span></li>
                     </ul>
                 </div>
