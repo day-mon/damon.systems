@@ -85,7 +85,7 @@ jobs:
       - name: Deploy
         uses: fjogeleit/http-request-action@v1
         with:
-          url: 'https://watchtower.montague.im/v1/update'
+          url: 'https://watchtower.montague.im/v1/update?image=ghcr.io/day-mon/damon.systems'
           method: 'POST'
           timeout: 60000
           customHeaders: '{"Authorization": "Bearer ${{ secrets.TOKEN }}"}'
