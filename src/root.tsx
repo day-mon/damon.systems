@@ -5,12 +5,12 @@ import PAGES from "~/constants";
 import Cookies from "universal-cookie";
 
 type theme = "light" | "dark";
+const version = "v1.0.0";
 export default function Root() {
     const currentYear = new Date().getFullYear();
     const location = useLocation();
     const cookies = new Cookies();
     const [theme, setTheme] = createSignal<theme>(cookies.get("theme") === "dark" ? "dark" : "light");
-
     const yoe =  Math.max(1, new Date().getFullYear() - new Date("2023-01-30").getFullYear())
 
 
@@ -26,7 +26,7 @@ export default function Root() {
                 <Meta name="description" content={`hello! i'm damon, a software engineer based in the u.s.a. with ${yoe} year${yoe > 1 ? 's' : ''} of experience.`} />
                 <Meta name="og:url" content="https://damon.systems" />
                 <Meta name="og:image" content="https://damon.systems/think.png" />
-
+                <Meta name={'version'} content={version} />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Body class="flex flex-grow flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-karla">
