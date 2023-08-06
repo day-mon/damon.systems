@@ -1,5 +1,4 @@
 import {createEffect, createResource, createSignal, For, Show} from "solid-js";
-import {Octokit} from "octokit";
 import {Meta, Title} from "solid-start";
 
 const excluded_repos = [
