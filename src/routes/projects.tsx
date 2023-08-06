@@ -36,10 +36,6 @@ const fetchData = async () => {
 const Projects = () => {
     const [data, { mutate, refetch }] = createResource(fetchData);
 
-    createEffect(() => {
-        console.log(data())
-    }, [data])
-
     return (
         <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in">
             <Show when={data.loading}>

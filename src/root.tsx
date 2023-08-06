@@ -24,7 +24,7 @@ export default function Root() {
                 <Meta name="og:title" content="damon" />
                 <Meta name="og:description" content={`a software engineer based in the u.s.a. with ${yoe} year${yoe > 1 ? 's' : ''} of experience.`} />
                 <Meta name="og:url" content="https://damon.systems" />
-                <Meta name="og:image" content="https://damon.ink/og-image.png" />
+                <Meta name="og:image" content="https://damon.systems/think.png" />
 
                 <link rel="icon" href="/favicon.ico" />
             </Head>
