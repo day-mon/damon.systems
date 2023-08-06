@@ -41,7 +41,7 @@ const Projects = () => {
     })
 
     return (
-        <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in ax-h-[85vh]">
+        <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in h-[85vh]">
             <Show when={data.loading}>
                 <div class="flex flex-col items-center justify-center space-y-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>

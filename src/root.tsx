@@ -60,8 +60,9 @@ export default function Root() {
                         )}
                     </For>
                     <span class="mr-2">]</span>
+                    <p>Made with <a class={'hover-underline font-bold'} href="https://start.solidjs.com/getting-started/what-is-solidstart" target="_blank">Solid Start</a></p>
                     <p>© {currentYear} Damon</p>
-                    <p>Made with SolidStart</p>
+
                 </footer>
             </Show>
         </Html>
