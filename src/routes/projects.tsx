@@ -43,7 +43,7 @@ const Projects = () => {
         <>
             <Title>damon | projects</Title>
             <Meta property="og:title" content="damon | projects"/>
-            <Meta property="og:description" content="some of the things I have worked on"/>
+            <Meta property="og:description" content="some of the things I have worked on via github"/>
             <Meta property="og:url" content="https://damon.systems/projects"/>
             <Meta property="og:image" content="https://damon.systems/projects.png"/>
             <Meta property="og:type" content="website"/>
