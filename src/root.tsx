@@ -28,8 +28,7 @@ export default function Root() {
 
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <Body class="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-                <div class="h-screen flex flex-col">
+            <Body class="flex flex-grow flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
                     <Suspense>
                         <ErrorBoundary>
                             <nav class="flex justify-between p-5">
@@ -44,27 +43,26 @@ export default function Root() {
                             </div>
                         </ErrorBoundary>
                     </Suspense>
-                    <Show when={location.pathname !== "/"}>
-                        <footer class="text-right pl-5 pr-5 pb-5 text-gray-700 dark:text-gray-300">
-                            <span class="mr-2">[</span>
-                            <For each={PAGES}>
-                                {(page, index) => (
-                                    <A target="" href={`/${page.path}`} class={`mr-2 hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
-                                        <Show when={index() !== 0}>
-                                            <span class="mr-1">○</span>
-                                        </Show>
-                                        {page.name}
-                                    </A>
-                                )}
-                            </For>
-                            <span class="mr-2">]</span>
-                            <p>© {currentYear} Damon</p>
-                            <p>Made with SolidStart</p>
-                        </footer>
-                    </Show>
-                </div>
                 <Scripts />
             </Body>
+            <Show when={location.pathname !== "/"}>
+                <footer class="text-right pl-5 pr-5 pb-5 text-gray-700 dark:text-gray-300">
+                    <span class="mr-2">[</span>
+                    <For each={PAGES}>
+                        {(page, index) => (
+                            <A target="" href={`/${page.path}`} class={`mr-2 hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
+                                <Show when={index() !== 0}>
+                                    <span class="mr-1">○</span>
+                                </Show>
+                                {page.name}
+                            </A>
+                        )}
+                    </For>
+                    <span class="mr-2">]</span>
+                    <p>© {currentYear} Damon</p>
+                    <p>Made with SolidStart</p>
+                </footer>
+            </Show>
         </Html>
     );
 }
