@@ -2,7 +2,6 @@ import {createEffect, createResource, createSignal, For, Show} from "solid-js";
 import {Octokit} from "octokit";
 import {Meta, Title} from "solid-start";
 
-const octokit = new Octokit();
 const excluded_repos = [
     "school-bot",
     "ImageSize",
@@ -11,16 +10,17 @@ const excluded_repos = [
     "PittJohnstownAPI",
 ]
 const fetchData = async () => {
-    const request = await octokit.request("GET /users/{username}/repos", {
-        username: "day-mon",
-        type: "owner",
-        sort: "updated",
+    const request =  await fetch("https://api.github.com/users/day-mon/repos?per_page=100", {
+        headers: {
+            'X-Github-Api-Version': '2022-11-28',
+        }
     })
-    return request.data
-        .filter((repo) => !repo.private)
-        .filter((repo) => !repo.fork)
-        .filter((repo) => !excluded_repos.includes(repo.name))
-        .sort((a, b) => {
+    const response = await request.json()
+    return response
+        .filter((repo: any) => !repo.private)
+        .filter((repo: any) => !repo.fork)
+        .filter((repo: any) => !excluded_repos.includes(repo.name))
+        .sort((a: any, b: any) => {
             let aStarCount = a.stargazers_count
             let bStarCount = b.stargazers_count
             if (!aStarCount) {
@@ -31,6 +31,7 @@ const fetchData = async () => {
             }
             return aStarCount === bStarCount ? 0 : aStarCount > bStarCount ? -1 : 1
         })
+
 }
 
 
