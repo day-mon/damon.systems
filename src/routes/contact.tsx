@@ -1,16 +1,20 @@
-import { For } from "solid-js";
+import {createEffect, For} from "solid-js";
 import {BsGithub, BsInstagram, BsLinkedin, BsTwitter} from "solid-icons/bs";
 import {IoLogoDiscord} from "solid-icons/io";
 import {AiOutlineMail} from "solid-icons/ai";
 
 export default function Contact() {
+
     const socials = [
-        { name: 'twitter', url: 'https://://twitter.com/lisp', emoji: <BsTwitter class={'inline-block text-blue-500'} /> },
+        { name: 'twitter', url: 'https:///twitter.com/lisp', emoji: <BsTwitter class={'inline-block text-blue-500'} /> },
         { name: 'instagram', url: 'https://instagram.com/adopted', emoji: <BsInstagram class={'inline-block text-pink-500'} /> },
         { name: 'github', url: 'https://github.com/day-mon', emoji: <BsGithub class={'inline-block'} /> },
         { name: 'linkedin', url: 'https://www.linkedin.com/in/day-mon/', emoji: <BsLinkedin class={'text-blue-500 inline-block'} /> },
     ];
 
+    createEffect(() => {
+        document.title = "damon | contact"
+    })
     return (
         <main class="flex flex-col justify-center mb-4 items-center h-[85vh] text-center px-4 sm:px-0 space-y-6 animate-fade-in">
             <h1 class="text-xl sm:text-2xl italic mb-2">here are some of my links and ways to contact me</h1>

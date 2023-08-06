@@ -1,8 +1,11 @@
-import {For} from "solid-js";
+import {createEffect, For} from "solid-js";
 import {A} from "solid-start";
 import PAGES from "~/constants";
 
 export default function Home() {
+    createEffect(() => {
+        document.title = "damon";
+    });
     return (
         <>
             <main class="flex justify-end items-center h-screen p-12 animate-fade-in">

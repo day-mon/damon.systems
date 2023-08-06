@@ -34,12 +34,16 @@ const fetchData = async () => {
 
 
 const Projects = () => {
-    const [data, { mutate, refetch }] = createResource(fetchData);
+    const [data, {mutate, refetch}] = createResource(fetchData);
+
+    createEffect(() => {
+        document.title = "damon | projects"
+    })
 
     return (
-        <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in">
+        <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in ax-h-[85vh]">
             <Show when={data.loading}>
-                <div class="flex flex-col items-center justify-center h-[85vh] space-y-4">
+                <div class="flex flex-col items-center justify-center space-y-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
                     <p class="animate-pulse text-lg bg-gray-200 text-black dark:text-white bg-clip-text">loading...</p>
                 </div>
@@ -51,7 +55,7 @@ const Projects = () => {
                 </div>
             </Show>
             <Show when={!data.loading && !data.error}>
-                <div class="overflow-auto max-h-[85vh]">
+                <div class="overflow-auto m">
                     <h1 class="text-2xl italic text-center mb-2 font-bold">
                         here are some of the things I have worked on
                     </h1>
@@ -83,7 +87,7 @@ const Projects = () => {
                                         <p class={'text-sm'}>{project.topics?.join(", ")}</p>
                                     </Show>
                                     <Show when={project.language}>
-                                           <p class={'text-sm text'}>{project.language?.toLowerCase()}</p>
+                                        <p class={'text-sm text'}>{project.language?.toLowerCase()}</p>
                                     </Show>
                                 </div>
                             )}
