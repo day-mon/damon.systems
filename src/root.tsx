@@ -15,38 +15,6 @@ export default function Root() {
 
 
 
-    // get yoe in months
-
-    onMount(() => {
-        const initialTheme = cookies.get("theme") === "dark" ? "dark" : "light";
-        setTheme(initialTheme);
-    });
-
-    createEffect(() => {
-        cookies.set("theme", theme().toString());
-    }, [theme]);
-
-    onCleanup(() => {
-        console.log("Cleaning up");
-        console.log("Current theme:", theme());
-
-        // Make sure the cookie value matches the client-side state
-        cookies.set("theme", theme().toString());
-        console.log("Theme cookie value:", cookies.get("theme"));
-    });
-
-    const toggleTheme = () => {
-        const newValue = theme() === "light" ? "dark" : "light";
-        console.log("Setting theme to:", newValue);
-        cookies.set("theme", newValue.toString());
-        setTheme(newValue);
-    };
-
-    createEffect(() => {
-        console.log("Current theme:", theme());
-        console.log("Theme cookie value:", cookies.get("theme"));
-    }, [theme]);
-
     return (
         <Html lang="en" class={`h-full flex flex-col ${theme()}`}>
             <Head>

@@ -1,4 +1,4 @@
-import {createResource, createSignal, For, Show} from "solid-js";
+import {createEffect, createResource, createSignal, For, Show} from "solid-js";
 import {Octokit} from "octokit";
 
 const octokit = new Octokit();
@@ -36,11 +36,14 @@ const fetchData = async () => {
 const Projects = () => {
     const [data, { mutate, refetch }] = createResource(fetchData);
 
+    createEffect(() => {
+        console.log(data())
+    }, [data])
 
     return (
         <main class="flex justify-center items-center flex-col mb-4 text-center px-4 sm:px-0 space-y-6 animate-fade-in">
             <Show when={data.loading}>
-                <div class="flex flex-col items-center justify-center space-y-4">
+                <div class="flex flex-col items-center justify-center h-[85vh] space-y-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
                     <p class="animate-pulse text-lg bg-gray-200 text-black dark:text-white bg-clip-text">loading...</p>
                 </div>
