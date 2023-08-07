@@ -16,6 +16,8 @@ import {
 import "./root.css";
 import Cookies from "universal-cookie";
 import SettingPopup from "~/components/SettingPopup";
+import { usePrefersDark } from "@solid-primitives/media";
+
 import {FONTS, PAGES, THEMES} from "~/constants";
 
 type theme = "light" | "dark";
@@ -29,9 +31,25 @@ export default function Root() {
     const [font, setFont] = createSignal(cookies.get("font") ?? "karla");
     const yoe = Math.max(1, new Date().getFullYear() - new Date("2023-01-30").getFullYear())
 
+    onMount(() => {
+        const theme = cookies.get("theme");
+        if (theme) {
+            setTheme(theme);
+        }
+    });
+
+    createEffect(() => {
+        cookies.set("theme", theme());
+        if (theme() === "dark") {
+            document.documentElement.classList.add("dark");
+        }
+        else {
+            document.documentElement.classList.remove("dark");
+        }
+    });
 
     return (
-        <Html lang="en" class={`h-full flex flex-col ${theme()}`}>
+        <Html lang="en" class={`h-full flex flex-col`}>
             <Head>
                 <Title>damon</Title>
                 <Meta charset="utf-8"/>
@@ -92,9 +110,6 @@ export default function Root() {
                         )}
                     </For>
                     <span class="mr-2">]</span>
-                    {/*<p>Made with <a class={'hover-underline font-bold'}*/}
-                    {/*                href="https://start.solidjs.com/getting-started/what-is-solidstart" target="_blank">Solid*/}
-                    {/*    Start</a></p>*/}
                     <p>© {currentYear} Damon</p>
                 </footer>
             </Show>

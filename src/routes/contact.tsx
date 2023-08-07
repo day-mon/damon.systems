@@ -30,7 +30,7 @@ export default function Contact() {
             <Meta name="author" content="damon"/>
             <Meta property="og:title" content="damon | contact"/>
             <Meta property="og:description" content="here are some of my links and ways to contact me"/>
-            <Meta property="og:image" content="https://damon.systems/contact.png"/>
+            <Meta property="og:image" content="/contact.png"/>
             <Meta property="og:url" content="https://damon.systems/contact"/>
             <Meta property="og:site_name" content="damon"/>
             <Meta property="og:type" content="website"/>

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@solid-primitives/media": "^2.2.4",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.8.2",
     "solid-fa": "^0.2.0",

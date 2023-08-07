@@ -9,7 +9,7 @@ export default function Home() {
             <title>damon</title>
             <Meta property="og:title" content="damon" />
             <Meta property="og:url" content="https://damon.systems" />
-            <Meta property="og:image" content="https://damon.systems/think.png" />
+            <Meta property="og:image" content="/think.png" />
             <Meta property="og:type" content="website" />
             <Meta property="og:site_name" content="damon" />
             <Meta property="og:locale" content="en_US" />
