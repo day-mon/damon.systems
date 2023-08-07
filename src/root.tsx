@@ -57,21 +57,12 @@ export const PAGES: IPage[] = [
 export default function Root() {
     const location = useLocation();
     const [showSettings, setShowSettings] = createSignal(false);
-    const event = useRequest();
-    const userTheme = parseCookie(
-        isServer ? event.request.headers.get("cookie") ?? "" : document.cookie
-    )["theme"] as Theme;
-    const userFont = parseCookie(
-        isServer ? event.request.headers.get("cookie") ?? "" : document.cookie
-    )["font"] as string;
-    const [theme, setTheme] = createSignal<Theme>(userTheme ?? "dark");
-    const [font, setFont] = createSignal<string>(userFont ?? "karla");
     const yoe = Math.max(1, new Date().getFullYear() - new Date("2023-01-30").getFullYear())
 
 
 
     return (
-        <Html lang="en" class={`${theme()}`}>
+        <Html lang="en" class={`light`}>
             <Head>
                 <Title>damon</Title>
                 <Meta charset="utf-8"/>
@@ -87,7 +78,7 @@ export default function Root() {
                 <Link rel="icon" href="/favicon.ico"/>
                 <Link rel={'manifest'} href={'/manifest.json'}/>
             </Head>
-            <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden font-${font()}`}>
+            <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden font-karla`}>
                     <Suspense>
                         <ErrorBoundary>
                             <nav class="flex justify-between p-5">
