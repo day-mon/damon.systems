@@ -11,9 +11,9 @@ module.exports = {
             ysaoffice: ['Ysabeau Office', 'sans-serif'],
         },
         screens: {
-            sm: "640px",
-            md: "768px",
-            lg: "1024px",
+            'sm': '600px',
+            'md': '1024px',
+            'lg': '1440px',
         },
         extend: {}
     },

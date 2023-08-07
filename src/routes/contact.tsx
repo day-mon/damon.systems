@@ -1,5 +1,14 @@
 import {createEffect, For} from "solid-js";
-import {BsDiscord, BsGithub, BsInstagram, BsLinkedin, BsMailbox, BsTwitter} from "solid-icons/bs";
+import {
+    BsDiscord, BsEnvelope,
+    BsEnvelopeAtFill,
+    BsEnvelopePaper,
+    BsGithub,
+    BsInstagram,
+    BsLinkedin,
+    BsMailbox,
+    BsTwitter
+} from "solid-icons/bs";
 import {IoLogoDiscord} from "solid-icons/io";
 import {AiOutlineMail} from "solid-icons/ai";
 import {Meta, Title} from "solid-start";
@@ -7,23 +16,30 @@ import {Meta, Title} from "solid-start";
 export default function Contact() {
 
     const socials = [
-        {name: 'twitter', url: 'https:///twitter.com/lisp', emoji: <BsTwitter class={'inline-block text-blue-500'}/>},
+        {name: 'twitter', url: 'https:///twitter.com/lisp', emoji: <BsTwitter class={'hover:text-blue-500 dark:hover:text-blue-500 text-blue-500 md:text-black md:dark:text-white inline-block'}/>},
         {
             name: 'instagram',
             url: 'https://instagram.com/adopted',
-            emoji: <BsInstagram class={'inline-block text-pink-500'}/>
+            emoji: <BsInstagram class={'hover:text-pink-500 dark:hover:text-pink-500 text-pink-500 md:text-black md:dark:text-white inline-block'}/>
         },
-        {name: 'github', url: 'https://github.com/day-mon', emoji: <BsGithub class={'inline-block'}/>},
+        {
+            name: 'github',
+            url: 'https://github.com/day-mon',
+            emoji: <BsGithub class={'dark:text-white text-black md:text-black md:dark:text-white inline-block'}/>},
         {
             name: 'linkedin',
             url: 'https://www.linkedin.com/in/day-mon/',
-            emoji: <BsLinkedin class={'text-blue-500 inline-block'}/>
+            emoji: <BsLinkedin class={'hover:text-blue-500 dark:hover:text-blue-500 text-blue-500 md:text-black md:dark:text-white inline-block'}/>
         },
+        {
+            name: 'discord',
+            url: 'https://discord.com/users/105141507996061696',
+            emoji: <BsDiscord class="text-[#7289DA] md:text-black dark:text-white  md:hover:text-[#7289DA]"/>,
+        }
     ];
 
-
     return (
-        <>
+        <div>
             <Title>damon | contact</Title>
             <Meta name="description" content="contact me"/>
             <Meta name="keywords" content="damon, contact, email, twitter, instagram, github, linkedin"/>
@@ -34,36 +50,25 @@ export default function Contact() {
             <Meta property="og:url" content="https://damon.systems/contact"/>
             <Meta property="og:site_name" content="damon"/>
             <Meta property="og:type" content="website"/>
-            <main
-                class="flex flex-col justify-center mb-4 items-center h-[85vh] text-center px-4 sm:px-0 space-y-6 animate-fade-in">
-                <h1 class="text-xl sm:text-2xl italic mb-2">here are some of my links and ways to contact me</h1>
-                <div>
-                    <h2 class="text-lg font-bold">socials 📱</h2>
-                    <hr class="w-48 h-1 mx-auto  border-0 rounded md:mb-4 bg-gradient-to-r from-black via-gray-100 to-black"/>
-                    <p class="flex space-x-4 justify-center mt-2">
+            <main class="h-[85vh] flex items-center justify-center animate-fade-in">
+                <div class={'text-center'}>
+                    <h2 class="text-lg mt-6  font-bold">socials</h2>
+                    <div class={'flex items-center gap-6 justify-center mt-4'}>
                         <For each={socials}>
                             {(social, index) => (
-                                <>
-                                    <a href={social.url} target={'_blank'}
-                                       class="hover:underline">{social.emoji} {social.name}</a>
-                                    {index() < socials.length - 1 && <span class="mx-2">○</span>}
-                                </>
+                                <span class={'transition-all hover:scale-150'}>
+                                    <a href={social.url} target={'_blank'} class="flex items-center text-2xl">{social.emoji} </a>
+                                </span>
                             )}
                         </For>
-                    </p>
-                </div>
-                <div>
-                    <h2 class="text-lg font-bold">other 📝</h2>
-                    <hr class="w-48 h-1 mx-auto mb-4 border-0 rounded md:mb-4 bg-gradient-to-r from-black via-gray-100 to-black"/>
-                    <ul class={'space-y-2'}>
-                        <li><a href={'mailto:damon@montague.im'}><BsMailbox
-                            class="inline-block w-6 h-6"/> email: <span
-                            class="hover:underline"> damon@montague.im </span></a></li>
-                        <li><BsDiscord class="inline-block w-6 h-6"/> discord: <span
-                            class="hover:underline">damonjr</span></li>
-                    </ul>
+                    </div>
+                    <a class={'flex items-center justify-center mt-6 gap-2 transition-transform hover:scale-110'} href={'mailto:damon@montague.im'}><BsEnvelope class="inline-block w-6 h-6"/>
+                        <span class="hover:underline"> damon@montague.im </span>
+                    </a>
+
+
                 </div>
             </main>
-        </>
+        </div>
     );
 }

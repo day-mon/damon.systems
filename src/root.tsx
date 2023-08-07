@@ -42,7 +42,7 @@ export default function Root() {
 
 
     return (
-        <Html lang="en" class={`h-full flex flex-col ${theme()}`}>
+        <Html lang="en" class={`${theme()}`}>
             <Head>
                 <Title>damon</Title>
                 <Meta charset="utf-8"/>
@@ -58,7 +58,7 @@ export default function Root() {
                 <Link rel="icon" href="/favicon.ico"/>
                 <Link rel={'manifest'} href={'/manifest.json'}/>
             </Head>
-            <Body class={`flex flex-grow flex-col h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-${font()}`}>
+            <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-${font()}`}>
                     <Suspense>
                         <ErrorBoundary>
                             <nav class="flex justify-between p-5">
@@ -87,7 +87,7 @@ export default function Root() {
                 <Scripts />
             </Body>
             <Show when={location.pathname !== "/"}>
-                <footer class="text-right pl-5 pr-5 pb-5 text-gray-700 dark:text-gray-300">
+                <footer class="px-5 py-3 fixed bottom-0 left-0 right-0 flex justify-center md:justify-end ">
                     <span class="mr-2">[</span>
                     <For each={PAGES}>
                         {(page, index) => (
@@ -103,7 +103,6 @@ export default function Root() {
                         )}
                     </For>
                     <span class="mr-2">]</span>
-                    <p>© {currentYear} Damon</p>
                 </footer>
             </Show>
         </Html>
