@@ -6,7 +6,7 @@ RUN npm install -g pnpm
 COPY package.json .
 COPY pnpm-*.yaml .
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 COPY . .
 RUN pnpm run build
 ENTRYPOINT ["pnpm", "run", "start"]
