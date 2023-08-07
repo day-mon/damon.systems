@@ -23,8 +23,7 @@
     "solid-icons": "^1.0.11",
     "solid-js": "^1.7.8",
     "solid-start": "^0.2.30",
-    "undici": "^5.15.1",
-    "universal-cookie": "^4.0.4"
+    "undici": "^5.15.1"
   },
   "engines": {
     "node": ">=16"

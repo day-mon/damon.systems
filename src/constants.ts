@@ -1,3 +1,5 @@
+import { createCookieSessionStorage } from "solid-start";
+
 export const PAGES: IPage[] = [
     {
         name: 'home',

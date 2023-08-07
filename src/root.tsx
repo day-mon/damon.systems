@@ -14,42 +14,35 @@ import {
     Link
 } from "solid-start";
 import "./root.css";
-import Cookies from "universal-cookie";
 import SettingPopup from "~/components/SettingPopup";
 import { usePrefersDark } from "@solid-primitives/media";
 
-import {FONTS, PAGES, THEMES} from "~/constants";
+import { FONTS, PAGES, THEMES } from "~/constants";
+import {isServer} from "solid-js/web";
+import { useRequest } from "solid-start/server";
+import { parseCookie } from "solid-start";
 
-type theme = "light" | "dark";
+type Theme = "light" | "dark";
 const version = "v1.0.2";
 export default function Root() {
     const currentYear = new Date().getFullYear();
     const location = useLocation();
-    const cookies = new Cookies();
     const [showSettings, setShowSettings] = createSignal(false);
-    const [theme, setTheme] = createSignal<theme>(cookies.get("theme") ?? "light");
-    const [font, setFont] = createSignal(cookies.get("font") ?? "karla");
+    const event = useRequest();
+    const userTheme = parseCookie(
+        isServer ? event.request.headers.get("cookie") ?? "" : document.cookie
+    )["theme"] as Theme;
+    const userFont = parseCookie(
+        isServer ? event.request.headers.get("cookie") ?? "" : document.cookie
+    )["font"] as string;
+    const [theme, setTheme] = createSignal<Theme>(userTheme ?? "dark");
+    const [font, setFont] = createSignal<string>(userFont ?? "karla");
     const yoe = Math.max(1, new Date().getFullYear() - new Date("2023-01-30").getFullYear())
 
-    onMount(() => {
-        const theme = cookies.get("theme");
-        if (theme) {
-            setTheme(theme);
-        }
-    });
 
-    createEffect(() => {
-        cookies.set("theme", theme());
-        if (theme() === "dark") {
-            document.documentElement.classList.add("dark");
-        }
-        else {
-            document.documentElement.classList.remove("dark");
-        }
-    });
 
     return (
-        <Html lang="en" class={`h-full flex flex-col`}>
+        <Html lang="en" class={`h-full flex flex-col ${theme()}`}>
             <Head>
                 <Title>damon</Title>
                 <Meta charset="utf-8"/>
