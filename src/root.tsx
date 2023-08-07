@@ -1,4 +1,4 @@
-import {createSignal, For, Show, Suspense, onCleanup, onMount, createEffect} from "solid-js";
+import {createSignal, For, Show, Suspense} from "solid-js";
 import {
     useLocation,
     A,
@@ -14,9 +14,6 @@ import {
     Link
 } from "solid-start";
 import "./root.css";
-import SettingPopup from "~/components/SettingPopup";
-import { usePrefersDark } from "@solid-primitives/media";
-
 import { FONTS, PAGES, THEMES } from "~/constants";
 import {isServer} from "solid-js/web";
 import { useRequest } from "solid-start/server";
@@ -66,18 +63,18 @@ export default function Root() {
                                     damon
                                 </A>
 
-                                <SettingPopup
-                                    onButtonClick={() => setShowSettings(!showSettings())}
-                                    settingsOpen={showSettings}
-                                    theme={theme}
-                                    setTheme={setTheme}
-                                    themes={THEMES}
-                                    fonts={FONTS}
-                                    font={font}
-                                    setFont={setFont}
-                                />
+                                {/*<SettingPopup*/}
+                                {/*    onButtonClick={() => setShowSettings(!showSettings())}*/}
+                                {/*    settingsOpen={showSettings}*/}
+                                {/*    theme={theme}*/}
+                                {/*    setTheme={setTheme}*/}
+                                {/*    themes={THEMES}*/}
+                                {/*    fonts={FONTS}*/}
+                                {/*    font={font}*/}
+                                {/*    setFont={setFont}*/}
+                                {/*/>*/}
                             </nav>
-                            <div class="flex-grow overflow-hidden" onclick={() => setShowSettings(false)}>
+                            <div class="overflow-hidden" onclick={() => setShowSettings(false)}>
                                 <Routes>
                                     <FileRoutes />
                                 </Routes>
