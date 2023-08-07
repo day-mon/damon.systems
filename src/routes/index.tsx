@@ -1,6 +1,6 @@
 import {createEffect, For} from "solid-js";
 import {A, Meta} from "solid-start";
-import PAGES from "~/constants";
+import {PAGES} from "~/root";
 
 export default function Home() {
 

@@ -60,13 +60,12 @@ const Projects = () => {
                     </div>
                 )}>
                     <Suspense fallback={<Loading/>}>
-                        <div class="overflow-auto m">
+                        <div class="overflow-auto">
                             <h1 class="text-2xl italic text-center mb-2 font-bold">
-                                here are some of the things I have worked on
+                                here are some of the things i have worked on
                             </h1>
                             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8">
-            <span
-                class="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 text-2xl text-end hover:cursor-pointer"
+            <span class="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 text-2xl text-end hover:cursor-pointer"
                 onClick={() => {
                     sessionStorage.removeItem("projects");
                     refetch();
@@ -98,6 +97,8 @@ const Projects = () => {
                                     )}
                                 </For>
                             </div>
+                            <div class={'md:hidden h-[75px]'}/>
+
                         </div>
                     </Suspense>
                 </ErrorBoundary>

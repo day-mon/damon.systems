@@ -1,24 +1,7 @@
 import { createCookieSessionStorage } from "solid-start";
+import {Component} from "solid-js";
 
-export const PAGES: IPage[] = [
-    {
-        name: 'home',
-        path: ''
-    },
-    {
-        name: 'about',
-        path: 'about'
-    },
-    {
-        name: 'projects',
-        path: 'projects'
-    },
-    {
-        name: 'contact',
-        path: 'contact'
-    },
 
-]
 
 export interface IDisplayable {
     name: string;
@@ -50,9 +33,6 @@ export const FONTS: IFont[] = [
         displayName: 'Karla',
     },
 ];
-export interface IPage {
-    name: string,
-    path: string
-}
 
-export default PAGES;
+
+export default THEMES;

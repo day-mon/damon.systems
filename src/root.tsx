@@ -1,4 +1,4 @@
-import {createSignal, For, Show, Suspense} from "solid-js";
+import {Component, createSignal, For, Show, Suspense} from "solid-js";
 import {
     useLocation,
     A,
@@ -14,15 +14,47 @@ import {
     Link
 } from "solid-start";
 import "./root.css";
-import { FONTS, PAGES, THEMES } from "~/constants";
+import {FONTS, THEMES} from "~/constants";
 import {isServer} from "solid-js/web";
 import { useRequest } from "solid-start/server";
 import { parseCookie } from "solid-start";
+import {BsHammer, BsHouse, BsPhone, BsQuestionCircle} from "solid-icons/bs";
 
 type Theme = "light" | "dark";
 const version = "v1.0.2";
+
+export interface IPage {
+    name: string,
+    path: string,
+    icon: any
+}
+
+export const PAGES: IPage[] = [
+    {
+        name: 'home',
+        path: '',
+        icon: <BsHouse class={'text-2xl'} />
+    },
+    {
+        name: 'about',
+        path: 'about',
+        icon: <BsQuestionCircle class={'text-2xl'} />
+    },
+    {
+        name: 'projects',
+        path: 'projects',
+        icon: <BsHammer class={'text-2xl'} />
+    },
+    {
+        name: 'contact',
+        path: 'contact',
+        icon: <BsPhone class={'text-2xl'} />
+
+    },
+
+]
+
 export default function Root() {
-    const currentYear = new Date().getFullYear();
     const location = useLocation();
     const [showSettings, setShowSettings] = createSignal(false);
     const event = useRequest();
@@ -55,24 +87,13 @@ export default function Root() {
                 <Link rel="icon" href="/favicon.ico"/>
                 <Link rel={'manifest'} href={'/manifest.json'}/>
             </Head>
-            <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 font-${font()}`}>
+            <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden font-${font()}`}>
                     <Suspense>
                         <ErrorBoundary>
                             <nav class="flex justify-between p-5">
                                 <A href={"/"} class="text-4xl italic">
                                     damon
                                 </A>
-
-                                {/*<SettingPopup*/}
-                                {/*    onButtonClick={() => setShowSettings(!showSettings())}*/}
-                                {/*    settingsOpen={showSettings}*/}
-                                {/*    theme={theme}*/}
-                                {/*    setTheme={setTheme}*/}
-                                {/*    themes={THEMES}*/}
-                                {/*    fonts={FONTS}*/}
-                                {/*    font={font}*/}
-                                {/*    setFont={setFont}*/}
-                                {/*/>*/}
                             </nav>
                             <div class="overflow-hidden" onclick={() => setShowSettings(false)}>
                                 <Routes>
@@ -82,24 +103,29 @@ export default function Root() {
                         </ErrorBoundary>
                     </Suspense>
                 <Scripts />
+
             </Body>
             <Show when={location.pathname !== "/"}>
-                <footer class="px-5 py-3 fixed bottom-0 left-0 right-0 flex justify-center md:justify-end ">
-                    <span class="mr-2">[</span>
+                <footer class="px-5 py-3 fixed bottom-0 left-0 right-0 flex justify-center md:justify-end bg-white dark:bg-gray-900">
+                    <span class="mr-2 hidden md:block">[</span>
                     <For each={PAGES}>
                         {(page, index) => (
                             <>
                                 <Show when={index() !== 0}>
-                                    <span class="mr-1">○</span>
+                                    <span class="mr-1 hidden md:block">○</span>
                                 </Show>
-                                <A target="" href={`/${page.path}`}
-                                   class={`mr-2 hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
-                                    {page.name}
+                                <A target="" href={`/${page.path}`} class={`mr-2 md:hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
+                                    <button class="block md:hidden border rounded-lg p-3 bg-gray-100">
+                                        {page.icon}
+                                    </button>
+                                    <span class="hidden md:block">
+                                        {page.name}
+                                    </span>
                                 </A>
                             </>
                         )}
                     </For>
-                    <span class="mr-2">]</span>
+                    <span class="mr-2 hidden md:block">]</span>
                 </footer>
             </Show>
         </Html>
