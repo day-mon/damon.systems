@@ -13,11 +13,6 @@ export default function About() {
         'my girlfriends dogs are named jax & koda',
     ]
 
-    createEffect(() => {
-        document.title = 'damon | about'
-    })
-
-
     return (
         <>
             <Title>damon | about</Title>
