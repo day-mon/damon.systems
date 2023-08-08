@@ -18,7 +18,7 @@ import {FONTS, THEMES} from "~/constants";
 import {isServer} from "solid-js/web";
 import { useRequest } from "solid-start/server";
 import { parseCookie } from "solid-start";
-import {BsHammer, BsHouse, BsPhone, BsQuestionCircle} from "solid-icons/bs";
+import {BsGit, BsGithub, BsHammer, BsHouse, BsPhone, BsQuestionCircle} from "solid-icons/bs";
 
 type Theme = "light" | "dark";
 const version = "v1.0.2";
@@ -43,7 +43,7 @@ export const PAGES: IPage[] = [
     {
         name: 'projects',
         path: 'projects',
-        icon: <BsHammer class={'text-2xl'} />
+        icon: <BsGithub class={'text-2xl'} />
     },
     {
         name: 'contact',
@@ -106,7 +106,7 @@ export default function Root() {
                                     <span class="mr-1 hidden md:block">○</span>
                                 </Show>
                                 <A target="" href={`/${page.path}`} class={`mr-2 md:hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
-                                    <button class="block md:hidden border rounded-lg p-3 bg-gray-100">
+                                    <button class={`block md:hidden border rounded-lg p-3 ${location.pathname === `/${page.path}` ? "bg-gray-200 dark:bg-gray-800" : ""}`}>
                                         {page.icon}
                                     </button>
                                     <span class="hidden md:block">

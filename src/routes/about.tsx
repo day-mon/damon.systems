@@ -23,8 +23,8 @@ export default function About() {
             <Meta property="og:site_name" content="damon" />
             <Meta name="og:url" content="https://damon.systems/about"/>
             <Meta name="og:image" content="/about.png"/>
-            <main class="flex flex-col justify-center items-center text-center p-6 sm:p-10 sm:h-[85vh] animate-fade-in">
-                <h1 class="text-2xl lg:text-xl italic mb-2">hi.</h1>
+            <main class="flex flex-col justify-center items-center text-center p-6 animate-fade-in h-[85vh] md:text-2xl">
+                <h1 class="lg:text-xl italic mb-2">hi.</h1>
                 <Description
                     description={`im damon, a ${new Date().getFullYear() - age.getFullYear()} year old software engineer based in the usa`}
                     highlightedWords={['software', '22', 'year', 'old', 'engineer', 'usa']}/>
