@@ -86,7 +86,7 @@ export default function Root() {
                                     damon
                                 </A>
                             </nav>
-                            <div class="overflow-hidden" onclick={() => setShowSettings(false)}>
+                            <div onclick={() => setShowSettings(false)}>
                                 <Routes>
                                     <FileRoutes />
                                 </Routes>
@@ -94,7 +94,6 @@ export default function Root() {
                         </ErrorBoundary>
                     </Suspense>
                 <Scripts />
-
             </Body>
             <Show when={location.pathname !== "/"}>
                 <footer class="px-5 py-3 fixed bottom-0 left-0 right-0 flex justify-center md:justify-end bg-white dark:bg-gray-900">
