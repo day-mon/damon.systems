@@ -9,8 +9,8 @@ export default function About() {
         'i do not have a favorite color',
         'i like lowercase letters',
         'i have been to universal in florida 10 times',
-        'i played divisional paintball for 2 years',
-        'my girlfriends dogs are named jax & koda',
+        'i played divisional paintball for 2 years'
+
     ]
 
     return (
