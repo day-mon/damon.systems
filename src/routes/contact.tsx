@@ -18,11 +18,6 @@ export default function Contact() {
     const socials = [
         {name: 'twitter', url: 'https:///twitter.com/lisp', emoji: <BsTwitter class={'hover:text-blue-500 dark:hover:text-blue-500 text-blue-500 md:text-black md:dark:text-white inline-block'}/>},
         {
-            name: 'instagram',
-            url: 'https://instagram.com/adopted',
-            emoji: <BsInstagram class={'hover:text-pink-500 dark:hover:text-pink-500 text-pink-500 md:text-black md:dark:text-white inline-block'}/>
-        },
-        {
             name: 'github',
             url: 'https://github.com/day-mon',
             emoji: <BsGithub class={'dark:text-white text-black md:text-black md:dark:text-white inline-block'}/>},
