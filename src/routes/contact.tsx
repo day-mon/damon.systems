@@ -16,7 +16,10 @@ import {Meta, Title} from "solid-start";
 export default function Contact() {
 
     const socials = [
-        {name: 'twitter', url: 'https:///twitter.com/lisp', emoji: <BsTwitter class={'hover:text-blue-500 dark:hover:text-blue-500 text-blue-500 md:text-black md:dark:text-white inline-block'}/>},
+        {
+            name: 'twitter',
+            url: 'https:///twitter.com/lisp',
+            emoji: <BsTwitter class={'hover:text-blue-500 dark:hover:text-blue-500 text-blue-500 md:text-black md:dark:text-white inline-block'}/>},
         {
             name: 'github',
             url: 'https://github.com/day-mon',
@@ -30,6 +33,11 @@ export default function Contact() {
             name: 'discord',
             url: 'https://discord.com/users/105141507996061696',
             emoji: <BsDiscord class="text-[#7289DA] md:text-black dark:text-white  md:hover:text-[#7289DA]"/>,
+        },
+        {
+            name: 'instagram',
+            url: 'https://instagram.com/adopted',
+            emoji: <BsInstagram class={'hover:text-pink-500 dark:hover:text-pink-500 text-pink-500 md:text-black md:dark:text-white inline-block'}/>
         }
     ];
 
