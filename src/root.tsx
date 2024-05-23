@@ -1,20 +1,9 @@
-import {Component, createSignal, For, Show, Suspense} from "solid-js";
-import {
-    useLocation,
-    A,
-    Body,
-    ErrorBoundary,
-    FileRoutes,
-    Head,
-    Html,
-    Meta,
-    Routes,
-    Scripts,
-    Title,
-    Link
-} from "solid-start";
+import {Component, createSignal, ErrorBoundary, For, Show, Suspense} from "solid-js";
+
 import "./root.css";
 import {BsGit, BsGithub, BsHammer, BsHouse, BsPhone, BsQuestionCircle} from "solid-icons/bs";
+import {Link, Meta, Title} from "@solidjs/meta";
+import {A, Routes, useLocation} from "@solidjs/router";
 
 type Theme = "light" | "dark";
 const version = "v1.0.2";
@@ -50,16 +39,16 @@ export const PAGES: IPage[] = [
 
 ]
 
+
+
 export default function Root() {
     const location = useLocation();
-    const [showSettings, setShowSettings] = createSignal(false);
     const yoe = Math.max(1, new Date().getFullYear() - new Date("2023-01-30").getFullYear())
 
 
 
     return (
         <Html lang="en" class={`light`}>
-            <Head>
                 <Title>damon</Title>
                 <Meta charset="utf-8"/>
                 <Meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -73,7 +62,6 @@ export default function Root() {
                 <Meta name={'version'} content={version}/>
                 <Link rel="icon" href="/favicon.ico"/>
                 <Link rel={'manifest'} href={'/manifest.json'}/>
-            </Head>
             <Body class={`h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 overflow-hidden font-karla`}>
                     <Suspense>
                         <ErrorBoundary>
@@ -82,7 +70,7 @@ export default function Root() {
                                     damon
                                 </A>
                             </nav>
-                            <div onclick={() => setShowSettings(false)}>
+                            <div>
                                 <Routes>
                                     <FileRoutes />
                                 </Routes>

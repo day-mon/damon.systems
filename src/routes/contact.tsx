@@ -11,7 +11,7 @@ import {
 } from "solid-icons/bs";
 import {IoLogoDiscord} from "solid-icons/io";
 import {AiOutlineMail} from "solid-icons/ai";
-import {Meta, Title} from "solid-start";
+import {Meta, Title} from "@solidjs/meta";
 
 export default function Contact() {
 

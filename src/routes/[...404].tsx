@@ -1,6 +1,6 @@
-import {A, Title} from "solid-start";
 import {createEffect, For} from "solid-js";
 import PAGES from "~/constants";
+import {Title} from "@solidjs/meta";
 
 export default function NotFound() {
     return (

@@ -1,9 +1,10 @@
 {
   "name": "damon.systems",
   "scripts": {
-    "dev": "solid-start dev",
-    "build": "solid-start build",
-    "start": "solid-start start"
+    "dev": "vinxi dev",
+    "build": "vinxi build",
+    "start": "vinxi start",
+    "version": "vinxi version"
   },
   "type": "module",
   "devDependencies": {
@@ -16,14 +17,20 @@
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "6.4.2",
+    "@kobalte/core": "^0.13.1",
     "@solid-primitives/media": "2.2.4",
     "@solidjs/meta": "0.29.4",
     "@solidjs/router": "0.8.2",
+    "@solidjs/start": "^1.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "solid-fa": "0.2.0",
     "solid-icons": "1.1.0",
     "solid-js": "1.8.17",
-    "solid-start": "0.3.11",
-    "undici": "5.15.1"
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7",
+    "undici": "5.15.1",
+    "vinxi": "^0.3.11"
   },
   "engines": {
     "node": ">=16"

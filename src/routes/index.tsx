@@ -1,12 +1,12 @@
 import {createEffect, For} from "solid-js";
-import {A, Meta} from "solid-start";
 import {PAGES} from "~/root";
+import {Meta, Title} from "@solidjs/meta";
 
 export default function Home() {
 
     return (
         <>
-            <title>damon</title>
+            <Title>damon</Title>
             <Meta property="og:title" content="damon" />
             <Meta property="og:url" content="https://damon.systems" />
             <Meta property="og:image" content="/think.png" />
