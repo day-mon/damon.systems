@@ -14,10 +14,6 @@ import {
     Link
 } from "solid-start";
 import "./root.css";
-import {FONTS, THEMES} from "~/constants";
-import {isServer} from "solid-js/web";
-import { useRequest } from "solid-start/server";
-import { parseCookie } from "solid-start";
 import {BsGit, BsGithub, BsHammer, BsHouse, BsPhone, BsQuestionCircle} from "solid-icons/bs";
 
 type Theme = "light" | "dark";
