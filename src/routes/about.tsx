@@ -40,8 +40,8 @@ export default function About() {
                 <Description
                     description={`im damon, a ${getAge()} year old software engineer based in the usa`}
                     highlightedWords={['software', `${getAge()}`, 'year', 'old', 'engineer', 'usa']}/>
-                <Description description={"im currently working at t rowe price working on the latest fad"}
-                             highlightedWords={['t', 'rowe', 'price', 'latest', 'fad']}/>
+                <Description description={"im currently working at t rowe price working on what is emerging at the moment"}
+                             highlightedWords={['t', 'rowe', 'price', 'emerging']}/>
                 <Description
                     description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science'}
                     highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science']}/>

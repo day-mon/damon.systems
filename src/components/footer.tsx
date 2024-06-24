@@ -2,6 +2,7 @@ import {For, Show} from "solid-js";
 import {PAGES} from "~/constants";
 import {A, useLocation} from "@solidjs/router";
 import {Button} from "~/components/ui/button";
+import {Dynamic} from "solid-js/web";
 
 export function Footer() {
     const location = useLocation()
@@ -17,7 +18,8 @@ export function Footer() {
                                 <span class="mr-1 hidden md:block">○</span>
                             </Show>
                             <A href={`/${page.path}`} class={`mr-2 md:hover-underline ${location.pathname === `/${page.path}` ? "font-bold" : ""}`}>
-                                <Button variant={'ghost'} as={'div'} class={`block md:hidden rounded-lg p-3 border ${location.pathname === `/${page.path}` ? 'bg-secondary text-secondary' : ''}`}>
+                                <Button variant={'ghost'} as={'div'} class={`block items-center md:hidden rounded-lg p-4 border ${location.pathname === `/${page.path}` ? 'bg-secondary text-primary' : ''}`}>
+                                    <Dynamic component={page.icon} class="mr-2"/>
                                     {page.icon}
                                 </Button>
                                 <span class="hidden md:block">
