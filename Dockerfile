@@ -8,4 +8,4 @@ COPY bun.lockb .
 RUN bun install
 COPY . .
 RUN bun run build
-ENTRYPOINT ["bun", "run", "start"]
+ENTRYPOINT ["bun", ".output/server/index.mjs"]
