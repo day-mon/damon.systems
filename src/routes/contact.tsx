@@ -1,16 +1,11 @@
-import {createEffect, For} from "solid-js";
+import {For} from "solid-js";
 import {
     BsDiscord, BsEnvelope,
-    BsEnvelopeAtFill,
-    BsEnvelopePaper,
     BsGithub,
     BsInstagram,
     BsLinkedin,
-    BsMailbox,
     BsTwitter
 } from "solid-icons/bs";
-import {IoLogoDiscord} from "solid-icons/io";
-import {AiOutlineMail} from "solid-icons/ai";
 import {Meta, Title} from "@solidjs/meta";
 
 export default function Contact() {

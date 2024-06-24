@@ -1,17 +1,19 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "jsxImportSource": "solid-js",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
+    "noEmit": true,
     "strict": true,
     "types": [
-      "solid-start/env"
+      "vinxi/types/client"
     ],
-    "baseUrl": "./",
+    "isolatedModules": true,
     "paths": {
       "~/*": [
         "./src/*"

@@ -1,12 +1,12 @@
 import {createEffect, For} from "solid-js";
-import {PAGES} from "~/root";
-import {Meta, Title} from "@solidjs/meta";
+import {Meta} from "@solidjs/meta";
+import {PAGES} from "~/constants";
 
 export default function Home() {
 
     return (
         <>
-            <Title>damon</Title>
+            <title>damon</title>
             <Meta property="og:title" content="damon" />
             <Meta property="og:url" content="https://damon.systems" />
             <Meta property="og:image" content="/think.png" />
@@ -16,7 +16,9 @@ export default function Home() {
 
             <main class="flex justify-end items-center h-screen p-12 animate-fade-in">
                 <ul class='text-2xl space-y-4'>
-                    <For each={PAGES}>{(page, _) =>
+                    <For each={
+                        PAGES
+                    }>{(page, _) =>
                         <li class='transition-all duration-300'>
                             <a target="" href={`/${page.path}`}>
                                 <span class={'italic mr-1'}>/</span>{page.name}

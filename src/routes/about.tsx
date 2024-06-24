@@ -1,5 +1,6 @@
-import Description from "~/components/Description";
 import {Meta, Title} from "@solidjs/meta";
+import Description from "~/components/description";
+
 
 export default function About() {
     const age = new Date('2001-02-02');

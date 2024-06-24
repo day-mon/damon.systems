@@ -1,4 +1,5 @@
 /**@type {import("tailwindcss").Config} */
+
 const { fontFamily } = require("tailwindcss/defaultTheme")
 
 module.exports = {
@@ -14,8 +15,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-            sans: ["Inter", ...fontFamily.sans]
-        },
+        sans: ["Inter", ...fontFamily.sans]
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

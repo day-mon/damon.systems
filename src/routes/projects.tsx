@@ -1,9 +1,7 @@
 import {createEffect, createResource, createSignal, ErrorBoundary, For, Show, Suspense} from "solid-js";
-import Loading from "~/components/loading";
-import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "~/components/ui/card";
-import {RiSystemExternalLinkLine} from "solid-icons/ri";
-import {Tooltip, TooltipContent, TooltipTrigger} from "~/components/ui/tooltip";
 import {Meta, Title} from "@solidjs/meta";
+import {Skeleton} from "~/components/ui/skeleton";
+
 
 const excluded_repos = [
     "school-bot",
@@ -62,7 +60,9 @@ const Projects = () => {
                         <p class="text-black">Something went wrong</p>
                     </div>
                 )}>
-                    <Suspense fallback={<Loading/>}>
+                    <Suspense fallback={
+                        <Skeleton class="h-[85vh]"/>
+                     }>
                         <div class="overflow-auto">
                             <h1 class="text-2xl italic text-center mb-2 font-bold">
                                 here are some of the things i have worked on
@@ -78,45 +78,30 @@ const Projects = () => {
             </span>
                                 <For each={data()}>
                                     {(project) => (
-                                        <Card
-                                            class="border-2 border-gray-900 dark:border-white rounded-lg text-center hover:scale-105 hover:shadow-lg transition-all duration-300 animate-fade-in">
-                                            <CardHeader>
-                                                <CardTitle class={'font-bold flex flex-row items-center justify-center space-x-2'}>
-                                                    <a href={project.html_url} target={"_blank"}
-                                                       class="text-lg text-center font-bold relative">
-                                                          <span class="hover-underline dark:hover-underline-white">
-                                                                {`${project.name.toLowerCase()} ${project.stargazers_count ? `(${project.stargazers_count} ⭐)` : ""}`}
-                                                          </span>
-                                                    </a>
-                                                    <Show when={project.homepage}>
-                                                        <Tooltip>
-                                                            <TooltipTrigger>
-                                                        <a href={project.homepage} target={"_blank"}>
-                                                            <RiSystemExternalLinkLine class={'h-5 w-5 transform-gpu transition-all hover:scale-125 '}/>
-                                                        </a>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>{`Clicking this will navigate you to ${project.homepage}`}</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </Show>
-                                                </CardTitle>
-                                                <CardDescription>
-                                                    <Show when={project.topics && project.topics.length > 0}
-                                                          fallback={'no topics'}>
-                                                        <p class={'text-sm'}>{project.topics?.join(", ")}</p>
-                                                    </Show>
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent class={'space-y-2'}>
-                                                <Show when={project.description} fallback={'no description'}>
-                                                    {project.description.toLowerCase() || "no description"}
-                                                </Show>
-                                            </CardContent>
-                                        </Card>
+                                        <div
+                                            class="border-2 border-gray-900 dark:border-white rounded-lg text-center p-4 hover:scale-105 hover:shadow-lg transition-all duration-300 animate-fade-in"
+                                        >
+                                            <a href={project.html_url} target={"_blank"}
+                                               class="text-lg text-center font-bold relative">
+                                        <span class="hover-underline dark:hover-underline-white">
+                                            {`${project.name.toLowerCase()} ${project.stargazers_count ? `(${project.stargazers_count} ⭐)` : ""}`}
+                                        </span>
+                                            </a>
+                                            <p class="text-center">
+                                                {project.description && project.description.toLowerCase() || "no description"}
+                                            </p>
+                                            <Show when={project.topics && project.topics.length > 0}>
+                                                <p class={'text-sm'}>{project.topics?.join(", ")}</p>
+                                            </Show>
+                                            <Show when={project.language}>
+                                                <p class={'text-sm text'}>{project.language?.toLowerCase()}</p>
+                                            </Show>
+                                        </div>
                                     )}
                                 </For>
                             </div>
+                            <div class={'md:hidden h-[75px]'}/>
+
                         </div>
                     </Suspense>
                 </ErrorBoundary>
