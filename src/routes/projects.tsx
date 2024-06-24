@@ -1,6 +1,7 @@
 import {createEffect, createResource, createSignal, ErrorBoundary, For, Show, Suspense} from "solid-js";
 import {Meta, Title} from "@solidjs/meta";
 import {Skeleton} from "~/components/ui/skeleton";
+import {Loading} from "~/components/loading";
 
 
 const excluded_repos = [
@@ -61,7 +62,7 @@ const Projects = () => {
                     </div>
                 )}>
                     <Suspense fallback={
-                        <Skeleton class="h-[85vh]"/>
+                        <Loading/>
                      }>
                         <div class="overflow-auto">
                             <h1 class="text-2xl italic text-center mb-2 font-bold">

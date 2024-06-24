@@ -31,7 +31,9 @@ export default function App() {
                         <ColorModeProvider storageManager={storageManager}>
                             <Suspense>
                                 <Navbar/>
-                                {props.children}
+                                <div class={'animate-accordion-down'}>
+                                    {props.children}
+                                </div>
                                 <Footer/>
 
                             </Suspense>
