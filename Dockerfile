@@ -1,12 +1,11 @@
-FROM node
+FROM oven/bun:1 as base
 
 WORKDIR /app
 
-RUN npm install -g pnpm
 COPY package.json .
-COPY pnpm-*.yaml .
+COPY bun.lockb .
 
-RUN pnpm install
+RUN bun install
 COPY . .
-RUN pnpm run build
-ENTRYPOINT ["pnpm", "run", "start"]
+RUN bun run build
+ENTRYPOINT ["bun", ".output/server/index.mjs"]

@@ -1,5 +1,6 @@
-import Description from "~/components/Description";
-import {Meta, Title} from "solid-start";
+import {Meta, Title} from "@solidjs/meta";
+import Description from "~/components/description";
+
 
 export default function About() {
     const age = new Date('2001-02-02');
@@ -26,25 +27,32 @@ export default function About() {
         <>
             <Title>damon | about</Title>
             <Meta name="description" content="about me"/>
-            <Meta name="keywords" content="damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, t, rowe, price, emerging, technologies, machine, learning, distributed, systems, engineering"/>
+            <Meta name="keywords"
+                  content="damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, t, rowe, price, emerging, technologies, machine, learning, distributed, systems, engineering"/>
             <Meta name="og:title" content="damon | about"/>
             <Meta name="og:description" content="about me"/>
-            <Meta property="og:site_name" content="damon" />
+            <Meta property="og:site_name" content="damon"/>
             <Meta name="og:url" content="https://damon.systems/about"/>
             <Meta name="og:image" content="/about.png"/>
-            <main class="flex flex-col justify-center items-center text-center space-y-3 p-6 animate-fade-in h-[85vh] md:text-2xl">
+            <main
+                class="flex flex-col justify-center items-center text-center space-y-3 p-6 animate-fade-in h-[85vh] md:text-2xl">
                 <h1 class="lg:text-xl text-2xl italic mb-2">hi.</h1>
                 <Description
                     description={`im damon, a ${getAge()} year old software engineer based in the usa`}
                     highlightedWords={['software', `${getAge()}`, 'year', 'old', 'engineer', 'usa']}/>
-                <Description description={"im currently working at t rowe price working on emerging technologies"}
-                             highlightedWords={['t', 'rowe', 'price', 'emerging', 'technologies']}/>
+                <Description description={"im currently working at t rowe price working on what is emerging at the moment"}
+                             highlightedWords={['t', 'rowe', 'price', 'emerging']}/>
                 <Description
-                    description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science, with a minor in information systems'}
-                    highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science', 'minor', 'information', 'systems']}/>
-                <Description
-                    description={'i am interested in machine learning, distributed systems, and software engineering'}
-                    highlightedWords={['machine', 'learning', 'distributed', 'systems', 'software', 'engineering']}/>
+                    description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science'}
+                    highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science']}/>
+<span>
+    sometimes I{' '}
+    <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
+    go <a class={'font-bold underline'} href="https://youtu.be/zWfah_uL4js" target="_blank" rel="noopener noreferrer">paintballing</a>,
+    take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
+    and <a class={'font-bold underline'} href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
+</span>
+
                 <Description
                     description={`fun fact: ${randomFunFact[Math.floor(Math.random() * randomFunFact.length)]}`}
                     highlightedWords={['fun', 'fact:']}/>

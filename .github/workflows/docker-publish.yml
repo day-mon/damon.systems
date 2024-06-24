@@ -11,6 +11,7 @@ on:
       - main
       - dev
       - ci
+      - new-thing
   pull_request:
     branches:
       - main
