@@ -46,7 +46,7 @@ export default function About() {
                     description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science'}
                     highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science']}/>
 <span>
-    sometimes I&nbsp;
+    sometimes I{' '}
     <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
     go <a class={'font-bold underline'} href="https://youtu.be/zWfah_uL4js" target="_blank" rel="noopener noreferrer">paintballing</a>,
     take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
