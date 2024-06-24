@@ -3,7 +3,7 @@ import {
     BsDiscord, BsEnvelope,
     BsGithub,
     BsInstagram,
-    BsLinkedin,
+    BsLinkedin, BsMusicNote,
     BsTwitter
 } from "solid-icons/bs";
 import {Meta, Title} from "@solidjs/meta";
@@ -33,6 +33,11 @@ export default function Contact() {
             name: 'instagram',
             url: 'https://instagram.com/adopted',
             emoji: <BsInstagram class={'hover:text-pink-500 dark:hover:text-pink-500 text-pink-500 md:text-black md:dark:text-white inline-block'}/>
+        },
+        {
+            name: "music",
+            url: "https://music.youtube.com/channel/UCVzQffzdvb43n-Vvw7grtqQ",
+            emoji: <BsMusicNote class="text-red-500 hover:text-red-500 md:text-black dark:text-white md:dark:text-white"/>
         }
     ];
 
@@ -40,7 +45,7 @@ export default function Contact() {
         <div>
             <Title>damon | contact</Title>
             <Meta name="description" content="contact me"/>
-            <Meta name="keywords" content="damon, contact, email, twitter, instagram, github, linkedin"/>
+            <Meta name="keywords" content="damon, contact, email, twitter, instagram, github, youtube, linkedin"/>
             <Meta name="author" content="damon"/>
             <Meta property="og:title" content="damon | contact"/>
             <Meta property="og:description" content="here are some of my links and ways to contact me"/>

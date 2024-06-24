@@ -14,7 +14,7 @@ export default function Home() {
             <Meta property="og:site_name" content="damon" />
             <Meta property="og:locale" content="en_US" />
 
-            <main class="flex justify-end items-center h-screen p-12 animate-fade-in">
+            <main class="flex justify-end items-center h-screen overflow-hidden p-8 animate-fade-in">
                 <ul class='text-2xl space-y-4'>
                     <For each={
                         PAGES
