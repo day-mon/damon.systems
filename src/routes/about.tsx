@@ -45,13 +45,13 @@ export default function About() {
                 <Description
                     description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science'}
                     highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science']}/>
-<span>
-    sometimes I{' '}
-    <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
-    go <a class={'font-bold underline'} href="https://youtu.be/zWfah_uL4js" target="_blank" rel="noopener noreferrer">paintballing</a>,
-    take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
-    and <a class={'font-bold underline'} href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
-</span>
+                <span>
+                    sometimes I{' '}
+                    <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
+                    go <a class={'font-bold underline'} href="https://youtu.be/zWfah_uL4js" target="_blank" rel="noopener noreferrer">paintballing</a>,
+                    take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
+                    and <a class={'font-bold underline'} href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
+                </span>
 
                 <Description
                     description={`fun fact: ${randomFunFact[Math.floor(Math.random() * randomFunFact.length)]}`}

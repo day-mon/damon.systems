@@ -5,7 +5,7 @@ import {ModeToggle} from "~/components/mode-switch";
 export function Navbar() {
     return (
     <nav class={'flex justify-between p-5'}>
-        <A class={'text-2xl italic'} href={'/'}>
+        <A class={'text-2xl italic hover:scale-125 transition-transform duration-500'} href={'/'}>
             damon
         </A>
         <ModeToggle/>
