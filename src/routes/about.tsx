@@ -28,7 +28,7 @@ export default function About() {
             <Title>damon | about</Title>
             <Meta name="description" content="about me"/>
             <Meta name="keywords"
-                  content="damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, t, rowe, price, emerging, technologies, machine, learning, distributed, systems, engineering"/>
+                  content="damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, t, rowe, price, machine, learning, distributed, systems, engineering"/>
             <Meta name="og:title" content="damon | about"/>
             <Meta name="og:description" content="about me"/>
             <Meta property="og:site_name" content="damon"/>
@@ -40,18 +40,17 @@ export default function About() {
                 <Description
                     description={`im damon, a ${getAge()} year old software engineer based in the usa`}
                     highlightedWords={['software', `${getAge()}`, 'year', 'old', 'engineer', 'usa']}/>
-                <Description description={"im currently working at t rowe price working on what is emerging at the moment"}
-                             highlightedWords={['t', 'rowe', 'price', 'emerging']}/>
+                <Description description={"im currently working at t rowe price working on making things work so other people can make things work"}
+                             highlightedWords={['t', 'rowe', 'price']}/>
                 <Description
                     description={'i attended the university of pittsburgh @ johnstown and graduated with a bachelors in computer science'}
                     highlightedWords={['university', 'pittsburgh', 'johnstown', 'bachelors', 'computer', 'science']}/>
-<span>
-    sometimes I{' '}
-    <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
-    go <a class={'font-bold underline'} href="https://youtu.be/zWfah_uL4js" target="_blank" rel="noopener noreferrer">paintballing</a>,
-    take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
-    and <a class={'font-bold underline'} href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
-</span>
+                <span>
+                    sometimes I{' '}
+                    <a class={'font-bold space-x-1 underline'} href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
+                    take <a class={'font-bold underline'} href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
+                    and <a class={'font-bold underline'} href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
+                </span>
 
                 <Description
                     description={`fun fact: ${randomFunFact[Math.floor(Math.random() * randomFunFact.length)]}`}
