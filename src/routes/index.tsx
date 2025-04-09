@@ -1,9 +1,8 @@
-import {createEffect, For} from "solid-js";
+import {For} from "solid-js";
 import {Meta, Title} from "@solidjs/meta";
 import {PAGES} from "~/constants";
 
 export default function Home() {
-
     return (
         <>
             <Title>damon</Title>
@@ -14,18 +13,27 @@ export default function Home() {
             <Meta property="og:site_name" content="damon" />
             <Meta property="og:locale" content="en_US" />
 
-            <main class="flex justify-end items-center h-screen overflow-hidden p-8 animate-fade-in">
-                <ul class='text-2xl space-y-4'>
-                    <For each={
-                        PAGES
-                    }>{(page, _) =>
-                        <li class='transition-all duration-300'>
-                            <a target="" href={`/${page.path}`}>
-                                <span class={'italic mr-1'}>/</span>{page.name}
-                            </a>
-                        </li>
-                    }</For>
-                </ul>
+            <main class="flex flex-col items-center justify-center h-screen p-6 animate-fade-in">
+                <div class="mb-12 text-center">
+                    <h1 class="text-4xl mb-1 font-light">damon</h1>
+                    <p class="text-sm opacity-70">software engineer</p>
+                </div>
+                
+                <nav class="w-full max-w-xs">
+                    <ul class="space-y-5 text-xl">
+                        <For each={PAGES}>{(page) => {
+                            if (page.path === "") return <></>;
+                            
+                            return (
+                                <li class="transition-all duration-300 border-b border-opacity-10 pb-2">
+                                    <a href={`/${page.path}`} class="block w-full hover:translate-x-1 transition-transform">
+                                        <span class="italic mr-2 opacity-70">/</span>{page.name}
+                                    </a>
+                                </li>
+                            );
+                        }}</For>
+                    </ul>
+                </nav>
             </main>
         </>
     );

@@ -11,21 +11,21 @@ export const PAGES: IPage[] = [
     {
         name: 'home',
         path: '',
-        icon: <BsHouse class={'text-lg'} />
+        icon: <BsHouse size={24} />
     },
     {
         name: 'about',
         path: 'about',
-        icon: <BsQuestionCircle class={'text-lg'} />
+        icon: <BsQuestionCircle size={24} />
     },
     {
         name: 'projects',
         path: 'projects',
-        icon: <BsGithub class={'text-lg'} />
+        icon: <BsGithub size={24} />
     },
     {
         name: 'contact',
         path: 'contact',
-        icon: <BsPhone class={'text-lg'} />
+        icon: <BsPhone size={24} />
     }
 ];
