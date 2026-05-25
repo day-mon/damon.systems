@@ -1,14 +1,13 @@
 ---
+import FooterLinks from './react/FooterLinks';
 const { pathname } = Astro.props;
 const isHome = pathname === '/' || pathname === '';
 ---
 
 {!isHome && (
   <footer class="fixed bottom-0 left-0 right-0 p-4 bg-background">
-    <div class="max-w-3xl mx-auto flex gap-4 text-sm text-muted-foreground">
-      <a href="/about">about</a>
-      <a href="/projects">projects</a>
-      <a href="/contact">contact</a>
+    <div class="max-w-3xl mx-auto">
+      <FooterLinks client:load />
     </div>
   </footer>
 )}
