@@ -1,85 +1,14 @@
 ---
 const { pathname } = Astro.props;
 const isHome = pathname === '/' || pathname === '';
-
-const pages = [
-  { name: 'about', path: 'about' },
-  { name: 'projects', path: 'projects' },
-  { name: 'contact', path: 'contact' },
-];
 ---
 
 {!isHome && (
-  <footer class="px-4 py-2 fixed bottom-4 left-0 right-0">
-    <div class="t-avatar-group flex justify-evenly md:justify-end items-center w-full max-w-screen-md mx-auto">
-      <span class="mr-2 hidden md:block text-muted-foreground">[</span>
-      {
-        pages.map((page, i) => (
-          <>
-            {i > 0 && <span class="mr-1 hidden md:block text-muted-foreground">o</span>}
-            <a
-              href={`/${page.path}`}
-              class={`t-avatar md:hover-underline ${i < pages.length - 1 ? 'mr-2' : ''}`}
-            >
-              <span class="md:hidden p-2">
-                <span class={`relative ${pathname === `/${page.path}` ? 'text-foreground' : 'text-muted-foreground/70'}`}>
-                  {page.path === 'about' && '?'}
-                  {page.path === 'projects' && '#'}
-                  {page.path === 'contact' && '@'}
-                  {pathname === `/${page.path}` && (
-                    <span class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-foreground rounded-full" />
-                  )}
-                </span>
-              </span>
-              <span class={`hidden md:block ${pathname === `/${page.path}` ? 'text-foreground' : 'text-muted-foreground'}`}>
-                {page.name}
-              </span>
-            </a>
-          </>
-        ))
-      }
-      <span class="ml-1 hidden md:block text-muted-foreground">]</span>
+  <footer class="fixed bottom-0 left-0 right-0 p-4 bg-background">
+    <div class="max-w-3xl mx-auto flex gap-4 text-sm text-muted-foreground">
+      <a href="/about">about</a>
+      <a href="/projects">projects</a>
+      <a href="/contact">contact</a>
     </div>
   </footer>
 )}
-
-<script>
-  // transitions-dev: avatar group hover — distance-falloff lift
-  (function() {
-    const root = document.querySelector('.t-avatar-group');
-    if (!root) return;
-    const avatars = Array.from(root.querySelectorAll('.t-avatar'));
-    const cs = getComputedStyle(document.documentElement);
-    const num = (name, fb) => {
-      const v = parseFloat(cs.getPropertyValue(name));
-      return Number.isFinite(v) ? v : fb;
-    };
-    const ease = (name, fb) => cs.getPropertyValue(name).trim() || fb;
-
-    function setShifts(activeIdx, phase) {
-      const lift    = num('--avatar-lift', -4);
-      const falloff = num('--avatar-falloff', 0.45);
-      const scale   = num('--avatar-scale', 1.05);
-      const tf      = phase === 'out'
-        ? ease('--avatar-ease-out', 'cubic-bezier(0.34, 3.85, 0.64, 1)')
-        : ease('--avatar-ease-in',  'cubic-bezier(0.22, 1, 0.36, 1)');
-
-      avatars.forEach((el, i) => {
-        el.style.transitionTimingFunction = tf;
-        if (activeIdx == null) {
-          el.style.setProperty('--shift', '0px');
-          el.style.setProperty('--scale-active', '1');
-          return;
-        }
-        const d = Math.abs(i - activeIdx);
-        el.style.setProperty('--shift', (lift * Math.pow(falloff, d)).toFixed(3) + 'px');
-        el.style.setProperty('--scale-active', i === activeIdx ? String(scale) : '1');
-      });
-    }
-
-    avatars.forEach((el, i) => {
-      el.addEventListener('mouseenter', () => setShifts(i, 'in'));
-    });
-    root.addEventListener('mouseleave', () => setShifts(null, 'out'));
-  })();
-</script>

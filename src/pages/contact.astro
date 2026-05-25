@@ -1,40 +1,39 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import xSvg from '../assets/icons/x.svg?raw';
+import githubSvg from '../assets/icons/github.svg?raw';
+import linkedinSvg from '../assets/icons/linkedin.svg?raw';
+import discordSvg from '../assets/icons/discord.svg?raw';
+import instagramSvg from '../assets/icons/instagram.svg?raw';
+import musicSvg from '../assets/icons/music.svg?raw';
+import mailSvg from '../assets/icons/mail.svg?raw';
 
-const socials = [
-  { name: 'twitter', url: 'https://twitter.com/lisp', icon: 'twitter' },
-  { name: 'github', url: 'https://github.com/day-mon', icon: 'github' },
-  { name: 'linkedin', url: 'https://www.linkedin.com/in/day-mon/', icon: 'linkedin' },
-  { name: 'discord', url: 'https://discord.com/users/105141507996061696', icon: 'discord' },
-  { name: 'instagram', url: 'https://instagram.com/adopted', icon: 'instagram' },
-  { name: 'music', url: 'https://music.youtube.com/channel/UCVzQffzdvb43n-Vvw7grtqQ', icon: 'music' },
+const links = [
+  { label: 'twitter',   href: 'https://twitter.com/lisp',                              svg: xSvg },
+  { label: 'github',    href: 'https://github.com/day-mon',                              svg: githubSvg },
+  { label: 'linkedin',  href: 'https://www.linkedin.com/in/day-mon/',                    svg: linkedinSvg },
+  { label: 'discord',   href: 'https://discord.com/users/105141507996061696',           svg: discordSvg },
+  { label: 'instagram', href: 'https://instagram.com/adopted',                           svg: instagramSvg },
+  { label: 'music',     href: 'https://music.youtube.com/channel/UCVzQffzdvb43n-Vvw7grtqQ', svg: musicSvg },
 ];
 ---
 
 <BaseLayout title="damon | contact" description="contact me" ogImage="/contact.png">
-  <main class="h-[85vh] flex items-center justify-center animate-fade-in">
-    <div class="text-center">
-      <h2 class="text-lg mt-6 font-bold">socials</h2>
-      <div class="flex items-center gap-6 justify-center mt-4">
-        {
-          socials.map((social) => (
-            <span class="transition-all hover:scale-150">
-              <a href={social.url} target="_blank" rel="noopener noreferrer" class="flex items-center text-2xl">
-                {social.icon === 'twitter' && <span class="text-blue-500 md:text-black md:dark:text-white inline-block">𝕏</span>}
-                {social.icon === 'github' && <span class="dark:text-white text-black md:text-black md:dark:text-white inline-block">⬡</span>}
-                {social.icon === 'linkedin' && <span class="text-blue-500 md:text-black md:dark:text-white inline-block">in</span>}
-                {social.icon === 'discord' && <span class="text-[#7289DA] md:text-black dark:text-white md:dark:text-white inline-block">◌</span>}
-                {social.icon === 'instagram' && <span class="text-pink-500 md:text-black md:dark:text-white inline-block">◻</span>}
-                {social.icon === 'music' && <span class="text-red-500 md:text-black dark:text-white md:dark:text-white inline-block">♫</span>}
-              </a>
-            </span>
-          ))
-        }
+  <main class="max-w-3xl mx-auto py-12 px-8 pb-20 animate-fade-in space-y-8">
+    <h1 class="text-2xl font-light tracking-tight">contact</h1>
+
+    <div class="space-y-3">
+      {links.map(({ label, href, svg }) => (
+        <div class="flex items-center gap-2">
+          <span class="size-4 shrink-0 text-muted-foreground [&>svg]:size-full" set:html={svg} />
+          <a href={href} target="_blank" rel="noopener noreferrer">{label}</a>
+        </div>
+      ))}
+
+      <div class="flex items-center gap-2">
+        <span class="size-4 shrink-0 text-muted-foreground [&>svg]:size-full" set:html={mailSvg} />
+        <a href="mailto:damon@montague.im">damon@montague.im</a>
       </div>
-      <a class="flex items-center justify-center mt-6 gap-2 transition-transform hover:scale-110" href="mailto:damon@montague.im">
-        <span class="inline-block w-6 h-6">✉</span>
-        <span class="hover:underline">damon@montague.im</span>
-      </a>
     </div>
   </main>
 </BaseLayout>

@@ -1,21 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import AboutIsland from '../components/react/AboutIsland';
-
-const keywords = 'damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, blue, origin, booster, landing, new shepard, machine, learning, distributed, systems, engineering';
+import AboutIsland from '../components/react/about/island';
 ---
 
 <BaseLayout title="damon | about" description="about me" ogImage="/about.png">
-  <main class="flex flex-col justify-center items-center text-center space-y-3 p-6 animate-fade-in h-[85vh] md:text-2xl">
-    <h1 class="lg:text-xl text-2xl italic mb-2">hi.</h1>
+  <main class="max-w-3xl mx-auto py-12 px-8 pb-20 animate-fade-in space-y-8 text-base leading-relaxed">
+    <h1 class="text-2xl font-light tracking-tight">about</h1>
 
-    <AboutIsland client:load />
+    <div class="space-y-4 text-muted-foreground">
+      <AboutIsland client:load />
+    </div>
 
-    <span>
+    <p class="text-muted-foreground text-base">
       sometimes I{' '}
-      <a class="font-bold space-x-1 underline" href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
-      take <a class="font-bold underline" href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
-      and <a class="font-bold underline" href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
-    </span>
+      <a href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,{' '}
+      take <a href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,{' '}
+      and <a href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>.
+    </p>
   </main>
 </BaseLayout>

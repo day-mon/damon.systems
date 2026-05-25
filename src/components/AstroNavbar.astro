@@ -1,16 +1,14 @@
 ---
-import ModeSwitch from './react/ModeSwitch';
+import ModeSwitch from './react/theme/switch';
 
 const { pathname } = Astro.props;
 const isHome = pathname === '/' || pathname === '';
 ---
 
-<nav class="flex justify-between p-5">
-  {
-    !isHome && (
-      <a class="text-2xl italic" href="/">damon</a>
-    )
-  }
-  {!isHome && <div class="flex-1" />}
+<nav class="flex justify-between items-center p-4">
+  {!isHome && (
+    <a href="/" class="text-base font-light tracking-tight">damon</a>
+  )}
+  <div class="flex-1" />
   <ModeSwitch client:load />
 </nav>

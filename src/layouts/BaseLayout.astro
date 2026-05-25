@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import AstroNavbar from '../components/AstroNavbar.astro';
 import AstroFooter from '../components/AstroFooter.astro';
-import QueryProvider from '../providers/QueryProvider';
 
 export interface Props {
   title?: string;
@@ -47,9 +46,7 @@ const pathname = Astro.url.pathname;
     </script>
 
     <AstroNavbar pathname={pathname} />
-    <QueryProvider client:load>
-      <slot />
-    </QueryProvider>
+    <slot />
     <AstroFooter pathname={pathname} />
   </body>
 </html>

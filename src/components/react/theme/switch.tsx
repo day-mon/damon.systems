@@ -54,9 +54,9 @@ export default function ModeSwitch() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="size-9">
-          <span className="t-icon-swap" data-state={iconState}>
-            <Sun className="t-icon size-[1.2rem]" data-icon="a" />
-            <Moon className="t-icon size-[1.2rem]" data-icon="b" />
+          <span className="relative grid size-[1.2rem]">
+            <Sun className={`col-start-1 row-start-1 size-full transition-opacity duration-200 ${iconState === 'a' ? 'opacity-100' : 'opacity-0'}`} />
+            <Moon className={`col-start-1 row-start-1 size-full transition-opacity duration-200 ${iconState === 'b' ? 'opacity-100' : 'opacity-0'}`} />
           </span>
           <span className="sr-only">Toggle theme</span>
         </Button>
