@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import AstroNavbar from '../components/AstroNavbar.astro';
+import AstroFooter from '../components/AstroFooter.astro';
+import QueryProvider from '../providers/QueryProvider';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description, ogImage } = Astro.props;
+const siteTitle = title ? `${title}` : 'damon';
+const pathname = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description || 'damon - software engineer'} />
+    <title>{siteTitle}</title>
+
+    <meta property="og:title" content={siteTitle} />
+    <meta property="og:description" content={description || 'damon - software engineer'} />
+    <meta property="og:url" content={new URL(pathname, Astro.site || 'https://damon.systems').href} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="damon" />
+    <meta property="og:locale" content="en_US" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <!-- Inline theme script: prevent flash on load -->
+    <script is:inline>
+      (function() {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'dark' || (!stored && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <AstroNavbar pathname={pathname} />
+    <QueryProvider client:load>
+      <slot />
+    </QueryProvider>
+    <AstroFooter pathname={pathname} />
+  </body>
+</html>

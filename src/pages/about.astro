@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AboutIsland from '../components/react/AboutIsland';
+
+const keywords = 'damon, about, me, software, engineer, usa, pitt, pittsburgh, johnstown, blue, origin, booster, landing, new shepard, machine, learning, distributed, systems, engineering';
+---
+
+<BaseLayout title="damon | about" description="about me" ogImage="/about.png">
+  <main class="flex flex-col justify-center items-center text-center space-y-3 p-6 animate-fade-in h-[85vh] md:text-2xl">
+    <h1 class="lg:text-xl text-2xl italic mb-2">hi.</h1>
+
+    <AboutIsland client:load />
+
+    <span>
+      sometimes I{' '}
+      <a class="font-bold space-x-1 underline" href="https://www.alltrails.com/members/damon-montague" target="_blank" rel="noopener noreferrer">hike</a>,
+      take <a class="font-bold underline" href="https://instagram.com/adopted" target="_blank" rel="noopener noreferrer">pictures</a>,
+      and <a class="font-bold underline" href="https://github.com/day-mon" target="_blank" rel="noopener noreferrer">code</a>
+    </span>
+  </main>
+</BaseLayout>

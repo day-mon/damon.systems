@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const pages = [
+  { name: 'about', path: 'about' },
+  { name: 'projects', path: 'projects' },
+  { name: 'contact', path: 'contact' },
+];
+---
+
+<BaseLayout title="damon" ogImage="/think.png">
+  <main class="flex flex-col items-center justify-center h-screen p-6 animate-fade-in">
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl mb-1 font-light">damon</h1>
+      <p class="text-sm opacity-70">software engineer</p>
+    </div>
+
+    <nav class="w-full max-w-xs">
+      <ul class="space-y-5 text-xl">
+        {
+          pages.map((page) => (
+            <li class="transition-all duration-300 border-b border-border pb-2">
+              <a href={`/${page.path}`} class="block w-full hover:translate-x-1 transition-transform">
+                <span class="italic mr-2 opacity-70">/</span>{page.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </main>
+</BaseLayout>

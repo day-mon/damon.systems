@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const socials = [
+  { name: 'twitter', url: 'https://twitter.com/lisp', icon: 'twitter' },
+  { name: 'github', url: 'https://github.com/day-mon', icon: 'github' },
+  { name: 'linkedin', url: 'https://www.linkedin.com/in/day-mon/', icon: 'linkedin' },
+  { name: 'discord', url: 'https://discord.com/users/105141507996061696', icon: 'discord' },
+  { name: 'instagram', url: 'https://instagram.com/adopted', icon: 'instagram' },
+  { name: 'music', url: 'https://music.youtube.com/channel/UCVzQffzdvb43n-Vvw7grtqQ', icon: 'music' },
+];
+---
+
+<BaseLayout title="damon | contact" description="contact me" ogImage="/contact.png">
+  <main class="h-[85vh] flex items-center justify-center animate-fade-in">
+    <div class="text-center">
+      <h2 class="text-lg mt-6 font-bold">socials</h2>
+      <div class="flex items-center gap-6 justify-center mt-4">
+        {
+          socials.map((social) => (
+            <span class="transition-all hover:scale-150">
+              <a href={social.url} target="_blank" rel="noopener noreferrer" class="flex items-center text-2xl">
+                {social.icon === 'twitter' && <span class="text-blue-500 md:text-black md:dark:text-white inline-block">𝕏</span>}
+                {social.icon === 'github' && <span class="dark:text-white text-black md:text-black md:dark:text-white inline-block">⬡</span>}
+                {social.icon === 'linkedin' && <span class="text-blue-500 md:text-black md:dark:text-white inline-block">in</span>}
+                {social.icon === 'discord' && <span class="text-[#7289DA] md:text-black dark:text-white md:dark:text-white inline-block">◌</span>}
+                {social.icon === 'instagram' && <span class="text-pink-500 md:text-black md:dark:text-white inline-block">◻</span>}
+                {social.icon === 'music' && <span class="text-red-500 md:text-black dark:text-white md:dark:text-white inline-block">♫</span>}
+              </a>
+            </span>
+          ))
+        }
+      </div>
+      <a class="flex items-center justify-center mt-6 gap-2 transition-transform hover:scale-110" href="mailto:damon@montague.im">
+        <span class="inline-block w-6 h-6">✉</span>
+        <span class="hover:underline">damon@montague.im</span>
+      </a>
+    </div>
+  </main>
+</BaseLayout>

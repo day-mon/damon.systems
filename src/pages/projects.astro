@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectsList from '../components/react/ProjectsList';
+---
+
+<BaseLayout title="damon | projects" description="some of the things I have worked on via github" ogImage="/projects.png">
+  <main class="min-h-[85vh] py-8 px-4 sm:px-6 animate-fade-in">
+    <ProjectsList client:only="react" />
+  </main>
+</BaseLayout>
