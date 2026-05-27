@@ -33,7 +33,9 @@ if (!post) {
         you may see data points outside the bounds of pittsburgh, this is a geocoding issue
       </p>
 
-      <Dashboard client:only="react" />
+      <Dashboard client:only="react">
+        <div slot="fallback"></div>
+      </Dashboard>
     </div>
   </main>
 </BaseLayout>
