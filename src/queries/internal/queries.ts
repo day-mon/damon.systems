@@ -33,7 +33,8 @@ export function useStats({
       const res = await fetch(`/api/lab/stats?${buildParams(filters)}`);
       return res.json();
     },
-    staleTime: 30_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     placeholderData: (prev) => prev,
   });
 }
@@ -51,7 +52,8 @@ export function usePoints({
       const res = await fetch(`/api/lab/points?${params}`);
       return res.json();
     },
-    staleTime: 30_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
     placeholderData: (prev) => prev,
   });
 }

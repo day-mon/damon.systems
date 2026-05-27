@@ -8,14 +8,20 @@ import 'leaflet.markercluster';
 import type { TicketPoint } from '~/lib/pgh-ticket/types';
 
 const STATUSES = [
-  { label: 'open / collections', color: '#ef4444' },
-  { label: 'paid / closed', color: '#22c55e' },
-  { label: 'voided / other', color: '#a1a1aa' },
+  { label: 'open', color: '#ef4444' },
+  { label: 'open in collections', color: '#f97316' },
+  { label: 'paid', color: '#22c55e' },
+  { label: 'closed', color: '#15803d' },
+  { label: 'voided', color: '#a1a1aa' },
+  { label: 'dismissed', color: '#eab308' },
+  { label: 'suspended', color: '#8b5cf6' },
+  { label: 'booted', color: '#ec4899' },
 ];
 
 function markerColor(status: string): string {
-  if (status === 'open' || status === 'open in collections*') return '#ef4444';
-  if (status === 'paid' || status === 'closed') return '#22c55e';
+  const s = STATUSES.find((st) => st.label === status);
+  if (s) return s.color;
+  if (status === 'open in collections*') return '#f97316';
   return '#a1a1aa';
 }
 
@@ -70,13 +76,11 @@ const POPUP_STYLE = `
 
 function popupHtml(p: TicketPoint) {
   const amount = p.amount_due || '$0';
-  const open = p.status === 'open';
-  const color = open ? '#ef4444' : '#22c55e';
+  const color = markerColor(p.status);
   const bg = 'hsl(0 0% 9%)';
   const fg = 'hsl(0 0% 98%)';
   const muted = 'hsl(0 0% 64%)';
   const border = 'hsl(0 0% 100% / 10%)';
-  const accent = open ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)';
 
   return `
     <div style="font-family:Inter,sans-serif;font-size:11px;background:${bg};color:${fg};padding:10px 12px;border:1px solid ${border};line-height:1.5;min-width:180px">
@@ -85,7 +89,7 @@ function popupHtml(p: TicketPoint) {
       <div style="color:${muted};font-size:10px;margin-bottom:6px">${p.issue_date}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;border-top:1px solid ${border}">
         <span style="font-weight:500;color:${color}">${amount}</span>
-        <span style="font-size:10px;text-transform:lowercase;padding:1px 6px;background:${accent};color:${color}">${p.status}</span>
+        <span style="font-size:10px;text-transform:lowercase;padding:1px 6px;background:${color}22;color:${color}">${p.status}</span>
       </div>
     </div>`;
 }
