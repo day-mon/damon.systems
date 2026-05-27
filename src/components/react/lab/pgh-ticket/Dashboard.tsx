@@ -18,6 +18,9 @@ const queryClient = new QueryClient({
 function DashboardInner() {
   const [state, setState] = useQueryStates({
     view: parseAsStringEnum(['map', 'table']).withDefault('map'),
+    page: parseAsInteger.withDefault(1),
+    sortKey: parseAsString.withDefault('issue_date'),
+    sortDir: parseAsStringEnum(['asc', 'desc']).withDefault('desc'),
     officer: parseAsString,
     year: parseAsString,
     status: parseAsString,
@@ -29,11 +32,8 @@ function DashboardInner() {
   });
 
   const [pointLimit, setPointLimit] = useState(20000);
-  const [page, setPage] = useState(1);
-  const [sortKey, setSortKey] = useState<keyof TicketRow>('issue_date');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
-  const { view, ...filters } = state;
+  const { view, page, sortKey, sortDir, ...filters } = state;
   const filterValues: TicketFilters = filters;
 
   const stats = useStats(filterValues);
@@ -41,13 +41,11 @@ function DashboardInner() {
   const filterOpts = useFilterOptions();
 
   const handleFilter = useCallback((key: keyof TicketFilters, value: string | null) => {
-    setState({ [key]: value || null });
-    setPage(1);
+    setState({ [key]: value || null, page: 1 });
   }, [setState]);
 
   const handleView = (v: 'map' | 'table') => {
-    setState({ view: v });
-    setPage(1);
+    setState({ view: v, page: 1, sortKey: null, sortDir: null });
   };
 
   if (stats.isPending) {
@@ -100,11 +98,11 @@ function DashboardInner() {
         ) : (
           <TicketTable
             filters={filterValues}
-            page={page}
-            sortKey={sortKey}
-            sortDir={sortDir}
-            onPageChange={setPage}
-            onSortChange={(k, d) => { setSortKey(k); setSortDir(d); }}
+            page={page ?? 1}
+            sortKey={(sortKey as keyof TicketRow) ?? 'issue_date'}
+            sortDir={(sortDir as 'asc' | 'desc') ?? 'desc'}
+            onPageChange={(p) => setState({ page: p })}
+            onSortChange={(k, d) => setState({ sortKey: k, sortDir: d })}
           />
         )}
       </div>

@@ -25,7 +25,13 @@ if (!post) {
         &larr; back to post
       </a>
 
-      <h1 class="text-2xl font-light tracking-tight mb-8">{post.data.title} · explorer</h1>
+      <h1 class="text-2xl font-light tracking-tight mb-2">{post.data.title} · explorer</h1>
+      <p class="text-xs text-muted-foreground mb-2">
+        note: this is not the complete set of tickets, but running backfill daily
+      </p>
+      <p class="text-xs text-muted-foreground mb-8">
+        you may see data points outside the bounds of pittsburgh, this is a geocoding issue
+      </p>
 
       <Dashboard client:only="react" />
     </div>
