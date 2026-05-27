@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useQueryStates, parseAsString, parseAsStringEnum, parseAsInteger } from 'nuqs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -111,10 +111,13 @@ export default function Dashboard() {
     defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
   }), []);
 
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
-        <DashboardInner />
+        {ready ? <DashboardInner /> : <Skeleton />}
       </NuqsAdapter>
     </QueryClientProvider>
   );
