@@ -1,7 +1,8 @@
-import type { Stats, TicketFilters } from '~/queries/internal/types';
+import type { TicketFilters } from '~/lib/pgh-ticket/types';
+import type { StatsBreakdownsResult } from '~/queries/internal/types';
 
 interface Props {
-  stats: Stats;
+  stats: StatsBreakdownsResult;
   onFilter: (key: keyof TicketFilters, value: string | null) => void;
 }
 

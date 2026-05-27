@@ -47,40 +47,37 @@ function buildPointWhere(f: TicketFilters): SqlFragment {
 	return sql`${base} AND l.latitude IS NOT NULL AND t.location = l.raw_location`;
 }
 
-export async function getStats(filters: TicketFilters = {}): Promise<Stats> {
+export async function getStatsCounts(filters: TicketFilters = {}) {
 	const where = buildWhere(filters);
-
 	const [row] = await sql`
-    SELECT
-      (SELECT COUNT(*) FROM tickets t WHERE ${where}) AS total,
-      (SELECT COUNT(*) FROM tickets t WHERE ${where} AND t.status = 'open') AS open_tickets,
-      (SELECT COALESCE(SUM(CAST(REPLACE(REPLACE(t.amount_due, '$', ''), ',', '') AS double precision)), 0)
-       FROM tickets t WHERE ${where} AND t.amount_due LIKE '$%' AND t.status = 'open') AS total_amount,
-      (SELECT COUNT(*) FROM locations WHERE latitude IS NOT NULL) AS geocoded_count,
-      (SELECT COUNT(DISTINCT t.location) FROM tickets t WHERE ${where}) AS total_locations,
-      (SELECT MIN(t.issue_date)::text FROM tickets t WHERE ${where}) AS min_date,
-      (SELECT MAX(t.issue_date)::text FROM tickets t WHERE ${where}) AS max_date
-  `;
-
+		SELECT
+			(SELECT COUNT(*) FROM tickets t WHERE ${where}) AS total,
+			(SELECT COUNT(*) FROM tickets t WHERE ${where} AND t.status = 'open') AS open_tickets,
+			(SELECT COALESCE(SUM(CAST(REPLACE(REPLACE(t.amount_due, '$', ''), ',', '') AS double precision)), 0)
+			 FROM tickets t WHERE ${where} AND t.amount_due LIKE '$%' AND t.status = 'open') AS total_amount,
+			(SELECT COUNT(*) FROM locations WHERE latitude IS NOT NULL) AS geocoded_count,
+			(SELECT COUNT(DISTINCT t.location) FROM tickets t WHERE ${where}) AS total_locations,
+			(SELECT MIN(t.issue_date)::text FROM tickets t WHERE ${where}) AS min_date,
+			(SELECT MAX(t.issue_date)::text FROM tickets t WHERE ${where}) AS max_date
+	`;
 	const r = row as Record<string, unknown>;
+	return {
+		total: Number(r.total ?? 0),
+		openTickets: Number(r.open_tickets ?? 0),
+		totalAmount: Number(r.total_amount ?? 0),
+		geocodedCount: Number(r.geocoded_count ?? 0),
+		totalLocations: Number(r.total_locations ?? 0),
+		dateRange: (r.min_date || r.max_date)
+			? { min_date: (r.min_date as string) ?? "", max_date: (r.max_date as string) ?? "" }
+			: null,
+	};
+}
 
-	const dateRange =
-		r.min_date || r.max_date
-			? {
-					min_date: (r.min_date as string) ?? "",
-					max_date: (r.max_date as string) ?? "",
-				}
-			: null;
-
+export async function getStatsBreakdowns(filters: TicketFilters = {}) {
+	const where = buildWhere(filters);
 	const [
-		byStatus,
-		byState,
-		topOfficers,
-		topPlates,
-		topLocations,
-		topViolations,
-		byMake,
-		byYear,
+		byStatus, byState, topOfficers, topPlates,
+		topLocations, topViolations, byMake, byYear,
 	] = await Promise.all([
 		sql`SELECT t.status, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.status != '' GROUP BY t.status ORDER BY count DESC LIMIT 10`,
 		sql`SELECT t.state, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.state != '' GROUP BY t.state ORDER BY count DESC LIMIT 10`,
@@ -91,14 +88,7 @@ export async function getStats(filters: TicketFilters = {}): Promise<Stats> {
 		sql`SELECT COALESCE(NULLIF(t.vehicle_make, ''), 'Unknown') AS make, COUNT(*) AS count FROM tickets t WHERE ${where} GROUP BY COALESCE(NULLIF(t.vehicle_make, ''), 'Unknown') ORDER BY count DESC LIMIT 10`,
 		sql`SELECT EXTRACT(YEAR FROM t.issue_date)::text AS year, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.issue_date IS NOT NULL GROUP BY EXTRACT(YEAR FROM t.issue_date) ORDER BY EXTRACT(YEAR FROM t.issue_date) DESC`,
 	]);
-
 	return {
-		total: Number(r.total ?? 0),
-		openTickets: Number(r.open_tickets ?? 0),
-		totalAmount: Number(r.total_amount ?? 0),
-		geocodedCount: Number(r.geocoded_count ?? 0),
-		totalLocations: Number(r.total_locations ?? 0),
-		dateRange,
 		byStatus: byStatus as unknown as StatItem[],
 		byState: byState as unknown as StatItem[],
 		topOfficers: topOfficers as unknown as StatItem[],
@@ -108,6 +98,15 @@ export async function getStats(filters: TicketFilters = {}): Promise<Stats> {
 		byMake: byMake as unknown as StatItem[],
 		byYear: byYear as unknown as StatItem[],
 	};
+}
+
+// Legacy — kept for existing code using Stats type
+export async function getStats(filters: TicketFilters = {}): Promise<Stats> {
+	const [counts, breakdowns] = await Promise.all([
+		getStatsCounts(filters),
+		getStatsBreakdowns(filters),
+	]);
+	return { ...counts, ...breakdowns };
 }
 
 export async function getTickets(

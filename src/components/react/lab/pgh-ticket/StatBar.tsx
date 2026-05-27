@@ -1,4 +1,4 @@
-import type { Stats } from '~/lib/pgh-ticket/types';
+import type { StatsCountsResult } from '~/queries/internal/types';
 
 function fmt(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
@@ -11,7 +11,7 @@ function fmtFull(n: number): string {
 }
 
 interface Props {
-  stats: Stats;
+  stats: StatsCountsResult;
 }
 
 export default function StatBar({ stats }: Props) {

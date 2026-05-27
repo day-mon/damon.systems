@@ -3,7 +3,8 @@ import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useQueryStates, parseAsString, parseAsStringEnum, parseAsInteger } from 'nuqs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { TicketFilters, TicketRow } from '~/lib/pgh-ticket/types';
-import { useStats, usePoints, useFilterOptions } from '~/queries/internal/queries';
+import type { StatsCountsResult, StatsBreakdownsResult } from '~/queries/internal/types';
+import { useStatsCounts, useStatsBreakdowns, usePoints, useFilterOptions } from '~/queries/internal/queries';
 import StatBar from './StatBar';
 import FilterPanel from './FilterPanel';
 import BreakdownPanel from './BreakdownPanel';
@@ -33,7 +34,8 @@ function DashboardInner() {
   const { view, page, sortKey, sortDir, ...filters } = state;
   const filterValues: TicketFilters = filters;
 
-  const stats = useStats(filterValues);
+  const counts = useStatsCounts(filterValues);
+  const breakdowns = useStatsBreakdowns(filterValues);
   const points = usePoints({ ...filterValues, limit: pointLimit });
   const filterOpts = useFilterOptions();
 
@@ -45,11 +47,16 @@ function DashboardInner() {
     setState({ view: v, page: 1, sortKey: null, sortDir: null });
   };
 
-  if (stats.isPending) {
+  // Show skeleton only until counts arrive (fastest query)
+  if (counts.isPending) {
     return <Skeleton />;
   }
 
-  const isRefetching = stats.isFetching || points.isFetching;
+  const isRefetching = counts.isFetching || points.isFetching;
+
+  // Merge counts + breakdowns for the full stats object
+  const stats = counts.data;
+  const fullStats = stats && breakdowns.data ? { ...stats, ...breakdowns.data } as StatsCountsResult & StatsBreakdownsResult : null;
 
   return (
     <div className="space-y-6">
@@ -57,7 +64,7 @@ function DashboardInner() {
         <div className="fixed top-0 left-0 right-0 h-0.5 bg-accent animate-pulse z-50" />
       )}
       <div className="space-y-6" style={{ opacity: isRefetching ? 0.6 : 1, transition: 'opacity 0.2s' }}>
-        <StatBar stats={stats.data!} />
+        {stats && <StatBar stats={stats} />}
         <FilterPanel filters={filterValues} onFilter={handleFilter} filterOpts={(filterOpts.data ?? {}) as Record<string, string[]>} pointLimit={pointLimit} onPointLimit={setPointLimit} />
         <div className="flex gap-2">
           <button
@@ -91,7 +98,10 @@ function DashboardInner() {
             </Suspense>
           </div>
             <div>
-              <BreakdownPanel stats={stats.data!} onFilter={handleFilter} />
+              {breakdowns.data
+                ? <BreakdownPanel stats={breakdowns.data} onFilter={handleFilter} />
+                : <Skeleton />
+              }
             </div>
           </div>
         ) : (

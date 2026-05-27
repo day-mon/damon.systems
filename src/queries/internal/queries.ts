@@ -1,10 +1,12 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 import type { TicketFilters } from '~/lib/pgh-ticket/types';
-import type { StatsResult, TicketsResult, PointsResult, FilterOptionsResult } from './types';
+import type { StatsResult, StatsCountsResult, StatsBreakdownsResult, TicketsResult, PointsResult, FilterOptionsResult } from './types';
 
 export const ticketKeys = createQueryKeys('tickets', {
   stats: (filters?: TicketFilters) => [filters],
+  statsCounts: (filters?: TicketFilters) => [filters],
+  statsBreakdowns: (filters?: TicketFilters) => [filters],
   points: (filters?: TicketFilters, limit?: number) => [filters, limit],
   list: (filters?: TicketFilters, page?: number) => [filters, page],
   filters: null,
@@ -31,6 +33,39 @@ export function useStats({
     queryKey: ticketKeys.stats(filters).queryKey,
     queryFn: async () => {
       const res = await fetch(`/api/lab/stats?${buildParams(filters)}`);
+      return res.json();
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+// Separate fast counts from slow breakdowns so UI loads progressively
+export function useStatsCounts({
+  status, year, violation, plate, location, dateFrom, dateTo, officer,
+}: Partial<TicketFilters> = {}): UseQueryResult<StatsCountsResult> {
+  const filters: TicketFilters = { status, year, violation, plate, location, dateFrom, dateTo, officer };
+  return useQuery<StatsCountsResult>({
+    queryKey: ticketKeys.statsCounts(filters).queryKey,
+    queryFn: async () => {
+      const res = await fetch(`/api/lab/stats-counts?${buildParams(filters)}`);
+      return res.json();
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useStatsBreakdowns({
+  status, year, violation, plate, location, dateFrom, dateTo, officer,
+}: Partial<TicketFilters> = {}): UseQueryResult<StatsBreakdownsResult> {
+  const filters: TicketFilters = { status, year, violation, plate, location, dateFrom, dateTo, officer };
+  return useQuery<StatsBreakdownsResult>({
+    queryKey: ticketKeys.statsBreakdowns(filters).queryKey,
+    queryFn: async () => {
+      const res = await fetch(`/api/lab/stats-breakdowns?${buildParams(filters)}`);
       return res.json();
     },
     staleTime: 10 * 60 * 1000,
