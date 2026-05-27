@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useQueryStates, parseAsString, parseAsStringEnum, parseAsInteger } from 'nuqs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,10 +10,6 @@ import TicketMap from './TicketMap';
 import BreakdownPanel from './BreakdownPanel';
 import TicketTable from './TicketTable';
 import Skeleton from './Skeleton';
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
-});
 
 function DashboardInner() {
   const [state, setState] = useQueryStates({
@@ -111,6 +107,10 @@ function DashboardInner() {
 }
 
 export default function Dashboard() {
+  const queryClient = useMemo(() => new QueryClient({
+    defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
+  }), []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
