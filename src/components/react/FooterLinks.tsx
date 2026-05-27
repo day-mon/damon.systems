@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 
 const LINKS = [
   { label: 'about', href: '/about' },
   { label: 'projects', href: '/projects' },
+  { label: 'lab', href: '/lab' },
   { label: 'contact', href: '/contact' },
 ];
 
@@ -18,6 +19,7 @@ function liftForDistance(distance: number, active: boolean): number {
 
 export default function FooterLinks() {
   const [hovered, setHovered] = useState<number | null>(null);
+  const reduceMotion = useReducedMotion();
 
   return (
     <div
@@ -29,7 +31,7 @@ export default function FooterLinks() {
           key={label}
           href={href}
           initial={false}
-          animate={{
+          animate={reduceMotion ? {} : {
             y: hovered === null ? 0 : liftForDistance(i - (hovered ?? 0), i === hovered),
             scale: hovered === null ? 1 : i === hovered ? SCALE : 1,
           }}

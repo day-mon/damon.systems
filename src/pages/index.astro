@@ -1,8 +1,10 @@
 ---
+export const prerender = true;
+
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="damon">
+<BaseLayout title="damon" description="software engineer building things">
   <main class="flex flex-col items-center justify-center h-screen px-8 animate-fade-in">
     <h1 class="text-5xl font-light tracking-tight">damon</h1>
     <p class="mt-3 text-lg text-muted-foreground">software engineer</p>
@@ -10,6 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <nav class="mt-8 space-y-3 text-lg">
       <a href="/about" class="block">about</a>
       <a href="/projects" class="block">projects</a>
+      <a href="/lab" class="block">lab</a>
       <a href="/contact" class="block">contact</a>
     </nav>
   </main>

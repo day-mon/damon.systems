@@ -1,0 +1,45 @@
+---
+export const prerender = true;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('lab', ({ data }) => !data.draft);
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="damon | lab" description="projects and learnings">
+  <main class="max-w-3xl mx-auto px-4 py-16">
+    <h1 class="text-3xl font-light tracking-tight mb-12">lab</h1>
+
+    <div class="grid gap-6">
+      {posts.map((post) => (
+        <a
+          href={`/lab/${post.id}`}
+          class="block p-6 border border-border hover:bg-accent/50 transition-colors group"
+        >
+          <div class="flex items-baseline justify-between gap-4 mb-2">
+            <h2 class="text-lg font-medium group-hover:underline">
+              {post.data.title}
+            </h2>
+            <time class="text-xs text-muted-foreground font-mono shrink-0">
+              {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </time>
+          </div>
+          <p class="text-sm text-muted-foreground">{post.data.description}</p>
+          {post.data.tags.length > 0 && (
+            <div class="flex flex-wrap gap-1.5 mt-3">
+              {post.data.tags.map((tag) => (
+                <span class="text-xs text-muted-foreground/60">{tag}</span>
+              ))}
+            </div>
+          )}
+        </a>
+      ))}
+    </div>
+
+    {posts.length === 0 && (
+      <p class="text-muted-foreground text-sm">no posts yet.</p>
+    )}
+  </main>
+</BaseLayout>

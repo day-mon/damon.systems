@@ -1,0 +1,118 @@
+---
+title: 'building a parking ticket scraper'
+description: 'reverse-engineering a municipal portal, a two-phase scan algorithm, and the art of rate-limiting 7 million requests'
+date: 2026-05-23
+tags: ['python', 'async', 'web-scraping', 'postgresql', 'cli']
+demoComponent: 'pgh-ticket'
+draft: false
+---
+
+a couple months ago i saw [riley walz](https://x.com/rileywalz) build an app that tracked every parking ticket issued in san francisco over a given time period, it tracked officers and had a leaderboard and everything. i thought holy shit, that's pretty cool, i kinda wanna do something like that. then, as my tiny five-minute attention span does, it went away.
+
+fast forward. i'm on my two-hour commute home one day, pull into my complex, park, open my phone, and i see [@rodinrooh](https://x.com/rodinrooh) on twitter posting about how he was tracking towed cars in sf. i thought to myself: alright, i gotta do something.
+
+in the age of ai most things are easy to do. if you have a rough idea of what you want and you know a rough idea of how to do it, you probably can. so i set off.
+
+## the spark
+
+now, i don't live in a densely populated area where something like this would be cool (and our parking authority is severely underfunded). but from 2024 to 2025 i lived in pittsburgh, one year post-grad, moved there because all my friends lived there and i wanted to be on my own for a bit. so i decided to try to get every ticket ever issued by the city of pittsburgh.
+
+i started with a ticket i was issued about a year prior. went to the [pittsburgh parking portal](https://www.dsparkingportal.com/pittsburgh), plopped in my ticket number, opened up the network tab, and hit search.
+
+now, i'm a pretty silly guy, so i expected to see an api request, some clean json response that i could reverse-engineer. nope. the entire thing was server-side rendered. two years ago this would've been annoying to deal with. but i just fired up kimi 2.5, grabbed a fetch request from chrome's network tab (copy as fetch my beloved), and said "hey, make a python script that given a ticket number can get the details back." and it worked pretty well.
+
+## the build
+
+from there i coded up a cli with deepseek and kimi 2.6 (i ❤️ china 🇨🇳). [the repo is here](https://github.com/day-mon/pgh-parking-ticket-scanner/tree/main/src/pgh_ticket). at first i was like, maybe there's a trick to getting the ticket numbers, some pattern, some leak, something. i had kimi, claude, and deepseek v4 pro all spin on it with no luck. nothing.
+
+so i thought: alright, let's just figure out the range and brute-force it.
+
+## finding the edges
+
+i had kimi run a bunch of cli commands to probe for the lowest ticket number, which landed around 2 million. the top end was around 9 million. and because there's a 72-hour delay between when a ticket is issued and when it appears in the portal, finding the newest ticket was relatively straightforward, just binary search toward the top.
+
+that left us with roughly 7 million possible numbers. the portal only does one-at-a-time lookups. naively scanning all of them would take weeks and get you permanently ip-banned. so i designed a two-phase approach:
+
+**phase 1: probe.** jump through the range at a configurable interval (default: step=50). each probe hits the search api. if results come back, that number is a "hit", an entry point into a cluster of valid tickets. for a ~295k range, this reduces ~295k requests to ~2,953.
+
+**phase 2: deep scan.** for each hit, build a window of ± step/2 around it. merge overlapping windows. then scan every single number in each merged window. for each number that returns results, also fetch the detail page (officer, location, violation, amount). upsert everything into postgresql.
+
+the result: about a **6x reduction** in api calls. the probe finds the clusters, the deep scan fills them in.
+
+## rate limiting is a game of chicken
+
+the portal rate-limits aggressively. through trial and error (and a few burned ips), i mapped the thresholds:
+
+- **50 workers without proxy:** permanent ban within minutes
+- **20 workers with proxy rotation (mullvad SOCKS5):** safe, good throughput
+- **3 workers without proxy:** slow but safe
+
+the key insight was **session isolation per proxy.** if you share a single aiohttp session across multiple proxies, the portal sees all your requests from one ip (the last proxy used) and rate-limits you anyway. each worker needs its own `PortalClient` with its own aiohttp session, each bound to a different proxy ip. this is what the `ClientPool` pattern enforces.
+
+```python
+# each worker gets a dedicated PortalClient with its own proxy
+clients = [pool.acquire() for _ in range(workers)]
+results, failed = await resource_map(items, clients, fetch_fn, progress=progress)
+```
+
+## structured concurrency, three ways
+
+i ended up using three different concurrency patterns:
+
+1. **`WorkerPool`** (anyio task groups + asyncio.Semaphore): simple map/reduce where all workers share one resource. used for the backfill commands.
+
+2. **`resource_map`** (asyncio.Queue + dedicated resources): each worker gets its own resource instance. used for the scan command where each worker needs a unique proxy-bound client. sentinel `None` tokens signal shutdown.
+
+3. **graceful cancellation:** both patterns use python 3.11's `except*` for ExceptionGroup handling, `return_exceptions=True` on `gather()` calls, and `on_cancelled`/`on_exit` hooks to flush pending data when you hit ctrl+c.
+
+## the recaptcha that wasn't
+
+the portal's form requires a `GoogleRecaptchaToken` field. after poking around, i discovered the server only checks that the field is **non-empty**, it doesn't actually validate the token. so the client just generates a fake one:
+
+```python
+def _token() -> str:
+    chars = string.ascii_letters + string.digits + "-_"
+    return "03AFcWeA" + "".join(secrets.choice(chars) for _ in range(120))
+```
+
+the `03AFcWeA` prefix matches the standard recaptcha token format. the server accepts it without question. this one discovery saved days of trying to solve actual captchas.
+
+## the pipeline
+
+the tool runs a four-step pipeline, each storing progress in postgresql so interrupted runs resume where they left off:
+
+1. **discover**: two-phase scan to find valid ticket numbers
+2. **enrich**: re-fetch missing detail fields for tickets that only have partial data
+3. **geocode**: convert location strings ("400 SIXTH AVE") to lat/lon via mapbox. deduped: 30k tickets → 6k unique locations, so 6k api calls instead of 30k
+4. **display**: [the dashboard you can explore here](/lab/pgh-ticket/demo)
+
+there's also a full error logging system that tracks every failed request with retry counts, making `pgh-ticket errors retry` possible when things go wrong.
+
+## a grab bag of things i learned
+
+this project taught me a lot. here's the stuff worth remembering.
+
+### captcha tokens are sometimes not validated
+
+some websites don't actually check whether the captcha value is valid. the pittsburgh parking authority portal accepts a fake token, it only checks that the field is non-empty. i wrote about this above, but the lesson generalizes: **always test what the server actually validates**, not what it appears to require. this one discovery saved days.
+
+### `except*` catches multiple exceptions at once
+
+python 3.11 introduced `except*` for catching `ExceptionGroup`, which bundles multiple exceptions that happened concurrently. a regular `except` only sees the first one, the rest are silently lost. you need `except*` when using `TaskGroup` or `ExceptionGroup`. python raises a runtime error if you try to catch an `ExceptionGroup` with plain `except`.
+
+```python
+try:
+    async with asyncio.TaskGroup() as tg:
+        tg.create_task(fail_one())
+        tg.create_task(fail_two())
+except* ValueError as eg:
+    print(eg.exceptions)  # all of them, not just the first
+```
+
+### task groups vs queues: use the right tool
+
+producer-consumer queues are great for backpressure and multi-stage pipelines, but they add complexity (serialization, shutdown signaling). for pure i/o-bound concurrency, structured task groups with bounded semaphores (like this project's `resource_map`) are often simpler and more natural. i ended up using three different patterns depending on the use case, and the important thing was knowing when each one was appropriate, not forcing one pattern everywhere.
+
+### the funniest thing
+
+the recaptcha token on the portal is completely fake. the server just checks `token != ""`. i generated random strings with the right prefix format for weeks before i thought to test what happens when i send an empty string. always test the boundary conditions.

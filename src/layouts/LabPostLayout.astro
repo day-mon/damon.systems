@@ -1,0 +1,46 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+export interface Props {
+  entry: CollectionEntry<'lab'>;
+}
+
+const { entry } = Astro.props;
+const { title, date, tags } = entry.data;
+---
+
+<article class="max-w-2xl mx-auto px-4 py-16">
+  <a href="/lab" class="text-sm text-muted-foreground hover:text-foreground transition-colors mb-8 inline-block">
+    &larr; all learnings
+  </a>
+
+  <header class="mb-12">
+    <time class="text-sm text-muted-foreground font-mono">
+      {date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+    </time>
+    <h1 class="text-3xl font-light tracking-tight mt-2 mb-4">{title}</h1>
+    <div class="flex flex-wrap items-center gap-3">
+      {tags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {tags.map((tag: string) => (
+            <span class="text-xs text-muted-foreground border border-border px-2 py-0.5">{tag}</span>
+          ))}
+        </div>
+      )}
+      {
+        entry.data.demoComponent && (
+          <a
+            href={`/lab/${entry.id}/demo`}
+            class="inline-flex items-center gap-1.5 text-xs border border-border px-3 py-1 hover:bg-accent transition-colors"
+          >
+            try the demo &rarr;
+          </a>
+        )
+      }
+    </div>
+  </header>
+
+  <div class="prose prose-neutral dark:prose-invert max-w-none">
+    <slot />
+  </div>
+</article>

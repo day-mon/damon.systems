@@ -5,10 +5,10 @@ export default function ProjectsSkeleton() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="h-6 w-24 bg-muted animate-pulse" />
-        <div className="h-4 w-4 bg-muted animate-pulse rounded-full" />
+        <div className="size-4 bg-muted animate-pulse rounded-full" />
       </div>
 
-      <p className="text-xs text-muted-foreground">loading from github...</p>
+      <p className="text-xs text-muted-foreground">loading from github…</p>
 
       <div className="space-y-3">
         {SKELETON_WIDTHS.map((w, i) => (

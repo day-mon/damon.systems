@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import Dashboard from '~/components/react/lab/pgh-ticket/Dashboard';
+
+const posts = await getCollection('lab', ({ data }) => !data.draft && data.demoComponent);
+
+const { slug } = Astro.params;
+const post = posts.find((p) => p.id === slug);
+
+if (!post) {
+  return new Response(null, { status: 404 });
+}
+---
+
+<BaseLayout title={`${post.data.title} · demo`}>
+  <main class="min-h-[calc(100vh-8rem)] px-4 pb-16">
+    <div class="max-w-6xl mx-auto">
+      <a
+        href={`/lab/${post.id}`}
+        class="text-sm text-muted-foreground hover:text-foreground transition-colors mb-4 inline-block pt-8"
+      >
+        &larr; back to post
+      </a>
+
+      <h1 class="text-2xl font-light tracking-tight mb-8">{post.data.title} · explorer</h1>
+
+      <Dashboard client:only="react" />
+    </div>
+  </main>
+</BaseLayout>
