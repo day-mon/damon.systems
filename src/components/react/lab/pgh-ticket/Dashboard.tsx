@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useCallback, useState, useMemo, lazy, Suspense } from 'react';
 import { NuqsAdapter } from 'nuqs/adapters/react';
 import { useQueryStates, parseAsString, parseAsStringEnum, parseAsInteger } from 'nuqs';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,10 +6,11 @@ import type { TicketFilters, TicketRow } from '~/lib/pgh-ticket/types';
 import { useStats, usePoints, useFilterOptions } from '~/queries/internal/queries';
 import StatBar from './StatBar';
 import FilterPanel from './FilterPanel';
-import TicketMap from './TicketMap';
 import BreakdownPanel from './BreakdownPanel';
 import TicketTable from './TicketTable';
 import Skeleton from './Skeleton';
+
+const TicketMap = lazy(() => import('./TicketMap'));
 
 function DashboardInner() {
   const [state, setState] = useQueryStates({
@@ -84,9 +85,11 @@ function DashboardInner() {
         </div>
         {view === 'map' ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+          <div className="lg:col-span-2">
+            <Suspense fallback={<div className="border border-border h-[500px] bg-accent/10 flex items-center justify-center"><span className="text-xs text-muted-foreground">loading map...</span></div>}>
               <TicketMap points={points.data ?? []} />
-            </div>
+            </Suspense>
+          </div>
             <div>
               <BreakdownPanel stats={stats.data!} onFilter={handleFilter} />
             </div>
@@ -111,13 +114,10 @@ export default function Dashboard() {
     defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
   }), []);
 
-  const [ready, setReady] = useState(false);
-  useEffect(() => { setReady(true); }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
-        {ready ? <DashboardInner /> : <Skeleton />}
+        <DashboardInner />
       </NuqsAdapter>
     </QueryClientProvider>
   );
