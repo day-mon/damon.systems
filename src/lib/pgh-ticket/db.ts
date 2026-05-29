@@ -15,12 +15,17 @@ const sql = postgres(PG_URL, { max: 5 });
 
 type SqlFragment = ReturnType<typeof sql>;
 
+/** strip wildcard chars — all filters use exact = matching so * is meaningless */
+function clean(v: string): string {
+	return v.replace(/\*/g, '');
+}
+
 function buildWhere(f: TicketFilters): SqlFragment {
 	const parts: SqlFragment[] = [
 		sql`t.location IS NOT NULL AND t.location != ''`,
 	];
 
-	if (f.officer) parts.push(sql`t.officer = ${f.officer}`);
+	if (f.officer) parts.push(sql`t.officer = ${clean(f.officer)}`);
 	if (f.year) {
 		const y = parseInt(f.year, 10);
 		if (!isNaN(y)) {
@@ -28,12 +33,12 @@ function buildWhere(f: TicketFilters): SqlFragment {
 			parts.push(sql`t.issue_date < ${`${y + 1}-01-01`}::date`);
 		}
 	}
-	if (f.status) parts.push(sql`t.status = ${f.status}`);
-	if (f.violation) parts.push(sql`t.violation = ${f.violation}`);
-	if (f.location) parts.push(sql`t.location = ${f.location}`);
-	if (f.plate) parts.push(sql`t.license_plate ILIKE ${"%" + f.plate + "%"}`);
-	if (f.dateFrom) parts.push(sql`t.issue_date >= ${f.dateFrom}::date`);
-	if (f.dateTo) parts.push(sql`t.issue_date <= ${f.dateTo}::date`);
+	if (f.status) parts.push(sql`t.status = ${clean(f.status)}`);
+	if (f.violation) parts.push(sql`t.violation = ${clean(f.violation)}`);
+	if (f.location) parts.push(sql`t.location = ${clean(f.location)}`);
+	if (f.plate) parts.push(sql`t.license_plate ILIKE ${"%" + clean(f.plate) + "%"}`);
+	if (f.dateFrom) parts.push(sql`t.issue_date >= ${clean(f.dateFrom)}::date`);
+	if (f.dateTo) parts.push(sql`t.issue_date <= ${clean(f.dateTo)}::date`);
 
 	let result = parts[0];
 	for (let i = 1; i < parts.length; i++) {
