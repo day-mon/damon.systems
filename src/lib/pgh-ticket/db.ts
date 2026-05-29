@@ -15,17 +15,12 @@ const sql = postgres(PG_URL, { max: 5 });
 
 type SqlFragment = ReturnType<typeof sql>;
 
-/** strip wildcard chars — all filters use exact = matching so * is meaningless */
-function clean(v: string): string {
-	return v.replace(/\*/g, '');
-}
-
 function buildWhere(f: TicketFilters): SqlFragment {
 	const parts: SqlFragment[] = [
 		sql`t.location IS NOT NULL AND t.location != ''`,
 	];
 
-	if (f.officer) parts.push(sql`t.officer = ${clean(f.officer)}`);
+	if (f.officer) parts.push(sql`t.officer = ${f.officer}`);
 	if (f.year) {
 		const y = parseInt(f.year, 10);
 		if (!isNaN(y)) {
@@ -33,12 +28,12 @@ function buildWhere(f: TicketFilters): SqlFragment {
 			parts.push(sql`t.issue_date < ${`${y + 1}-01-01`}::date`);
 		}
 	}
-	if (f.status) parts.push(sql`t.status = ${clean(f.status)}`);
-	if (f.violation) parts.push(sql`t.violation = ${clean(f.violation)}`);
-	if (f.location) parts.push(sql`t.location = ${clean(f.location)}`);
-	if (f.plate) parts.push(sql`t.license_plate ILIKE ${"%" + clean(f.plate) + "%"}`);
-	if (f.dateFrom) parts.push(sql`t.issue_date >= ${clean(f.dateFrom)}::date`);
-	if (f.dateTo) parts.push(sql`t.issue_date <= ${clean(f.dateTo)}::date`);
+	if (f.status) parts.push(sql`t.status = ${f.status}`);
+	if (f.violation) parts.push(sql`t.violation = ${f.violation}`);
+	if (f.location) parts.push(sql`t.location = ${f.location}`);
+	if (f.plate) parts.push(sql`t.license_plate ILIKE ${"%" + f.plate + "%"}`);
+	if (f.dateFrom) parts.push(sql`t.issue_date >= ${f.dateFrom}::date`);
+	if (f.dateTo) parts.push(sql`t.issue_date <= ${f.dateTo}::date`);
 
 	let result = parts[0];
 	for (let i = 1; i < parts.length; i++) {
@@ -80,10 +75,8 @@ export async function getStatsCounts(filters: TicketFilters = {}) {
 
 export async function getStatsBreakdowns(filters: TicketFilters = {}) {
 	const where = buildWhere(filters);
-	const [
-		byStatus, byState, topOfficers, topPlates,
-		topLocations, topViolations, byMake, byYear,
-	] = await Promise.all([
+
+	const results = await Promise.allSettled([
 		sql`SELECT t.status, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.status != '' GROUP BY t.status ORDER BY count DESC LIMIT 10`,
 		sql`SELECT t.state, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.state != '' GROUP BY t.state ORDER BY count DESC LIMIT 10`,
 		sql`SELECT t.officer, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.officer != '' GROUP BY t.officer ORDER BY count DESC LIMIT 10`,
@@ -91,17 +84,22 @@ export async function getStatsBreakdowns(filters: TicketFilters = {}) {
 		sql`SELECT t.location, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.location != '' GROUP BY t.location ORDER BY count DESC LIMIT 10`,
 		sql`SELECT t.violation, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.violation != '' GROUP BY t.violation ORDER BY count DESC LIMIT 10`,
 		sql`SELECT COALESCE(NULLIF(t.vehicle_make, ''), 'Unknown') AS make, COUNT(*) AS count FROM tickets t WHERE ${where} GROUP BY COALESCE(NULLIF(t.vehicle_make, ''), 'Unknown') ORDER BY count DESC LIMIT 10`,
-		sql`SELECT EXTRACT(YEAR FROM t.issue_date)::text AS year, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.issue_date IS NOT NULL GROUP BY EXTRACT(YEAR FROM t.issue_date) ORDER BY EXTRACT(YEAR FROM t.issue_date) DESC`,
+		sql`SELECT EXTRACT(YEAR FROM t.issue_date)::text AS year, COUNT(*) AS count FROM tickets t WHERE ${where} AND t.issue_date IS NOT NULL GROUP BY EXTRACT(YEAR FROM t.issue_date) ORDER BY EXTRACT(YEAR FROM t.issue_date) DESC LIMIT 10`,
 	]);
+
+	const empty: StatItem[] = [];
+	const get = (i: number) =>
+		results[i].status === 'fulfilled' ? (results[i].value as unknown as StatItem[]) : empty;
+
 	return {
-		byStatus: byStatus as unknown as StatItem[],
-		byState: byState as unknown as StatItem[],
-		topOfficers: topOfficers as unknown as StatItem[],
-		topPlates: topPlates as unknown as StatItem[],
-		topLocations: topLocations as unknown as StatItem[],
-		topViolations: topViolations as unknown as StatItem[],
-		byMake: byMake as unknown as StatItem[],
-		byYear: byYear as unknown as StatItem[],
+		byStatus: get(0),
+		byState: get(1),
+		topOfficers: get(2),
+		topPlates: get(3),
+		topLocations: get(4),
+		topViolations: get(5),
+		byMake: get(6),
+		byYear: get(7),
 	};
 }
 
