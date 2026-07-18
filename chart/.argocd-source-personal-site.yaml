@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: image.repository
+    value: ghcr.io/day-mon/damon.systems
+    forcestring: true
+  - name: image.tag
+    value: main@sha256:fab9fff7d22df961d07d64dcc900ea9cfe36319a90890fca8befd29f208bf7cc
+    forcestring: true

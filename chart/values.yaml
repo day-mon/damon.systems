@@ -1,0 +1,57 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/day-mon/damon.systems
+  tag: main
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 4321
+
+secrets:
+  enabled: true
+
+ingress:
+  enabled: true
+  className: traefik
+  hosts:
+    - host: damon.systems
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: www.damon.systems
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: damon-systems-tls
+      hosts:
+        - damon.systems
+        - www.damon.systems
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
+
+postgresql:
+  enabled: true
+  image: postgres:17-alpine
+  auth:
+    username: pgh_ticket
+    password: "" # overridden by sealed secret
+    database: pgh_ticket
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "512Mi"
+      cpu: "200m"

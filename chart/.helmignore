@@ -1,0 +1,10 @@
+.git/
+.github/
+.idea/
+.zed/
+.astro/
+dist/
+node_modules/
+*.log
+.DS_Store
+.env*
