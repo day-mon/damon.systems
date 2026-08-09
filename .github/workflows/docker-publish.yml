@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "chart/.argocd-source-personal-site.yaml"
   pull_request:
     branches:
       - main
