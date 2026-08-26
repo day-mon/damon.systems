@@ -1,13 +1,15 @@
+import {
+	SiDiscord,
+	SiGithub,
+	SiGmail,
+	SiInstagram,
+	SiX,
+	SiYoutubemusic,
+} from "@icons-pack/react-simple-icons";
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute } from "@tanstack/react-router";
-
-import discordSvg from "#/assets/icons/discord.svg?raw";
-import githubSvg from "#/assets/icons/github.svg?raw";
-import instagramSvg from "#/assets/icons/instagram.svg?raw";
+// no current icon lib ships linkedin (trademark); keep that one svg asset
 import linkedinSvg from "#/assets/icons/linkedin.svg?raw";
-import mailSvg from "#/assets/icons/mail.svg?raw";
-import musicSvg from "#/assets/icons/music.svg?raw";
-import xSvg from "#/assets/icons/x.svg?raw";
 
 export const Route = createFileRoute("/contact")({
 	head: () => ({
@@ -21,29 +23,41 @@ export const Route = createFileRoute("/contact")({
 });
 
 const LINKS = [
-	{ label: "twitter", href: "https://twitter.com/lisp", svg: xSvg },
-	{ label: "github", href: "https://github.com/day-mon", svg: githubSvg },
+	{ label: "twitter", href: "https://twitter.com/lisp", Icon: SiX },
+	{ label: "github", href: "https://github.com/day-mon", Icon: SiGithub },
 	{
 		label: "linkedin",
 		href: "https://www.linkedin.com/in/day-mon/",
-		svg: linkedinSvg,
+		Icon: LinkedInIcon,
 	},
 	{
 		label: "discord",
 		href: "https://discord.com/users/105141507996061696",
-		svg: discordSvg,
+		Icon: SiDiscord,
 	},
 	{
 		label: "instagram",
 		href: "https://instagram.com/adopted",
-		svg: instagramSvg,
+		Icon: SiInstagram,
 	},
 	{
 		label: "music",
 		href: "https://music.youtube.com/channel/UCVzQffzdvb43n-Vvw7grtqQ",
-		svg: musicSvg,
+		Icon: SiYoutubemusic,
 	},
 ];
+
+// size arg matches the simple-icons call sites; .icon-slot css does sizing
+// SAFETY: static trusted svg asset, not user input
+function LinkedInIcon(_props: { size?: number }) {
+	return (
+		<span
+			aria-hidden
+			// biome-ignore lint/security/noDangerouslySetInnerHtml: static trusted svg asset
+			dangerouslySetInnerHTML={{ __html: linkedinSvg }}
+		/>
+	);
+}
 
 const fadeIn = stylex.keyframes({
 	from: { opacity: 0 },
@@ -85,14 +99,11 @@ function Contact() {
 			<h1 {...stylex.props(styles.title)}>contact</h1>
 
 			<div {...stylex.props(styles.list)}>
-				{LINKS.map(({ label, href, svg }) => (
+				{LINKS.map(({ label, href, Icon }) => (
 					<div key={label} {...stylex.props(styles.row)}>
-						{/* SAFETY: svgs are static repo assets, not user input */}
-						<span
-							className="icon-slot"
-							// biome-ignore lint/security/noDangerouslySetInnerHtml: static trusted svg assets
-							dangerouslySetInnerHTML={{ __html: svg }}
-						/>
+						<span className="icon-slot">
+							<Icon size={16} aria-hidden />
+						</span>
 						<a href={href} target="_blank" rel="noopener noreferrer">
 							{label}
 						</a>
@@ -100,12 +111,9 @@ function Contact() {
 				))}
 
 				<div {...stylex.props(styles.row)}>
-					{/* SAFETY: static trusted svg asset */}
-					<span
-						className="icon-slot"
-						// biome-ignore lint/security/noDangerouslySetInnerHtml: static trusted svg asset
-						dangerouslySetInnerHTML={{ __html: mailSvg }}
-					/>
+					<span className="icon-slot">
+						<SiGmail size={16} aria-hidden />
+					</span>
 					<a href="mailto:damon@montague.im">damon@montague.im</a>
 				</div>
 			</div>
