@@ -13,6 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as DesignIndexRouteImport } from './routes/design/index'
+import { Route as DesignIndexFirstRouteImport } from './routes/design/index-first'
+import { Route as DesignLetterRouteImport } from './routes/design/letter'
+import { Route as DesignManifestoRouteImport } from './routes/design/manifesto'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
@@ -41,6 +45,26 @@ const ContactRoute = ContactRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignIndexRoute = DesignIndexRouteImport.update({
+  id: '/design/',
+  path: '/design/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignIndexFirstRoute = DesignIndexFirstRouteImport.update({
+  id: '/design/index-first',
+  path: '/design/index-first',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignLetterRoute = DesignLetterRouteImport.update({
+  id: '/design/letter',
+  path: '/design/letter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignManifestoRoute = DesignManifestoRouteImport.update({
+  id: '/design/manifesto',
+  path: '/design/manifesto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabIndexRoute = LabIndexRouteImport.update({
@@ -94,6 +118,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/index-first': typeof DesignIndexFirstRoute
+  '/design/letter': typeof DesignLetterRoute
+  '/design/manifesto': typeof DesignManifestoRoute
+  '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -109,6 +137,10 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/index-first': typeof DesignIndexFirstRoute
+  '/design/letter': typeof DesignLetterRoute
+  '/design/manifesto': typeof DesignManifestoRoute
+  '/design': typeof DesignIndexRoute
   '/lab': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -125,6 +157,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/index-first': typeof DesignIndexFirstRoute
+  '/design/letter': typeof DesignLetterRoute
+  '/design/manifesto': typeof DesignManifestoRoute
+  '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -142,6 +178,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/index-first'
+    | '/design/letter'
+    | '/design/manifesto'
+    | '/design/'
     | '/lab/'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -157,6 +197,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/index-first'
+    | '/design/letter'
+    | '/design/manifesto'
+    | '/design'
     | '/lab'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -172,6 +216,10 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/index-first'
+    | '/design/letter'
+    | '/design/manifesto'
+    | '/design/'
     | '/lab/'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -188,6 +236,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
+  DesignIndexFirstRoute: typeof DesignIndexFirstRoute
+  DesignLetterRoute: typeof DesignLetterRoute
+  DesignManifestoRoute: typeof DesignManifestoRoute
+  DesignIndexRoute: typeof DesignIndexRoute
   LabIndexRoute: typeof LabIndexRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
   ApiLabPointsRoute: typeof ApiLabPointsRoute
@@ -227,6 +279,34 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/': {
+      id: '/design/'
+      path: '/design'
+      fullPath: '/design/'
+      preLoaderRoute: typeof DesignIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/index-first': {
+      id: '/design/index-first'
+      path: '/design/index-first'
+      fullPath: '/design/index-first'
+      preLoaderRoute: typeof DesignIndexFirstRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/letter': {
+      id: '/design/letter'
+      path: '/design/letter'
+      fullPath: '/design/letter'
+      preLoaderRoute: typeof DesignLetterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/manifesto': {
+      id: '/design/manifesto'
+      path: '/design/manifesto'
+      fullPath: '/design/manifesto'
+      preLoaderRoute: typeof DesignManifestoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/': {
@@ -300,6 +380,10 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
+  DesignIndexFirstRoute: DesignIndexFirstRoute,
+  DesignLetterRoute: DesignLetterRoute,
+  DesignManifestoRoute: DesignManifestoRoute,
+  DesignIndexRoute: DesignIndexRoute,
   LabIndexRoute: LabIndexRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,
   ApiLabPointsRoute: ApiLabPointsRoute,

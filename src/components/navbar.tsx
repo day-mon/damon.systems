@@ -25,6 +25,9 @@ export function Navbar() {
 	const { pathname } = useLocation();
 	const isHome = pathname === "/" || pathname === "";
 
+	// design system preview routes carry their own chrome
+	if (pathname.startsWith("/design")) return null;
+
 	return (
 		<nav {...stylex.props(styles.nav)}>
 			{!isHome && (
