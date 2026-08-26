@@ -4,9 +4,19 @@ hidden admin portal (/admin) - not linked anywhere in the ui.
 paste an icloud share url, hit "fetch album" to pull the real photo
 count and prefill the date range, fill the story bits, save. writes go
 to the travel_trips postgres table through an ADMIN_TOKEN-guarded
-server fn.
+server fn. presentational layer is astryx (Button/TextInput/TextArea/
+DateInput/Heading/Text/HStack); tanstack form + query handle state.
 */
 
+import { Button } from "@astryxdesign/core/Button";
+import type { ISODateString } from "@astryxdesign/core/Calendar";
+import { DateInput } from "@astryxdesign/core/DateInput";
+import { FieldStatus } from "@astryxdesign/core/FieldStatus";
+import { Heading } from "@astryxdesign/core/Heading";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Text } from "@astryxdesign/core/Text";
+import { TextArea } from "@astryxdesign/core/TextArea";
+import { TextInput } from "@astryxdesign/core/TextInput";
 import * as stylex from "@stylexjs/stylex";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -34,72 +44,8 @@ const styles = stylex.create({
 		animationDuration: "0.4s",
 		animationTimingFunction: "ease-out",
 	},
-	title: {
-		fontSize: "1.5rem",
-		fontWeight: 300,
-		letterSpacing: "-0.025em",
-		marginBottom: 32,
-	},
-	field: {
-		display: "flex",
-		flexDirection: "column",
-		gap: 6,
-		marginBottom: 16,
-	},
-	label: {
-		fontSize: "0.75rem",
-		letterSpacing: "0.06em",
-		textTransform: "uppercase",
-		color: "rgb(var(--colors-foregroundMuted))",
-	},
-	input: {
-		fontFamily: "Space Grotesk Variable, sans-serif",
-		fontSize: "0.9375rem",
-		color: "rgb(var(--colors-foreground))",
-		backgroundColor: "transparent",
-		border: "1px solid rgb(var(--colors-foreground) / 0.2)",
-		borderRadius: 6,
-		paddingInline: 10,
-		paddingBlock: 8,
-		outline: "none",
-	},
-	textarea: {
-		minHeight: 72,
-		resize: "vertical",
-		fontFamily: "inherit",
-	},
-	row: { display: "flex", gap: 16 },
-	half: { flex: 1, display: "flex", flexDirection: "column", gap: 6 },
-	button: {
-		fontFamily: "Space Grotesk Variable, sans-serif",
-		fontSize: "0.875rem",
-		fontWeight: 500,
-		color: "rgb(var(--colors-background))",
-		backgroundColor: "rgb(var(--colors-foreground))",
-		border: "none",
-		borderRadius: 6,
-		paddingInline: 16,
-		paddingBlock: 10,
-		cursor: "pointer",
-		opacity: { default: 1, ":disabled": 0.5 },
-	},
-	statusLine: {
-		marginTop: 12,
-		fontSize: "0.8125rem",
-		fontFamily: "IBM Plex Mono Variable, monospace",
-		color: "rgb(var(--colors-foregroundMuted))",
-	},
-	error: {
-		fontSize: "0.75rem",
-		fontFamily: "IBM Plex Mono Variable, monospace",
-		color: "tomato",
-	},
-	notice: {
-		fontSize: "0.75rem",
-		fontFamily: "IBM Plex Mono Variable, monospace",
-		color: "rgb(var(--colors-foregroundMuted))",
-		marginBottom: 16,
-	},
+	section: { marginBottom: 24 },
+	grow: { flex: 1 },
 });
 
 interface TripForm {
@@ -118,11 +64,18 @@ const required = ({ value }: { value: string }) =>
 const slugRule = ({ value }: { value: string }) =>
 	/^[a-z0-9-]+$/.test(value) ? undefined : "lowercase, numbers, dashes";
 const dateRule = ({ value }: { value: string }) =>
-	/^\d{4}-\d{2}-\d{2}$/.test(value) ? undefined : "YYYY-MM-DD";
+	value === "" || /^\d{4}-\d{2}-\d{2}$/.test(value) ? undefined : "YYYY-MM-DD";
 
-function FieldError({ errors }: { errors: unknown[] }) {
-	if (errors.length === 0) return null;
-	return <span {...stylex.props(styles.error)}>{String(errors[0])}</span>;
+// regex-guarded narrowing into astryx's branded ISO date type - empty or
+// malformed input becomes undefined instead of a blind cast
+function asIsoDate(v: string): ISODateString | undefined {
+	return /^\d{4}-\d{2}-\d{2}$/.test(v) ? (v as ISODateString) : undefined;
+}
+
+function fieldError(errors: unknown[]) {
+	return errors.length > 0
+		? ({ type: "error", message: String(errors[0]) } as const)
+		: undefined;
 }
 
 function AlbumStatus({
@@ -132,18 +85,28 @@ function AlbumStatus({
 }) {
 	const album = query.data;
 	if (query.isFetching) {
-		return <p {...stylex.props(styles.statusLine)}>resolving album…</p>;
+		return (
+			<Text type="supporting" color="secondary">
+				resolving album…
+			</Text>
+		);
 	}
 	if (query.isError || (album && !album.ok)) {
-		return <p {...stylex.props(styles.error)}>album resolve failed</p>;
+		return (
+			<FieldStatus
+				type="error"
+				message="album resolve failed"
+				variant="detached"
+			/>
+		);
 	}
 	if (album?.ok) {
 		const dates = album.photos.map((p) => p.takenAt.slice(0, 10)).sort();
 		return (
-			<p {...stylex.props(styles.statusLine)}>
+			<Text type="supporting" color="secondary">
 				{album.photos.length} photos · {dates[0] ?? "?"} →{" "}
 				{dates[dates.length - 1] ?? "?"} (dates prefilled)
-			</p>
+			</Text>
 		);
 	}
 	return null;
@@ -175,6 +138,7 @@ function AdminPortal() {
 			await navigate({ to: "/travel/$slug", params: { slug: value.slug } });
 		},
 	});
+
 	function FetchAlbumButton({ url }: { url: string }) {
 		// manual-trigger query: enabled false, refetch on click. busy /
 		// error / success all come off the query - no local state, and
@@ -182,10 +146,13 @@ function AdminPortal() {
 		const query = useSharedAlbumPreview(url, { enabled: false });
 
 		return (
-			<div {...stylex.props(styles.field)}>
-				<button
+			<div {...stylex.props(styles.section)}>
+				<Button
 					type="button"
-					disabled={!url || query.isFetching}
+					variant="secondary"
+					label={query.isFetching ? "fetching…" : "fetch"}
+					isDisabled={!url || query.isFetching}
+					isLoading={query.isFetching}
 					onClick={async () => {
 						const res = await query.refetch();
 						const album = res.data;
@@ -198,10 +165,7 @@ function AdminPortal() {
 							form.setFieldValue("end", dates[dates.length - 1]);
 						}
 					}}
-					{...stylex.props(styles.button)}
-				>
-					{query.isFetching ? "fetching…" : "fetch"}
-				</button>
+				/>
 				<AlbumStatus query={query} />
 			</div>
 		);
@@ -209,11 +173,11 @@ function AdminPortal() {
 
 	return (
 		<main {...stylex.props(styles.main)}>
-			<h1 {...stylex.props(styles.title)}>admin · new trip</h1>
-			<p {...stylex.props(styles.notice)}>
+			<Heading level={1}>admin · new trip</Heading>
+			<Text type="supporting" color="secondary">
 				hidden route, noindex. saves into postgres travel_trips — the commit
 				manifest stays untouched.
-			</p>
+			</Text>
 
 			<form
 				onSubmit={(e) => {
@@ -222,147 +186,129 @@ function AdminPortal() {
 					form.handleSubmit();
 				}}
 			>
-				<form.Field name="token" validators={{ onChange: required }}>
-					{(field) => (
-						<div {...stylex.props(styles.field)}>
-							<label {...stylex.props(styles.label)}>admin token</label>
-							<input
+				<div {...stylex.props(styles.section)}>
+					<form.Field name="token" validators={{ onChange: required }}>
+						{(field) => (
+							<TextInput
+								label="admin token"
 								type="password"
 								placeholder="ADMIN_TOKEN env"
 								value={field.state.value}
+								onChange={(v) => field.handleChange(v)}
 								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								{...stylex.props(styles.input)}
+								status={fieldError(field.state.meta.errors)}
 							/>
-							<FieldError errors={field.state.meta.errors} />
-						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
+				</div>
 
-				<div {...stylex.props(styles.row)}>
-					<div {...stylex.props(styles.half)}>
-						<form.Field name="sharedAlbumUrl">
-							{(field) => (
-								<div {...stylex.props(styles.field)}>
-									<label {...stylex.props(styles.label)}>
-										icloud share url
-									</label>
-									<input
+				<div {...stylex.props(styles.section)}>
+					<HStack gap={2} align="end">
+						<div {...stylex.props(styles.grow)}>
+							<form.Field name="sharedAlbumUrl">
+								{(field) => (
+									<TextInput
+										label="icloud share url"
 										placeholder="https://share.icloud.com/photos/…"
 										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										{...stylex.props(styles.input)}
+										onChange={(v) => field.handleChange(v)}
 									/>
-								</div>
-							)}
-						</form.Field>
-					</div>
-					<form.Subscribe selector={(state) => state.values.sharedAlbumUrl}>
-						{(url) => <FetchAlbumButton url={url} />}
-					</form.Subscribe>
+								)}
+							</form.Field>
+						</div>
+						<form.Subscribe selector={(state) => state.values.sharedAlbumUrl}>
+							{(url) => <FetchAlbumButton url={url} />}
+						</form.Subscribe>
+					</HStack>
 				</div>
 
-				<div {...stylex.props(styles.row)}>
-					<div {...stylex.props(styles.half)}>
-						<form.Field
-							name="slug"
-							validators={{ onChange: slugRule, onMount: undefined }}
-						>
-							{(field) => (
-								<div {...stylex.props(styles.field)}>
-									<label {...stylex.props(styles.label)}>slug</label>
-									<input
+				<div {...stylex.props(styles.section)}>
+					<HStack gap={2}>
+						<div {...stylex.props(styles.grow)}>
+							<form.Field name="slug" validators={{ onChange: slugRule }}>
+								{(field) => (
+									<TextInput
+										label="slug"
 										placeholder="kebab-case"
 										value={field.state.value}
+										onChange={(v) => field.handleChange(v)}
 										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										{...stylex.props(styles.input)}
+										status={fieldError(field.state.meta.errors)}
 									/>
-									<FieldError errors={field.state.meta.errors} />
-								</div>
-							)}
-						</form.Field>
-					</div>
-					<div {...stylex.props(styles.half)}>
-						<form.Field name="title" validators={{ onChange: required }}>
-							{(field) => (
-								<div {...stylex.props(styles.field)}>
-									<label {...stylex.props(styles.label)}>title</label>
-									<input
+								)}
+							</form.Field>
+						</div>
+						<div {...stylex.props(styles.grow)}>
+							<form.Field name="title" validators={{ onChange: required }}>
+								{(field) => (
+									<TextInput
+										label="title"
 										value={field.state.value}
+										onChange={(v) => field.handleChange(v)}
 										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										{...stylex.props(styles.input)}
+										status={fieldError(field.state.meta.errors)}
 									/>
-									<FieldError errors={field.state.meta.errors} />
-								</div>
-							)}
-						</form.Field>
-					</div>
+								)}
+							</form.Field>
+						</div>
+					</HStack>
 				</div>
 
-				<form.Field name="location" validators={{ onChange: required }}>
-					{(field) => (
-						<div {...stylex.props(styles.field)}>
-							<label {...stylex.props(styles.label)}>location</label>
-							<input
+				<div {...stylex.props(styles.section)}>
+					<form.Field name="location" validators={{ onChange: required }}>
+						{(field) => (
+							<TextInput
+								label="location"
 								value={field.state.value}
+								onChange={(v) => field.handleChange(v)}
 								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								{...stylex.props(styles.input)}
+								status={fieldError(field.state.meta.errors)}
 							/>
-							<FieldError errors={field.state.meta.errors} />
-						</div>
-					)}
-				</form.Field>
-
-				<div {...stylex.props(styles.row)}>
-					<div {...stylex.props(styles.half)}>
-						<form.Field name="start" validators={{ onChange: dateRule }}>
-							{(field) => (
-								<div {...stylex.props(styles.field)}>
-									<label {...stylex.props(styles.label)}>start</label>
-									<input
-										type="date"
-										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										{...stylex.props(styles.input)}
-									/>
-									<FieldError errors={field.state.meta.errors} />
-								</div>
-							)}
-						</form.Field>
-					</div>
-					<div {...stylex.props(styles.half)}>
-						<form.Field name="end" validators={{ onChange: dateRule }}>
-							{(field) => (
-								<div {...stylex.props(styles.field)}>
-									<label {...stylex.props(styles.label)}>end</label>
-									<input
-										type="date"
-										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										{...stylex.props(styles.input)}
-									/>
-									<FieldError errors={field.state.meta.errors} />
-								</div>
-							)}
-						</form.Field>
-					</div>
+						)}
+					</form.Field>
 				</div>
 
-				<form.Field name="blurb">
-					{(field) => (
-						<div {...stylex.props(styles.field)}>
-							<label {...stylex.props(styles.label)}>blurb</label>
-							<textarea
-								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
-								{...stylex.props(styles.input, styles.textarea)}
-							/>
+				<div {...stylex.props(styles.section)}>
+					<HStack gap={2}>
+						<div {...stylex.props(styles.grow)}>
+							<form.Field name="start" validators={{ onChange: dateRule }}>
+								{(field) => (
+									<DateInput
+										label="start"
+										value={asIsoDate(field.state.value)}
+										onChange={(v) => field.handleChange(v ?? "")}
+										status={fieldError(field.state.meta.errors)}
+									/>
+								)}
+							</form.Field>
 						</div>
-					)}
-				</form.Field>
+						<div {...stylex.props(styles.grow)}>
+							<form.Field name="end" validators={{ onChange: dateRule }}>
+								{(field) => (
+									<DateInput
+										label="end"
+										value={asIsoDate(field.state.value)}
+										onChange={(v) => field.handleChange(v ?? "")}
+										status={fieldError(field.state.meta.errors)}
+									/>
+								)}
+							</form.Field>
+						</div>
+					</HStack>
+				</div>
+
+				<div {...stylex.props(styles.section)}>
+					<form.Field name="blurb">
+						{(field) => (
+							<TextArea
+								label="blurb"
+								value={field.state.value}
+								onChange={(v) => field.handleChange(v)}
+								placeholder="two sentences max"
+							/>
+						)}
+					</form.Field>
+				</div>
 
 				<form.Subscribe
 					selector={(state) => ({
@@ -373,15 +319,19 @@ function AdminPortal() {
 				>
 					{({ canSubmit, isSubmitting, errors }) => (
 						<>
-							<button
+							<Button
 								type="submit"
-								disabled={!canSubmit || isSubmitting}
-								{...stylex.props(styles.button)}
-							>
-								{isSubmitting ? "saving…" : "save trip"}
-							</button>
+								variant="primary"
+								label={isSubmitting ? "saving…" : "save trip"}
+								isDisabled={!canSubmit || isSubmitting}
+								isLoading={isSubmitting}
+							/>
 							{errors.length > 0 && (
-								<p {...stylex.props(styles.error)}>{String(errors[0])}</p>
+								<FieldStatus
+									type="error"
+									message={String(errors[0])}
+									variant="detached"
+								/>
 							)}
 						</>
 					)}
