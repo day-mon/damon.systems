@@ -81,10 +81,14 @@ export class CloudKitClient {
 
 	private readonly resolveHttp: KyInstance;
 
-	/** telemetry-only build params appended to every cloudkit call */
-	private get params(): string {
+	/**
+	 * Telemetry-only build params appended to every cloudkit call; apple
+	 * accepts anything, keeping the observed build string makes requests
+	 * indistinguishable from photos.web.
+	 */
+	private static get buildParams(): Record<string, string> {
 		const b = CloudKitClient.CK_BUILD;
-		return `clientBuildNumber=${b}&clientMasteringNumber=${b}`;
+		return { clientBuildNumber: b, clientMasteringNumber: b };
 	}
 
 	/**
@@ -130,8 +134,11 @@ export class CloudKitClient {
 	 */
 	private async resolveShare(token: string): Promise<CkResolveResult> {
 		const res = await this.resolveHttp.post(
-			`database/1/${CloudKitClient.CK_CONTAINER}/production/public/records/resolve?${this.params}`,
-			{ json: { shortGUIDs: [{ value: token }] } },
+			`database/1/${CloudKitClient.CK_CONTAINER}/production/public/records/resolve`,
+			{
+				json: { shortGUIDs: [{ value: token }] },
+				searchParams: CloudKitClient.buildParams,
+			},
 		);
 		if (!res.ok) throw new Error(`records/resolve ${res.status}`);
 		const record = (await res.json<{ results?: CkResolveResult[] }>())
@@ -149,6 +156,8 @@ export class CloudKitClient {
 		zoneID: CkResolveResult["zoneID"],
 		marker: string | null,
 	): Promise<CkQueryResponse> {
+		// instance-level publicAccessAuthToken merges with the call-level
+		// build params into one query string
 		const http = ky.create({
 			prefix: partitionBase,
 			searchParams: { publicAccessAuthToken: accessToken },
@@ -169,8 +178,8 @@ export class CloudKitClient {
 			...(marker ? { continuationMarker: marker } : {}),
 		};
 		const res = await http.post(
-			`database/1/${CloudKitClient.CK_CONTAINER}/production/shared/records/query?${this.params}`,
-			{ json: body },
+			`database/1/${CloudKitClient.CK_CONTAINER}/production/shared/records/query`,
+			{ json: body, searchParams: CloudKitClient.buildParams },
 		);
 		if (!res.ok) throw new Error(`records/query ${res.status}`);
 		return res.json();

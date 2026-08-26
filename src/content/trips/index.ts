@@ -1,7 +1,9 @@
 /*
-travel trips live as json files in this directory, produced by
-scripts/travel-sync + a hand-written blurb. photos are served from
-public/travel/<slug>/ and referenced by filename from the manifest.
+committed trip manifests live as json files in this directory. trips can
+also be authored through the /admin portal - those land in the
+travel_trips table and TripsService merges them with these (db wins on
+slug collision). a manifest with sharedAlbumUrl renders its photos live
+from icloud; otherwise photos come from the manifest's photos array.
 */
 
 export interface TripPhoto {
