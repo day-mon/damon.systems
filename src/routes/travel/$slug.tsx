@@ -74,13 +74,15 @@ const styles = stylex.create({
 		margin: 0,
 	},
 	masonry: {
-		columns: 3,
+		// stylex px-suffixes "columns: N" into a column-width; use columnCount
+		columnCount: 3,
+		columnWidth: "auto",
 		columnGap: 16,
 		"@media (max-width: 768px)": {
-			columns: 2,
+			columnCount: 2,
 		},
 		"@media (max-width: 480px)": {
-			columns: 1,
+			columnCount: 1,
 		},
 	},
 	tile: {
