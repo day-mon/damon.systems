@@ -4,15 +4,30 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { getLabPost } from "#/content/lab";
 
 export const Route = createFileRoute("/lab/$slug/")({
-	head: ({ params }) => {
+	// Content is a React component and cannot survive loader serialization;
+	// carry everything except it and re-resolve Content in the component.
+	loader: ({ params }) => {
 		const post = getLabPost(params.slug);
+		if (!post) {
+			throw notFound();
+		}
 		return {
-			meta: [
-				{ title: post ? `damon | lab | ${post.title}` : "damon | lab" },
-				{ name: "description", content: post?.description ?? "" },
-			],
+			slug: post.slug,
+			title: post.title,
+			description: post.description,
+			dateIso: post.date.toISOString(),
+			tags: post.tags,
+			demoComponent: post.demoComponent,
 		};
 	},
+	head: ({ loaderData }) => ({
+		meta: [
+			{
+				title: loaderData ? `damon | lab | ${loaderData.title}` : "damon | lab",
+			},
+			{ name: "description", content: loaderData?.description ?? "" },
+		],
+	}),
 	component: LabPost,
 });
 
@@ -115,8 +130,9 @@ const styles = stylex.create({
 });
 
 function LabPost() {
-	const { slug } = Route.useParams();
-	const post = getLabPost(slug ?? "");
+	const meta = Route.useLoaderData();
+	// loader 404-gates this slug; this guard only narrows Content lookup type
+	const post = getLabPost(meta.slug);
 	if (!post) {
 		throw notFound();
 	}
@@ -131,16 +147,16 @@ function LabPost() {
 
 			<header {...stylex.props(styles.header)}>
 				<time {...stylex.props(styles.time)}>
-					{post.date.toLocaleDateString("en-US", {
+					{new Date(meta.dateIso).toLocaleDateString("en-US", {
 						year: "numeric",
 						month: "long",
 						day: "numeric",
 					})}
 				</time>
-				<h1 {...stylex.props(styles.title)}>{post.title}</h1>
-				{post.tags.length > 0 && (
+				<h1 {...stylex.props(styles.title)}>{meta.title}</h1>
+				{meta.tags.length > 0 && (
 					<div {...stylex.props(styles.tags)}>
-						{post.tags.map((tag) => (
+						{meta.tags.map((tag) => (
 							<span key={tag} {...stylex.props(styles.tag)}>
 								{tag}
 							</span>
@@ -149,10 +165,10 @@ function LabPost() {
 				)}
 			</header>
 
-			{post.demoComponent && (
+			{meta.demoComponent && (
 				<Link
 					to="/lab/$slug/demo"
-					params={{ slug: post.slug }}
+					params={{ slug: meta.slug }}
 					{...stylex.props(styles.demoCard)}
 				>
 					<div {...stylex.props(styles.demoInner)}>

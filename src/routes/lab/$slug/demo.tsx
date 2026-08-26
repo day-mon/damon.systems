@@ -5,15 +5,23 @@ import { Dashboard } from "#/components/lab/pgh-ticket/Dashboard";
 import { getLabPost } from "#/content/lab";
 
 export const Route = createFileRoute("/lab/$slug/demo")({
-	head: ({ params }) => {
+	loader: ({ params }) => {
 		const post = getLabPost(params.slug);
+		if (!post?.demoComponent) {
+			throw notFound();
+		}
 		return {
-			meta: [
-				{ title: post ? `${post.title} · demo` : "damon | lab" },
-				{ name: "description", content: post?.description ?? "" },
-			],
+			slug: post.slug,
+			title: post.title,
+			description: post.description,
 		};
 	},
+	head: ({ loaderData }) => ({
+		meta: [
+			{ title: loaderData ? `${loaderData.title} · demo` : "damon | lab" },
+			{ name: "description", content: loaderData?.description ?? "" },
+		],
+	}),
 	component: LabDemo,
 });
 
@@ -62,25 +70,20 @@ const styles = stylex.create({
 });
 
 function LabDemo() {
-	const { slug } = Route.useParams();
-	const post = getLabPost(slug);
-
-	if (!post?.demoComponent) {
-		throw notFound();
-	}
+	const { slug, title } = Route.useLoaderData();
 
 	return (
 		<main {...stylex.props(styles.main)}>
 			<div {...stylex.props(styles.wrap)}>
 				<Link
 					to="/lab/$slug"
-					params={{ slug: post.slug }}
+					params={{ slug }}
 					{...stylex.props(styles.back)}
 				>
 					&larr; back to post
 				</Link>
 
-				<h1 {...stylex.props(styles.title)}>{post.title} · explorer</h1>
+				<h1 {...stylex.props(styles.title)}>{title} · explorer</h1>
 				<p {...stylex.props(styles.note)}>
 					note: this is not the complete set of tickets, but running backfill
 					daily
