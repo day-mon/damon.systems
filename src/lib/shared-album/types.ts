@@ -18,6 +18,15 @@ export interface SharedAlbumResult {
 	photos: SharedPhoto[];
 }
 
+// slice of a resolved album for infinite-scroll consumers
+export interface SharedAlbumPage {
+	ok: boolean;
+	albumTitle: string | null;
+	photos: SharedPhoto[];
+	total: number;
+	offset: number;
+}
+
 export type ShareKind = "legacy" | "cloudkit";
 
 export interface ShareToken {

@@ -1,9 +1,10 @@
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+
 import type { Trip } from "#/content/trips";
-import { getSharedAlbum } from "#/lib/shared-album/shared-album.service";
-import type { SharedPhoto } from "#/lib/shared-album/types";
 import { getTripServer } from "#/lib/trips/trips.service";
+import { useSharedAlbumPages } from "#/queries/shared-album/queries";
 
 interface WallPhoto {
 	key: string;
@@ -13,16 +14,7 @@ interface WallPhoto {
 	dims: { width: number; height: number } | null;
 }
 
-function wallPhotos(trip: Trip, live: SharedPhoto[] | null): WallPhoto[] {
-	if (live) {
-		return live.map((photo) => ({
-			key: photo.key,
-			src: photo.src,
-			caption: photo.caption,
-			takenAt: photo.takenAt,
-			dims: { width: photo.width, height: photo.height },
-		}));
-	}
+function manifestPhotos(trip: Trip): WallPhoto[] {
 	return trip.photos.map((photo) => ({
 		key: photo.file,
 		src: `/travel/${trip.slug}/${photo.file}`,
@@ -33,19 +25,15 @@ function wallPhotos(trip: Trip, live: SharedPhoto[] | null): WallPhoto[] {
 }
 
 export const Route = createFileRoute("/travel/$slug")({
-	// trips may carry a public icloud share url; when present, manifests +
-	// signed photo urls resolve live (5-minute server cache) and the
-	// committed photos array is ignored
+	// trips may carry a public icloud share url; the loader must NOT resolve
+	// the album (apple paging would block first paint). the url passes
+	// through and the photos stream in client-side via infinite query.
 	loader: async ({ params }) => {
 		const trip = await getTripServer({ data: params.slug });
 		if (!trip) {
 			throw notFound();
 		}
-		if (trip.sharedAlbumUrl) {
-			const album = await getSharedAlbum({ data: trip.sharedAlbumUrl });
-			return { trip, liveAlbum: album };
-		}
-		return { trip, liveAlbum: null };
+		return { trip };
 	},
 	head: ({ loaderData }) => ({
 		meta: [
@@ -121,6 +109,7 @@ const styles = stylex.create({
 	},
 	tile: {
 		display: "block",
+		position: "relative",
 		width: "100%",
 		marginBottom: 16,
 		breakInside: "avoid",
@@ -134,12 +123,56 @@ const styles = stylex.create({
 		display: "block",
 		width: "100%",
 		height: "auto",
+		// hides until onLoad flips PhotoTile to photoLoaded
+		opacity: 0,
 	},
 	caption: {
 		display: "block",
 		paddingInline: 12,
 		paddingBlock: 8,
 		fontSize: "0.75rem",
+		color: "var(--muted-foreground)",
+	},
+	shimmer: {
+		backgroundColor: "var(--muted)",
+		borderWidth: 1,
+		borderStyle: "solid",
+		borderColor: "var(--border)",
+		display: "block",
+		width: "100%",
+		marginBottom: 16,
+		breakInside: "avoid",
+		borderRadius: 2,
+		animationName: stylex.keyframes({
+			from: { opacity: 0.55 },
+			to: { opacity: 0.9 },
+		}),
+		animationDuration: "0.9s",
+		animationIterationCount: "infinite",
+		animationDirection: "alternate",
+	},
+	photoLoaded: {
+		opacity: 1,
+		transitionProperty: "opacity",
+		transitionDuration: "0.4s",
+		transitionTimingFunction: "ease-out",
+	},
+	shimmerFill: {
+		position: "absolute",
+		inset: 0,
+		backgroundColor: "var(--muted)",
+		animationName: stylex.keyframes({
+			from: { opacity: 0.55 },
+			to: { opacity: 0.85 },
+		}),
+		animationDuration: "0.9s",
+		animationIterationCount: "infinite",
+		animationDirection: "alternate",
+	},
+	sentinel: {
+		height: 1,
+		marginTop: 24,
+		fontSize: "0.875rem",
 		color: "var(--muted-foreground)",
 	},
 	empty: {
@@ -161,12 +194,102 @@ function dateRangeLabel(start: string, end: string): string {
 	return s === e ? s : `${s} – ${e}`;
 }
 
-function TripPage() {
-	const { trip, liveAlbum } = Route.useLoaderData();
-	const photos = wallPhotos(
-		trip,
-		liveAlbum && liveAlbum.ok ? liveAlbum.photos : null,
+function PhotoTile({
+	photo,
+	tripTitle,
+}: {
+	photo: WallPhoto;
+	tripTitle: string;
+}) {
+	const [loaded, setLoaded] = useState(false);
+	return (
+		<figure
+			{...stylex.props(styles.tile)}
+			style={
+				photo.dims
+					? { aspectRatio: `${photo.dims.width} / ${photo.dims.height}` }
+					: undefined
+			}
+		>
+			{!loaded && <div {...stylex.props(styles.shimmerFill)} />}
+			<img
+				src={photo.src}
+				alt={photo.caption || `${tripTitle} photo`}
+				width={photo.dims?.width}
+				height={photo.dims?.height}
+				loading="lazy"
+				decoding="async"
+				onLoad={() => setLoaded(true)}
+				{...stylex.props(styles.photo, loaded && styles.photoLoaded)}
+			/>
+			{photo.caption && (
+				<figcaption {...stylex.props(styles.caption)}>
+					{photo.caption}
+				</figcaption>
+			)}
+		</figure>
 	);
+}
+
+function SharedAlbumWall({ url, trip }: { url: string; trip: Trip }) {
+	const query = useSharedAlbumPages(url);
+	const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+	// fetchNextPage when the sentinel scrolls into view
+	useEffect(() => {
+		const node = sentinelRef.current;
+		if (!node) return;
+		const observer = new IntersectionObserver((entries) => {
+			if (
+				entries[0].isIntersecting &&
+				query.hasNextPage &&
+				!query.isFetchingNextPage
+			) {
+				query.fetchNextPage();
+			}
+		});
+		observer.observe(node);
+		return () => observer.disconnect();
+	}, [query.hasNextPage, query.isFetchingNextPage, query.fetchNextPage]);
+
+	const pages = query.data?.pages ?? [];
+	const photos: WallPhoto[] = pages.flatMap((page) =>
+		page.ok
+			? page.photos.map((photo) => ({
+					key: photo.key,
+					src: photo.src,
+					caption: photo.caption,
+					takenAt: photo.takenAt,
+					dims: { width: photo.width, height: photo.height },
+				}))
+			: [],
+	);
+
+	return (
+		<>
+			{query.isError && (
+				<p {...stylex.props(styles.empty)}>
+					this trip's icloud album is offline.
+				</p>
+			)}
+			{photos.length > 0 && (
+				<div {...stylex.props(styles.masonry)}>
+					{photos.map((photo) => (
+						<PhotoTile key={photo.key} photo={photo} tripTitle={trip.title} />
+					))}
+				</div>
+			)}
+			{query.hasNextPage && (
+				<div ref={sentinelRef} {...stylex.props(styles.sentinel)}>
+					{query.isFetchingNextPage ? "loading more…" : ""}
+				</div>
+			)}
+		</>
+	);
+}
+
+function TripPage() {
+	const { trip } = Route.useLoaderData();
 
 	return (
 		<main {...stylex.props(styles.main)}>
@@ -182,36 +305,25 @@ function TripPage() {
 				<p {...stylex.props(styles.blurb)}>{trip.blurb}</p>
 			</header>
 
-			{liveAlbum && !liveAlbum.ok && (
-				<p {...stylex.props(styles.empty)}>
-					this trip's icloud album is offline.
-				</p>
-			)}
-
-			{photos.length > 0 && (
-				<div {...stylex.props(styles.masonry)}>
-					{photos.map((photo) => (
-						<figure key={photo.key} {...stylex.props(styles.tile)}>
-							<img
-								src={photo.src}
-								alt={photo.caption || `${trip.title} photo`}
-								width={photo.dims?.width}
-								height={photo.dims?.height}
-								loading="lazy"
-								{...stylex.props(styles.photo)}
-							/>
-							{photo.caption && (
-								<figcaption {...stylex.props(styles.caption)}>
-									{photo.caption}
-								</figcaption>
-							)}
-						</figure>
-					))}
-				</div>
-			)}
-
-			{photos.length === 0 && (!liveAlbum || liveAlbum.ok) && (
-				<p {...stylex.props(styles.empty)}>no photos on this trip yet.</p>
+			{trip.sharedAlbumUrl ? (
+				<SharedAlbumWall url={trip.sharedAlbumUrl} trip={trip} />
+			) : (
+				(() => {
+					const photos = manifestPhotos(trip);
+					return photos.length > 0 ? (
+						<div {...stylex.props(styles.masonry)}>
+							{photos.map((photo) => (
+								<PhotoTile
+									key={photo.key}
+									photo={photo}
+									tripTitle={trip.title}
+								/>
+							))}
+						</div>
+					) : (
+						<p {...stylex.props(styles.empty)}>no photos on this trip yet.</p>
+					);
+				})()
 			)}
 		</main>
 	);

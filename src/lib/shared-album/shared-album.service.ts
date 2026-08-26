@@ -12,7 +12,11 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { cloudKitClient } from "./cloudkit";
 import { sharedStreamsClient } from "./shared-streams";
-import { type SharedAlbumResult, tokenFromShareUrl } from "./types";
+import {
+	type SharedAlbumPage,
+	type SharedAlbumResult,
+	tokenFromShareUrl,
+} from "./types";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -33,6 +37,27 @@ export class SharedAlbumService {
 		this.cache.set(shareUrl, { at: Date.now(), value });
 		return value;
 	}
+
+	/**
+	 * Paged view over resolve() for infinite-scroll consumers: the full
+	 * album resolves once and pages slice the cached result, so scrolling
+	 * past the five-minute ttl may refresh page one mid-scroll but never
+	 * refetches apple's api per scroll event.
+	 */
+	async resolvePage(
+		shareUrl: string,
+		offset: number,
+		limit: number,
+	): Promise<SharedAlbumPage> {
+		const album = await this.resolve(shareUrl);
+		return {
+			ok: album.ok,
+			albumTitle: album.albumTitle,
+			photos: album.photos.slice(offset, offset + limit),
+			total: album.photos.length,
+			offset,
+		};
+	}
 }
 
 export const sharedAlbumService = new SharedAlbumService();
@@ -48,5 +73,36 @@ export const getSharedAlbum = createServerFn({ method: "GET" })
 		} catch (err) {
 			console.error("[shared-album] resolve failed:", err);
 			return { ok: false, albumTitle: null, photos: [] };
+		}
+	});
+
+// paged variant for infinite scroll - same cache, sliced output
+export const getSharedAlbumPage = createServerFn({ method: "GET" })
+	.validator(
+		(input: { url: string; offset: number; limit: number }) => ({
+			url: input.url,
+			offset: Math.max(0, Math.floor(Number(input.offset) || 0)),
+			limit: Math.min(
+				200,
+				Math.max(1, Math.floor(Number(input.limit) || 60)),
+			),
+		}),
+	)
+	.handler(async ({ data }) => {
+		try {
+			return await sharedAlbumService.resolvePage(
+				data.url,
+				data.offset,
+				data.limit,
+			);
+		} catch (err) {
+			console.error("[shared-album] page resolve failed:", err);
+			return {
+				ok: false,
+				albumTitle: null,
+				photos: [],
+				total: 0,
+				offset: data.offset,
+			};
 		}
 	});
