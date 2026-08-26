@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { json } from "#/lib/json";
-import { getPoints } from "#/lib/pgh-ticket/db";
+import { pghTicketService } from "#/lib/pgh-ticket/pgh.service";
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
 
 export const Route = createFileRoute("/api/lab/points")({
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/api/lab/points")({
 						dateTo: url.searchParams.get("dateTo") ?? undefined,
 					};
 
-					const points = await getPoints(limit, filters);
+					const points = await pghTicketService.getPoints(limit, filters);
 					return json(points, {
 						headers: {
 							"Cache-Control":

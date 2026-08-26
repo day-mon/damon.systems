@@ -75,11 +75,7 @@ function LabDemo() {
 	return (
 		<main {...stylex.props(styles.main)}>
 			<div {...stylex.props(styles.wrap)}>
-				<Link
-					to="/lab/$slug"
-					params={{ slug }}
-					{...stylex.props(styles.back)}
-				>
+				<Link to="/lab/$slug" params={{ slug }} {...stylex.props(styles.back)}>
 					&larr; back to post
 				</Link>
 

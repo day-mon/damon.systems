@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { json } from "#/lib/json";
-import { getTickets } from "#/lib/pgh-ticket/db";
+import { pghTicketService } from "#/lib/pgh-ticket/pgh.service";
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
 
 const PAGE_SIZE = 20;
@@ -26,7 +26,11 @@ export const Route = createFileRoute("/api/lab/tickets")({
 						dateFrom: url.searchParams.get("dateFrom") ?? undefined,
 						dateTo: url.searchParams.get("dateTo") ?? undefined,
 					};
-					const data = await getTickets(page, PAGE_SIZE, filters);
+					const data = await pghTicketService.getTickets(
+						page,
+						PAGE_SIZE,
+						filters,
+					);
 					return json(data, {
 						headers: {
 							"Cache-Control": filters?.plate

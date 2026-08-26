@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { json } from "#/lib/json";
-import { getFilterOptions } from "#/lib/pgh-ticket/db";
+import { pghTicketService } from "#/lib/pgh-ticket/pgh.service";
 
 export const Route = createFileRoute("/api/lab/filters")({
 	server: {
 		handlers: {
 			GET: async () => {
 				try {
-					const data = await getFilterOptions();
+					const data = await pghTicketService.getFilterOptions();
 					return json(data, {
 						headers: {
 							"Cache-Control":

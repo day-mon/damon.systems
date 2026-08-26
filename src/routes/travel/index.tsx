@@ -2,9 +2,10 @@ import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { TRIPS } from "#/content/trips";
+import { getTripsServer } from "#/lib/trips/trips.service";
 
 export const Route = createFileRoute("/travel/")({
+	loader: async () => ({ trips: await getTripsServer() }),
 	head: () => ({
 		meta: [
 			{ title: "damon | travel" },
@@ -108,6 +109,7 @@ function dateRangeLabel(start: string, end: string): string {
 }
 
 function TravelIndex() {
+	const { trips } = Route.useLoaderData();
 	const [hovered, setHovered] = useState<string | null>(null);
 
 	return (
@@ -115,7 +117,7 @@ function TravelIndex() {
 			<h1 {...stylex.props(styles.title)}>travel</h1>
 
 			<div {...stylex.props(styles.grid)}>
-				{TRIPS.map((trip) => (
+				{trips.map((trip) => (
 					<Link
 						key={trip.slug}
 						to="/travel/$slug"
@@ -149,7 +151,7 @@ function TravelIndex() {
 				))}
 			</div>
 
-			{TRIPS.length === 0 && (
+			{trips.length === 0 && (
 				<p {...stylex.props(styles.empty)}>
 					no trips yet — sync an icloud album to add one.
 				</p>

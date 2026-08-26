@@ -1,8 +1,9 @@
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-
-import { getTrip, type Trip } from "#/content/trips";
-import { getSharedAlbum, type SharedPhoto } from "#/lib/icloud-shared";
+import type { Trip } from "#/content/trips";
+import { getSharedAlbum } from "#/lib/shared-album/shared-album.service";
+import type { SharedPhoto } from "#/lib/shared-album/types";
+import { getTripServer } from "#/lib/trips/trips.service";
 
 interface WallPhoto {
 	key: string;
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/travel/$slug")({
 	// signed photo urls resolve live (5-minute server cache) and the
 	// committed photos array is ignored
 	loader: async ({ params }) => {
-		const trip = getTrip(params.slug);
+		const trip = await getTripServer({ data: params.slug });
 		if (!trip) {
 			throw notFound();
 		}
