@@ -1,17 +1,21 @@
 /*
-live resolution of public icloud shared albums.
+live resolution of public icloud shared albums — both generations:
 
-the public "shared website" endpoint family is undocumented but stable;
-the shape below ports llun/blog libs/apple/webstream.ts:
+  legacy "shared streams" (sharedalbum/#<token>):
+    p<partition>-sharedstreams.icloud.com/webstream -> photo records
+    webasseturls -> signed cdn urls per checksum
 
-  token -> p<partition>-sharedstreams.icloud.com/<token>/sharedstreams
-    POST webstream     -> photo records (guids, dims, dates, captions, derivative checksums)
-    POST webasseturls  -> signed cdn urls per checksum (expire in a few hours)
+  modern cloudkit shares (share.icloud.com/photos/<token> or
+  photos.icloud.com/shared/album/<token>), retired the legacy link format
+  with ios/macos 26:
+    POST ckdatabasews.icloud.com/.../public/records/resolve
+      -> zone + short-lived anonymous access token + partition host + title
+    POST <partition host>/.../shared/records/query (publicAccessAuthToken)
+      -> CPLMaster records with inline downloadURLs; paged via continuationMarker
 
-runs server-side via a server fn so client-side navigation never touches
-apple directly (no cors on these endpoints). results are cached in-module
-for 5 minutes so steady-state cost is 2 requests per cache window for the
-whole site, not per visitor.
+the cloudkit shape below ports starbrightlab/immortal commit 92463f0.
+runs server-side via a server fn (no cors on apple's hosts) with a 5-minute
+in-module cache so steady-state is two requests per window, not per visitor.
 */
 
 import { createServerFn } from "@tanstack/react-start";
@@ -23,35 +27,16 @@ const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const TARGET_WIDTH = 2048;
 
-interface Derivative {
-	fileSize: number;
-	checksum: string;
-	width: number;
-	height: number;
-}
+// --- cloudkit constants (telemetry params, not auth — any value is accepted)
+const CK_HOST = "https://ckdatabasews.icloud.com";
+const CK_CONTAINER = "com.apple.photos.cloud";
+const CK_BUILD = "2630Build17";
+const CK_PARAMS = `clientBuildNumber=${CK_BUILD}&clientMasteringNumber=${CK_BUILD}`;
+const CK_RECORD_TYPE = "CPLAssetAndMasterByAssetDateWithoutHiddenOrDeleted";
+const CK_PAGE_SIZE = 200;
+const CK_MAX_PAGES = 50;
 
-interface StreamPhoto {
-	photoGuid: string;
-	caption?: string;
-	dateCreated: string;
-	width?: number;
-	height?: number;
-	derivatives: Record<string, Derivative>;
-}
-
-interface Stream {
-	streamName?: string;
-	photos?: StreamPhoto[];
-	partition?: number;
-}
-
-interface Assets {
-	items: Record<
-		string,
-		{ url_expiry: string; url_location: string; url_path: string }
-	>;
-	locations: Record<string, { hosts: string[]; scheme: string }>;
-}
+// --- shared result types
 
 export interface SharedPhoto {
 	key: string;
@@ -70,6 +55,25 @@ export interface SharedAlbumResult {
 
 const cache = new Map<string, { at: number; value: SharedAlbumResult }>();
 
+// --- token + transport helpers
+
+type ShareKind = "legacy" | "cloudkit";
+
+function tokenFromShareUrl(shareUrl: string): {
+	kind: ShareKind;
+	token: string;
+} {
+	const legacy = shareUrl.match(/sharedalbum\/#([\w-]+)/);
+	if (legacy) return { kind: "legacy", token: legacy[1] };
+	const cloudkit = shareUrl.match(/shared\/album\/([\w-]+)/);
+	if (cloudkit) return { kind: "cloudkit", token: cloudkit[1] };
+	const share = shareUrl.match(/share\.icloud\.com\/photos\/([\w-]+)/);
+	if (share) return { kind: "cloudkit", token: share[1] };
+	throw new Error("cannot parse icloud share token from url");
+}
+
+// --- legacy shared streams
+
 const base62ToInt = (input: string) =>
 	Array.from(input).reduce((acc, ch) => acc * 62 + BASE62.indexOf(ch), 0);
 
@@ -79,38 +83,52 @@ function partitionFromToken(token: string): number {
 		: base62ToInt(token.substring(1, 3));
 }
 
-function tokenFromShareUrl(shareUrl: string): string {
-	const match = shareUrl.match(/sharedalbum\/#([\w-]+)/);
-	if (!match) throw new Error(`cannot parse icloud share token from url`);
-	return match[1];
+interface Derivative {
+	fileSize: number;
+	checksum: string;
+	width: number;
+	height: number;
+}
+
+interface StreamPhoto {
+	photoGuid: string;
+	caption?: string;
+	dateCreated: string;
+	derivatives: Record<string, Derivative>;
+}
+
+interface Stream {
+	streamName?: string;
+	photos?: StreamPhoto[];
+}
+
+interface Assets {
+	items: Record<
+		string,
+		{ url_expiry: string; url_location: string; url_path: string }
+	>;
+	locations: Record<string, { hosts: string[]; scheme: string }>;
 }
 
 const streamBase = (partition: number, token: string) =>
 	`https://p${partition.toString().padStart(2, "0")}-sharedstreams.icloud.com/${token}/sharedstreams`;
 
-async function fetchStream(
-	token: string,
-): Promise<{ stream: Stream; partition: number }> {
+async function resolveLegacy(token: string): Promise<SharedAlbumResult> {
 	let partition = partitionFromToken(token);
 	const request = {
 		headers: {
 			"content-type": "text/plain",
 			"user-agent": PHOTO_APP_UA,
 		},
-		// 330 = "you hit the wrong partition, go here instead"
 		throwHttpErrors: false,
 		body: JSON.stringify({ streamCtag: null }),
 	};
 
-	const res = await ky.post(
-		`${streamBase(partition, token)}/webstream`,
-		request,
-	);
+	let res = await ky.post(`${streamBase(partition, token)}/webstream`, request);
 	if (res.status === 330) {
 		const hint = await res.json<{ "X-Apple-MMe-Host": string }>();
-		const host = hint["X-Apple-MMe-Host"];
 		const redirected = await ky.post(
-			`https://${host}/${token}/sharedstreams/webstream`,
+			`https://${hint["X-Apple-MMe-Host"]}/${token}/sharedstreams/webstream`,
 			request,
 		);
 		if (!redirected.ok) throw new Error(`webstream ${redirected.status}`);
@@ -119,75 +137,50 @@ async function fetchStream(
 			10,
 		);
 		if (redirectedPartition) partition = redirectedPartition;
-		return { stream: await redirected.json<Stream>(), partition };
+		res = redirected;
 	}
 	if (!res.ok) throw new Error(`webstream ${res.status}`);
-	return { stream: await res.json<Stream>(), partition };
-}
+	const stream = await res.json<Stream>();
 
-async function fetchAssetUrls(
-	partition: number,
-	token: string,
-	checksums: string[],
-): Promise<Assets> {
-	const res = await ky.post(`${streamBase(partition, token)}/webasseturls`, {
-		headers: { "content-type": "text/plain" },
-		body: JSON.stringify({ photoGuids: checksums }), // endpoint takes checksums under the photoGuids key
-	});
-	if (!res.ok) throw new Error(`webasseturls ${res.status}`);
-	return res.json<Assets>();
-}
-
-function pickDerivative(photo: StreamPhoto): Derivative | null {
-	const all = Object.values(photo.derivatives);
-	if (all.length === 0) return null;
-	// largest derivative at or under TARGET_WIDTH; fall back to the biggest available
-	const sorted = [...all].sort(
-		(a: Derivative, b: Derivative) => a.width - b.width,
-	);
-	return (
-		[...sorted].reverse().find((d) => d.width <= TARGET_WIDTH) ??
-		sorted[sorted.length - 1]
-	);
-}
-
-function urlFor(assets: Assets, checksum: string): string | null {
-	const item = assets.items[checksum];
-	if (!item) return null;
-	const location = assets.locations[item.url_location];
-	if (!location) return null;
-	return `${location.scheme}://${location.hosts[0]}${item.url_path}`;
-}
-
-async function resolveSharedAlbum(
-	shareUrl: string,
-): Promise<SharedAlbumResult> {
-	const cached = cache.get(shareUrl);
-	if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
-		return cached.value;
-	}
-
-	const token = tokenFromShareUrl(shareUrl);
-	const { stream, partition } = await fetchStream(token);
 	const photos = (stream.photos ?? [])
-		.map((photo) => ({ photo, derivative: pickDerivative(photo) }))
+		.map((photo) => {
+			const all = Object.values(photo.derivatives);
+			if (all.length === 0) return null;
+			const sorted = [...all].sort(
+				(a: Derivative, b: Derivative) => a.width - b.width,
+			);
+			const derivative =
+				[...sorted].reverse().find((d) => d.width <= TARGET_WIDTH) ??
+				sorted[sorted.length - 1];
+			return { photo, derivative };
+		})
 		.filter(
 			(entry): entry is { photo: StreamPhoto; derivative: Derivative } =>
-				entry.derivative !== null,
+				entry !== null,
 		);
 	const checksums = photos.map((entry) => entry.derivative.checksum);
-	const assets = await fetchAssetUrls(partition, token, checksums);
 
-	const value: SharedAlbumResult = {
+	const assetsRes = await ky.post(
+		`${streamBase(partition, token)}/webasseturls`,
+		{
+			headers: { "content-type": "text/plain" },
+			body: JSON.stringify({ photoGuids: checksums }),
+		},
+	);
+	if (!assetsRes.ok) throw new Error(`webasseturls ${assetsRes.status}`);
+	const assets = await assetsRes.json<Assets>();
+
+	return {
 		ok: true,
 		albumTitle: stream.streamName ?? null,
 		photos: photos
 			.map(({ photo, derivative }) => {
-				const src = urlFor(assets, derivative.checksum);
-				if (!src) return null;
+				const item = assets.items[derivative.checksum];
+				const location = item && assets.locations[item.url_location];
+				if (!item || !location) return null;
 				return {
 					key: photo.photoGuid,
-					src,
+					src: `${location.scheme}://${location.hosts[0]}${item.url_path}`,
 					caption: photo.caption ?? "",
 					takenAt: photo.dateCreated,
 					width: derivative.width,
@@ -197,7 +190,160 @@ async function resolveSharedAlbum(
 			.filter((photo): photo is SharedPhoto => photo !== null)
 			.sort((a, b) => a.takenAt.localeCompare(b.takenAt)),
 	};
+}
 
+// --- modern cloudkit shares
+
+interface CkValue {
+	value: unknown;
+	type?: string;
+}
+
+interface CkResolveResult {
+	zoneID: {
+		zoneName: string;
+		ownerRecordName: string;
+		zoneType: string;
+	};
+	anonymousPublicAccess: { token: string; databasePartition: string };
+	share?: { fields?: Record<string, CkValue> };
+}
+
+interface CkMasterRecord {
+	recordType: string;
+	recordName: string;
+	fields?: Record<string, CkValue>;
+	created?: { timestamp: number };
+}
+
+interface CkQueryResponse {
+	records?: CkMasterRecord[];
+	continuationMarker?: string;
+}
+
+const ckString = (fields: Record<string, CkValue>, key: string): string =>
+	String((fields[key]?.value as string | undefined) ?? "");
+
+const ckNumber = (fields: Record<string, CkValue>, key: string): number =>
+	Number((fields[key]?.value as number | undefined) ?? 0);
+
+function ckPickSource(
+	fields: Record<string, CkValue>,
+): { src: string; width: number; height: number } | null {
+	// smallest derivative whose long edge (tracked as width) still covers the
+	// target; fall back to the largest available. res*Vid*Res are video tracks.
+	let best: { src: string; width: number; height: number } | null = null;
+	let fallback: { src: string; width: number; height: number } | null = null;
+	for (const [key, entry] of Object.entries(fields)) {
+		if (!key.startsWith("res") || !key.endsWith("Res") || key.includes("Vid")) {
+			continue;
+		}
+		const value = entry.value as { downloadURL?: string } | undefined;
+		const src = value?.downloadURL;
+		if (!src || src === "null") continue;
+		const stem = key.slice(0, -"Res".length);
+		const width = ckNumber(fields, `${stem}Width`);
+		const height = ckNumber(fields, `${stem}Height`);
+		const candidate = { src, width, height };
+		if (width >= TARGET_WIDTH && (best === null || width < best.width)) {
+			best = candidate;
+		}
+		if (fallback === null || width > fallback.width) {
+			fallback = candidate;
+		}
+	}
+	return best ?? fallback;
+}
+
+async function resolveCloudKit(token: string): Promise<SharedAlbumResult> {
+	// 1. anonymous resolve: mints the short-lived access token + tells us which
+	//    partition host actually holds the records
+	const resolveRes = await ky.post(
+		`${CK_HOST}/database/1/${CK_CONTAINER}/production/public/records/resolve?${CK_PARAMS}`,
+		{ json: { shortGUIDs: [{ value: token }] } },
+	);
+	if (!resolveRes.ok) throw new Error(`records/resolve ${resolveRes.status}`);
+	const resolved = (await resolveRes.json<{ results?: CkResolveResult[] }>())
+		.results?.[0];
+	if (!resolved) throw new Error("records/resolve returned no results");
+	const { zoneID, anonymousPublicAccess: access } = resolved;
+	const partition = access.databasePartition.replace(/:443$/, "");
+	const albumTitle =
+		(resolved.share?.fields?.["cloudkit.title"]?.value as string | undefined) ??
+		null;
+
+	// 2. page the shared zone; downloadURLs arrive inline
+	const queryUrl =
+		`${partition}/database/1/${CK_CONTAINER}/production/shared/records/query?${CK_PARAMS}` +
+		`&publicAccessAuthToken=${encodeURIComponent(access.token)}`;
+
+	const photos: SharedPhoto[] = [];
+	let marker: string | null = null;
+	let pages = 0;
+	do {
+		const body: Record<string, unknown> = {
+			query: {
+				recordType: CK_RECORD_TYPE,
+				filterBy: [
+					{
+						fieldName: "direction",
+						comparator: "EQUALS",
+						fieldValue: { value: "DESCENDING", type: "STRING" },
+					},
+				],
+			},
+			zoneID,
+			resultsLimit: CK_PAGE_SIZE,
+			...(marker ? { continuationMarker: marker } : {}),
+		};
+		const resResponse = await ky.post(queryUrl, { json: body });
+		if (!resResponse.ok) throw new Error(`records/query ${resResponse.status}`);
+		const page: CkQueryResponse = await resResponse.json();
+		for (const record of page.records ?? []) {
+			if (record.recordType !== "CPLMaster" || !record.fields) continue;
+			const itemType = ckString(record.fields, "itemType").toLowerCase();
+			if (itemType.includes("movie") || itemType.includes("video")) continue;
+			const source = ckPickSource(record.fields);
+			if (!source) continue;
+			// originalCreationDate = when the photo was taken; importDate /
+			// the record's own creation timestamp are upload-side fallbacks
+			const takenAtMs =
+				ckNumber(record.fields, "originalCreationDate") ||
+				ckNumber(record.fields, "importDate") ||
+				record.created?.timestamp ||
+				0;
+			photos.push({
+				key: record.recordName,
+				src: source.src,
+				caption: "",
+				takenAt: new Date(takenAtMs).toISOString(),
+				width: source.width,
+				height: source.height,
+			});
+		}
+		marker = page.continuationMarker || null;
+		pages++;
+	} while (marker && pages < CK_MAX_PAGES);
+
+	photos.sort((a, b) => a.takenAt.localeCompare(b.takenAt));
+	return { ok: true, albumTitle, photos };
+}
+
+// --- entry point (server fn; 5-minute in-module cache)
+
+async function resolveSharedAlbum(
+	shareUrl: string,
+): Promise<SharedAlbumResult> {
+	const cached = cache.get(shareUrl);
+	if (cached && Date.now() - cached.at < CACHE_TTL_MS) {
+		return cached.value;
+	}
+
+	const { kind, token } = tokenFromShareUrl(shareUrl);
+	const value =
+		kind === "legacy"
+			? await resolveLegacy(token)
+			: await resolveCloudKit(token);
 	cache.set(shareUrl, { at: Date.now(), value });
 	return value;
 }
