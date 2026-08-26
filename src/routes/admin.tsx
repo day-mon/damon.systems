@@ -2,11 +2,13 @@
 hidden admin portal (/admin) - not linked anywhere in the ui.
 
 paste an icloud share url, hit "fetch album" to pull the real photo
-count and date range, fill the story bits, save. writes go to the
-travel_trips postgres table through an ADMIN_TOKEN-guarded server fn.
+count and prefill the date range, fill the story bits, save. writes go
+to the travel_trips postgres table through an ADMIN_TOKEN-guarded
+server fn.
 */
 
 import * as stylex from "@stylexjs/stylex";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
@@ -67,16 +69,8 @@ const styles = stylex.create({
 		resize: "vertical",
 		fontFamily: "inherit",
 	},
-	row: {
-		display: "flex",
-		gap: 16,
-	},
-	half: {
-		flex: 1,
-		display: "flex",
-		flexDirection: "column",
-		gap: 6,
-	},
+	row: { display: "flex", gap: 16 },
+	half: { flex: 1, display: "flex", flexDirection: "column", gap: 6 },
 	button: {
 		fontFamily: "Space Grotesk Variable, sans-serif",
 		fontSize: "0.875rem",
@@ -89,22 +83,17 @@ const styles = stylex.create({
 		paddingBlock: 10,
 		cursor: "pointer",
 		opacity: { default: 1, ":disabled": 0.5 },
-		marginTop: 8,
 	},
-	urootButton: {
-		marginTop: 0,
-	},
-	urUrlInput: {
-		flex: 1,
-	},
-	status: {
+	statusLine: {
 		marginTop: 12,
 		fontSize: "0.8125rem",
 		fontFamily: "IBM Plex Mono Variable, monospace",
-		color: {
-			default: "rgb(var(--colors-foregroundMuted))",
-			"[data-state=error] &": "tomato",
-		},
+		color: "rgb(var(--colors-foregroundMuted))",
+	},
+	error: {
+		fontSize: "0.75rem",
+		fontFamily: "IBM Plex Mono Variable, monospace",
+		color: "tomato",
 	},
 	notice: {
 		fontSize: "0.75rem",
@@ -114,73 +103,92 @@ const styles = stylex.create({
 	},
 });
 
+interface TripForm {
+	token: string;
+	sharedAlbumUrl: string;
+	slug: string;
+	title: string;
+	location: string;
+	start: string;
+	end: string;
+	blurb: string;
+}
+
+const required = ({ value }: { value: string }) =>
+	!value ? "required" : undefined;
+const slugRule = ({ value }: { value: string }) =>
+	/^[a-z0-9-]+$/.test(value) ? undefined : "lowercase, numbers, dashes";
+const dateRule = ({ value }: { value: string }) =>
+	/^\d{4}-\d{2}-\d{2}$/.test(value) ? undefined : "YYYY-MM-DD";
+
+function FieldError({ errors }: { errors: unknown[] }) {
+	if (errors.length === 0) return null;
+	return <span {...stylex.props(styles.error)}>{String(errors[0])}</span>;
+}
+
 function AdminPortal() {
-	const [form, setForm] = useState({
-		runnerToken: "",
-		slug: "",
-		title: "",
-		location: "",
-		start: "",
-		end: "",
-		blurb: "",
-		sharedAlbumUrl: "",
+	const [albumStatus, setAlbumStatus] = useState<string | null>(null);
+
+	const form = useForm({
+		defaultValues: {
+			token: "",
+			sharedAlbumUrl: "",
+			slug: "",
+			title: "",
+			location: "",
+			start: "",
+			end: "",
+			blurb: "",
+		} satisfies TripForm,
+		onSubmit: async ({ value }) => {
+			const result = await saveTrip({ data: value });
+			if (!result.ok) {
+				throw new Error(result.error ?? "save failed");
+			}
+			window.location.assign(`/travel/${value.slug}`);
+		},
+		onSubmitInvalid: () => undefined,
 	});
-	const [status, setStatus] = useState<{ kind: string; text: string } | null>(
-		null,
-	);
-	const [busy, setBusy] = useState(false);
-
-	const set = (key: keyof typeof form) => (value: string) =>
-		setForm((prev) => ({ ...prev, [key]: value }));
-
-	async function fetchAlbum() {
-		setBusy(true);
-		setStatus({ kind: "info", text: "resolving album…" });
-		const album = await getSharedAlbum({ data: form.sharedAlbumUrl });
-		setBusy(false);
-		if (!album.ok) {
-			setStatus({ kind: "error", text: "album resolve failed" });
-			return;
-		}
-		const dates = album.photos.map((p) => p.takenAt.slice(0, 10)).sort();
-		setForm((prev) => ({
-			...prev,
-			start: dates[0] ?? prev.start,
-			end: dates[dates.length - 1] ?? prev.end,
-		}));
-		setStatus({
-			kind: "info",
-			text: `${album.photos.length} photos, ${dates[0] ?? "?"} → ${dates[dates.length - 1] ?? "?"} (dates prefilled)`,
-		});
+	function FetchAlbumButton({
+		onStatus,
+	}: {
+		onStatus: (s: string | null) => void;
+	}) {
+		const [busy, setBusy] = useState(false);
+		return (
+			<form.Subscribe selector={(state) => state.values.sharedAlbumUrl}>
+				{(url) => (
+					<button
+						type="button"
+						disabled={busy || !url}
+						onClick={async () => {
+							setBusy(true);
+							onStatus("resolving album…");
+							const album = await getSharedAlbum({ data: url });
+							setBusy(false);
+							if (!album.ok) {
+								onStatus("album resolve failed");
+								return;
+							}
+							const dates = album.photos
+								.map((p) => p.takenAt.slice(0, 10))
+								.sort();
+							if (dates.length > 0) {
+								form.setFieldValue("start", dates[0]);
+								form.setFieldValue("end", dates[dates.length - 1]);
+							}
+							onStatus(
+								`${album.photos.length} photos · ${dates[0] ?? "?"} → ${dates[dates.length - 1] ?? "?"} (dates prefilled)`,
+							);
+						}}
+						{...stylex.props(styles.button)}
+					>
+						{busy ? "fetching…" : "fetch"}
+					</button>
+				)}
+			</form.Subscribe>
+		);
 	}
-
-	async function save() {
-		setBusy(true);
-		const result = await saveTrip({
-			data: {
-				token: form.runnerToken,
-				slug: form.slug,
-				title: form.title,
-				location: form.location,
-				start: form.start,
-				end: form.end,
-				blurb: form.blurb,
-				sharedAlbumUrl: form.sharedAlbumUrl,
-			},
-		});
-		setBusy(false);
-		if (!result.ok) {
-			setStatus({ kind: "error", text: result.error ?? "save failed" });
-			return;
-		}
-		window.location.assign(`/travel/${form.slug}`);
-	}
-
-	const input = (key: keyof typeof form, placeholder = "") => ({
-		value: form[key],
-		placeholder,
-		onChange: (e: { target: { value: string } }) => set(key)(e.target.value),
-	});
 
 	return (
 		<main {...stylex.props(styles.main)}>
@@ -190,92 +198,179 @@ function AdminPortal() {
 				manifest stays untouched.
 			</p>
 
-			<div {...stylex.props(styles.field)}>
-				<label {...stylex.props(styles.label)}>admin token</label>
-				<input
-					type="password"
-					{...input("runnerToken", "ADMIN_TOKEN env")}
-					{...stylex.props(styles.input)}
-				/>
-			</div>
-
-			<div {...stylex.props(styles.field)}>
-				<label {...stylex.props(styles.label)}>icloud share url</label>
-				<div {...stylex.props(styles.row)}>
-					<input
-						{...input("sharedAlbumUrl", "https://share.icloud.com/photos/…")}
-						{...stylex.props(styles.input, styles.urUrlInput)}
-					/>
-					<button
-						type="button"
-						disabled={busy || !form.sharedAlbumUrl}
-						onClick={fetchAlbum}
-						{...stylex.props(styles.button, styles.urootButton)}
-					>
-						fetch
-					</button>
-				</div>
-			</div>
-
-			<div {...stylex.props(styles.row)}>
-				<div {...stylex.props(styles.field, styles.half)}>
-					<label {...stylex.props(styles.label)}>slug</label>
-					<input
-						{...input("slug", "kebab-case")}
-						{...stylex.props(styles.input)}
-					/>
-				</div>
-				<div {...stylex.props(styles.field, styles.half)}>
-					<label {...stylex.props(styles.label)}>title</label>
-					<input {...input("title")} {...stylex.props(styles.input)} />
-				</div>
-			</div>
-
-			<div {...stylex.props(styles.field)}>
-				<label {...stylex.props(styles.label)}>location</label>
-				<input {...input("location")} {...stylex.props(styles.input)} />
-			</div>
-
-			<div {...stylex.props(styles.row)}>
-				<div {...stylex.props(styles.half)}>
-					<label {...stylex.props(styles.label)}>start</label>
-					<input
-						type="date"
-						{...input("start")}
-						{...stylex.props(styles.input)}
-					/>
-				</div>
-				<div {...stylex.props(styles.half)}>
-					<label {...stylex.props(styles.label)}>end</label>
-					<input
-						type="date"
-						{...input("end")}
-						{...stylex.props(styles.input)}
-					/>
-				</div>
-			</div>
-
-			<div {...stylex.props(styles.field)}>
-				<label {...stylex.props(styles.label)}>blurb</label>
-				<textarea
-					{...input("blurb")}
-					{...stylex.props(styles.input, styles.textarea)}
-				/>
-			</div>
-
-			<button
-				type="button"
-				disabled={busy}
-				onClick={save}
-				{...stylex.props(styles.button)}
+			<form
+				onSubmit={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					form.handleSubmit();
+				}}
 			>
-				save trip
-			</button>
-			{status && (
-				<p data-state={status.kind} {...stylex.props(styles.status)}>
-					{status.text}
-				</p>
-			)}
+				<form.Field name="token" validators={{ onChange: required }}>
+					{(field) => (
+						<div {...stylex.props(styles.field)}>
+							<label {...stylex.props(styles.label)}>admin token</label>
+							<input
+								type="password"
+								placeholder="ADMIN_TOKEN env"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								{...stylex.props(styles.input)}
+							/>
+							<FieldError errors={field.state.meta.errors} />
+						</div>
+					)}
+				</form.Field>
+
+				<div {...stylex.props(styles.row)}>
+					<div {...stylex.props(styles.half)}>
+						<form.Field name="sharedAlbumUrl">
+							{(field) => (
+								<div {...stylex.props(styles.field)}>
+									<label {...stylex.props(styles.label)}>
+										icloud share url
+									</label>
+									<input
+										placeholder="https://share.icloud.com/photos/…"
+										value={field.state.value}
+										onChange={(e) => field.handleChange(e.target.value)}
+										{...stylex.props(styles.input)}
+									/>
+								</div>
+							)}
+						</form.Field>
+					</div>
+					<FetchAlbumButton onStatus={setAlbumStatus} />
+				</div>
+				{albumStatus && (
+					<p {...stylex.props(styles.statusLine)}>{albumStatus}</p>
+				)}
+
+				<div {...stylex.props(styles.row)}>
+					<div {...stylex.props(styles.half)}>
+						<form.Field
+							name="slug"
+							validators={{ onChange: slugRule, onMount: undefined }}
+						>
+							{(field) => (
+								<div {...stylex.props(styles.field)}>
+									<label {...stylex.props(styles.label)}>slug</label>
+									<input
+										placeholder="kebab-case"
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										{...stylex.props(styles.input)}
+									/>
+									<FieldError errors={field.state.meta.errors} />
+								</div>
+							)}
+						</form.Field>
+					</div>
+					<div {...stylex.props(styles.half)}>
+						<form.Field name="title" validators={{ onChange: required }}>
+							{(field) => (
+								<div {...stylex.props(styles.field)}>
+									<label {...stylex.props(styles.label)}>title</label>
+									<input
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										{...stylex.props(styles.input)}
+									/>
+									<FieldError errors={field.state.meta.errors} />
+								</div>
+							)}
+						</form.Field>
+					</div>
+				</div>
+
+				<form.Field name="location" validators={{ onChange: required }}>
+					{(field) => (
+						<div {...stylex.props(styles.field)}>
+							<label {...stylex.props(styles.label)}>location</label>
+							<input
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								{...stylex.props(styles.input)}
+							/>
+							<FieldError errors={field.state.meta.errors} />
+						</div>
+					)}
+				</form.Field>
+
+				<div {...stylex.props(styles.row)}>
+					<div {...stylex.props(styles.half)}>
+						<form.Field name="start" validators={{ onChange: dateRule }}>
+							{(field) => (
+								<div {...stylex.props(styles.field)}>
+									<label {...stylex.props(styles.label)}>start</label>
+									<input
+										type="date"
+										value={field.state.value}
+										onChange={(e) => field.handleChange(e.target.value)}
+										{...stylex.props(styles.input)}
+									/>
+									<FieldError errors={field.state.meta.errors} />
+								</div>
+							)}
+						</form.Field>
+					</div>
+					<div {...stylex.props(styles.half)}>
+						<form.Field name="end" validators={{ onChange: dateRule }}>
+							{(field) => (
+								<div {...stylex.props(styles.field)}>
+									<label {...stylex.props(styles.label)}>end</label>
+									<input
+										type="date"
+										value={field.state.value}
+										onChange={(e) => field.handleChange(e.target.value)}
+										{...stylex.props(styles.input)}
+									/>
+									<FieldError errors={field.state.meta.errors} />
+								</div>
+							)}
+						</form.Field>
+					</div>
+				</div>
+
+				<form.Field name="blurb">
+					{(field) => (
+						<div {...stylex.props(styles.field)}>
+							<label {...stylex.props(styles.label)}>blurb</label>
+							<textarea
+								value={field.state.value}
+								onChange={(e) => field.handleChange(e.target.value)}
+								{...stylex.props(styles.input, styles.textarea)}
+							/>
+						</div>
+					)}
+				</form.Field>
+
+				<form.Subscribe
+					selector={(state) => ({
+						canSubmit: state.canSubmit,
+						isSubmitting: state.isSubmitting,
+						errors: state.errors,
+					})}
+				>
+					{({ canSubmit, isSubmitting, errors }) => (
+						<>
+							<button
+								type="submit"
+								disabled={!canSubmit || isSubmitting}
+								{...stylex.props(styles.button)}
+							>
+								{isSubmitting ? "saving…" : "save trip"}
+							</button>
+							{errors.length > 0 && (
+								<p {...stylex.props(styles.error)}>{String(errors[0])}</p>
+							)}
+						</>
+					)}
+				</form.Subscribe>
+			</form>
 		</main>
 	);
 }
