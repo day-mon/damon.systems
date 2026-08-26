@@ -20,6 +20,8 @@ import { Route as DesignFaqRouteImport } from './routes/design/faq'
 import { Route as DesignIndexFirstRouteImport } from './routes/design/index-first'
 import { Route as DesignLetterRouteImport } from './routes/design/letter'
 import { Route as DesignManifestoRouteImport } from './routes/design/manifesto'
+import { Route as DesignMarqueeRouteImport } from './routes/design/marquee'
+import { Route as DesignSplitRouteImport } from './routes/design/split'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
@@ -85,6 +87,16 @@ const DesignManifestoRoute = DesignManifestoRouteImport.update({
   path: '/design/manifesto',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignMarqueeRoute = DesignMarqueeRouteImport.update({
+  id: '/design/marquee',
+  path: '/design/marquee',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignSplitRoute = DesignSplitRouteImport.update({
+  id: '/design/split',
+  path: '/design/split',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LabIndexRoute = LabIndexRouteImport.update({
   id: '/lab/',
   path: '/lab/',
@@ -142,6 +154,8 @@ export interface FileRoutesByFullPath {
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
+  '/design/marquee': typeof DesignMarqueeRoute
+  '/design/split': typeof DesignSplitRoute
   '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
@@ -164,6 +178,8 @@ export interface FileRoutesByTo {
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
+  '/design/marquee': typeof DesignMarqueeRoute
+  '/design/split': typeof DesignSplitRoute
   '/design': typeof DesignIndexRoute
   '/lab': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
@@ -187,6 +203,8 @@ export interface FileRoutesById {
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
+  '/design/marquee': typeof DesignMarqueeRoute
+  '/design/split': typeof DesignSplitRoute
   '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
@@ -211,6 +229,8 @@ export interface FileRouteTypes {
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
+    | '/design/marquee'
+    | '/design/split'
     | '/design/'
     | '/lab/'
     | '/api/lab/filters'
@@ -233,6 +253,8 @@ export interface FileRouteTypes {
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
+    | '/design/marquee'
+    | '/design/split'
     | '/design'
     | '/lab'
     | '/api/lab/filters'
@@ -255,6 +277,8 @@ export interface FileRouteTypes {
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
+    | '/design/marquee'
+    | '/design/split'
     | '/design/'
     | '/lab/'
     | '/api/lab/filters'
@@ -278,6 +302,8 @@ export interface RootRouteChildren {
   DesignIndexFirstRoute: typeof DesignIndexFirstRoute
   DesignLetterRoute: typeof DesignLetterRoute
   DesignManifestoRoute: typeof DesignManifestoRoute
+  DesignMarqueeRoute: typeof DesignMarqueeRoute
+  DesignSplitRoute: typeof DesignSplitRoute
   DesignIndexRoute: typeof DesignIndexRoute
   LabIndexRoute: typeof LabIndexRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
@@ -369,6 +395,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignManifestoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design/marquee': {
+      id: '/design/marquee'
+      path: '/design/marquee'
+      fullPath: '/design/marquee'
+      preLoaderRoute: typeof DesignMarqueeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/split': {
+      id: '/design/split'
+      path: '/design/split'
+      fullPath: '/design/split'
+      preLoaderRoute: typeof DesignSplitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lab/': {
       id: '/lab/'
       path: '/lab'
@@ -446,6 +486,8 @@ const rootRouteChildren: RootRouteChildren = {
   DesignIndexFirstRoute: DesignIndexFirstRoute,
   DesignLetterRoute: DesignLetterRoute,
   DesignManifestoRoute: DesignManifestoRoute,
+  DesignMarqueeRoute: DesignMarqueeRoute,
+  DesignSplitRoute: DesignSplitRoute,
   DesignIndexRoute: DesignIndexRoute,
   LabIndexRoute: LabIndexRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,

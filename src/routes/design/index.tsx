@@ -37,6 +37,16 @@ const VARIANTS = [
 		name: "F · conversational faq",
 		desc: "the site interviews itself. bold questions, honest answers.",
 	},
+	{
+		to: "/design/marquee",
+		name: "G · marquee hero",
+		desc: "your name at 16rem, outlined. the whole viewport is the intro.",
+	},
+	{
+		to: "/design/split",
+		name: "H · split studio",
+		desc: "text vs proof diptychs: real code, real stats, alternating columns.",
+	},
 ];
 
 const styles = stylex.create({
@@ -69,8 +79,8 @@ function DesignHub() {
 		<main {...stylex.props(styles.wrap)}>
 			<h1 {...stylex.props(styles.h1)}>pick a direction</h1>
 			<p {...stylex.props(styles.hint)}>
-				six candidates, six different page anatomies. winner gets ported across
-				every route; losers get deleted.
+				eight candidates, six different page anatomies. winner gets ported
+				across every route; losers get deleted.
 			</p>
 			<div {...stylex.props(styles.list)}>
 				{VARIANTS.map((v) => (

@@ -162,7 +162,8 @@ function Bento() {
 				<div {...stylex.props(styles.cell)}>
 					<p {...stylex.props(styles.cellKicker)}>fun fact</p>
 					<p {...stylex.props(styles.fact)}>
-						between english £ and us $, i have handled 33 different currencies.
+						played divisional paintball for 2 years. been to universal in
+						florida 10 times.
 					</p>
 				</div>
 
