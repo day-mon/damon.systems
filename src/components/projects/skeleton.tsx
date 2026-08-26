@@ -12,8 +12,13 @@ and the header is a 77x32 "projects" h1 with a 28x28 refresh badge beside it.
 */
 
 // name widths sampled to look like the real repo mix (kebab-case names of
-// wildly different lengths, longest first like the loaded star-sorted list)
-const NAME_WIDTHS = [120, 96, 148, 104, 88, 132];
+// wildly different lengths, longest first like the loaded star-sorted list).
+// row count = 19, the actual number of repos rendered on load, so the swap
+// is a crossfade - not a layout jump.
+const NAME_WIDTHS = [
+	120, 148, 96, 104, 88, 132, 116, 92, 152, 108, 124, 84, 140, 100, 112, 96,
+	128, 92, 108,
+];
 
 const styles = stylex.create({
 	wrap: {
