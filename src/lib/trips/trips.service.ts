@@ -79,8 +79,14 @@ export class TripsService {
 	}
 
 	private validate(raw: SaveTripInput): string | null {
-		if (!process.env.ADMIN_TOKEN) return "ADMIN_TOKEN is not set on the server";
-		if (raw.token !== process.env.ADMIN_TOKEN) return "wrong admin token";
+		// vite dev server (local only) skips the gate - a production build
+		// always requires ADMIN_TOKEN, set or not is a server misconfiguration
+		if (!import.meta.env.DEV) {
+			if (!process.env.ADMIN_TOKEN) {
+				return "ADMIN_TOKEN is not set on the server";
+			}
+			if (raw.token !== process.env.ADMIN_TOKEN) return "wrong admin token";
+		}
 		if (!raw.slug || !SLUG_RE.test(raw.slug)) {
 			return "slug: lowercase letters, numbers, dashes only";
 		}
@@ -120,9 +126,11 @@ export class TripsService {
 		token: string;
 		slug: string;
 	}): Promise<SaveResult> {
-		const adminToken = process.env.ADMIN_TOKEN;
-		if (!adminToken || input.token !== adminToken) {
-			return { ok: false, error: "unauthorized" };
+		if (!import.meta.env.DEV) {
+			const adminToken = process.env.ADMIN_TOKEN;
+			if (!adminToken || input.token !== adminToken) {
+				return { ok: false, error: "unauthorized" };
+			}
 		}
 		try {
 			await this.repo.delete(input.slug);
