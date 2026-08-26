@@ -1,26 +1,59 @@
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
-import { getTrip } from "#/content/trips";
+import { getTrip, type Trip } from "#/content/trips";
+import { getSharedAlbum, type SharedPhoto } from "#/lib/icloud-shared";
+
+interface WallPhoto {
+	key: string;
+	src: string;
+	caption: string;
+	takenAt: string;
+	dims: { width: number; height: number } | null;
+}
+
+function wallPhotos(trip: Trip, live: SharedPhoto[] | null): WallPhoto[] {
+	if (live) {
+		return live.map((photo) => ({
+			key: photo.key,
+			src: photo.src,
+			caption: photo.caption,
+			takenAt: photo.takenAt,
+			dims: { width: photo.width, height: photo.height },
+		}));
+	}
+	return trip.photos.map((photo) => ({
+		key: photo.file,
+		src: `/travel/${trip.slug}/${photo.file}`,
+		caption: photo.caption,
+		takenAt: photo.takenAt,
+		dims: null,
+	}));
+}
 
 export const Route = createFileRoute("/travel/$slug")({
-	// trip manifests are plain json so the whole trip survives loader
-	// serialization; photos resolve under /travel/<slug>/ at render time
-	loader: ({ params }) => {
+	// trips may carry a public icloud share url; when present, manifests +
+	// signed photo urls resolve live (5-minute server cache) and the
+	// committed photos array is ignored
+	loader: async ({ params }) => {
 		const trip = getTrip(params.slug);
 		if (!trip) {
 			throw notFound();
 		}
-		return trip;
+		if (trip.sharedAlbumUrl) {
+			const album = await getSharedAlbum({ data: trip.sharedAlbumUrl });
+			return { trip, liveAlbum: album };
+		}
+		return { trip, liveAlbum: null };
 	},
 	head: ({ loaderData }) => ({
 		meta: [
 			{
 				title: loaderData
-					? `damon | travel | ${loaderData.title}`
+					? `damon | travel | ${loaderData.trip.title}`
 					: "damon | travel",
 			},
-			{ name: "description", content: loaderData?.blurb ?? "" },
+			{ name: "description", content: loaderData?.trip.blurb ?? "" },
 		],
 	}),
 	component: TripPage,
@@ -128,7 +161,11 @@ function dateRangeLabel(start: string, end: string): string {
 }
 
 function TripPage() {
-	const trip = Route.useLoaderData();
+	const { trip, liveAlbum } = Route.useLoaderData();
+	const photos = wallPhotos(
+		trip,
+		liveAlbum && liveAlbum.ok ? liveAlbum.photos : null,
+	);
 
 	return (
 		<main {...stylex.props(styles.main)}>
@@ -144,13 +181,21 @@ function TripPage() {
 				<p {...stylex.props(styles.blurb)}>{trip.blurb}</p>
 			</header>
 
-			{trip.photos.length > 0 ? (
+			{liveAlbum && !liveAlbum.ok && (
+				<p {...stylex.props(styles.empty)}>
+					this trip's icloud album is offline.
+				</p>
+			)}
+
+			{photos.length > 0 && (
 				<div {...stylex.props(styles.masonry)}>
-					{trip.photos.map((photo) => (
-						<figure key={photo.file} {...stylex.props(styles.tile)}>
+					{photos.map((photo) => (
+						<figure key={photo.key} {...stylex.props(styles.tile)}>
 							<img
-								src={`/travel/${trip.slug}/${photo.file}`}
+								src={photo.src}
 								alt={photo.caption || `${trip.title} photo`}
+								width={photo.dims?.width}
+								height={photo.dims?.height}
 								loading="lazy"
 								{...stylex.props(styles.photo)}
 							/>
@@ -162,7 +207,9 @@ function TripPage() {
 						</figure>
 					))}
 				</div>
-			) : (
+			)}
+
+			{photos.length === 0 && (!liveAlbum || liveAlbum.ok) && (
 				<p {...stylex.props(styles.empty)}>no photos on this trip yet.</p>
 			)}
 		</main>

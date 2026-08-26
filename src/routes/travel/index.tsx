@@ -138,13 +138,13 @@ function TravelIndex() {
 							</time>
 						</div>
 						<p {...stylex.props(styles.desc)}>{trip.blurb}</p>
-						{trip.photos.length > 0 && (
-							<p {...stylex.props(styles.metaLine)}>
-								{trip.photos.length} photo{trip.photos.length === 1 ? "" : "s"}
-								{" · "}
-								{trip.location}
-							</p>
-						)}
+						<p {...stylex.props(styles.metaLine)}>
+							{trip.sharedAlbumUrl
+								? "live icloud album"
+								: `${trip.photos.length} photo${trip.photos.length === 1 ? "" : "s"}`}
+							{" · "}
+							{trip.location}
+						</p>
 					</Link>
 				))}
 			</div>

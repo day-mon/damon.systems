@@ -5,13 +5,61 @@
 	"dateRange": { "start": "2026-07-29", "end": "2026-07-30" },
 	"blurb": "placeholder trip so the routes have something to hang onto. run the icloud sync, write a blurb, delete this file.\nphotos below are real stand-ins from the camera roll, exif-stripped and downscaled.",
 	"photos": [
-		{ "file": "001.jpg", "caption": "sample caption — delete me", "takenAt": "2026-07-29T16:23:48Z", "lat": null, "lng": null },
-		{ "file": "002.jpg", "caption": "", "takenAt": "2026-07-29T16:24:33Z", "lat": null, "lng": null },
-		{ "file": "003.jpg", "caption": "", "takenAt": "2026-07-29T16:36:54Z", "lat": null, "lng": null },
-		{ "file": "004.jpg", "caption": "", "takenAt": "2026-07-29T16:45:51Z", "lat": null, "lng": null },
-		{ "file": "005.jpg", "caption": "", "takenAt": "2026-07-29T16:46:18Z", "lat": null, "lng": null },
-		{ "file": "006.jpg", "caption": "", "takenAt": "2026-07-29T16:59:51Z", "lat": null, "lng": null },
-		{ "file": "007.jpg", "caption": "", "takenAt": "2026-07-30T11:13:57Z", "lat": null, "lng": null },
-		{ "file": "008.jpg", "caption": "", "takenAt": "2026-07-30T12:56:32Z", "lat": null, "lng": null }
+		{
+			"file": "001.jpg",
+			"caption": "sample caption — delete me",
+			"takenAt": "2026-07-29T16:23:48Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "002.jpg",
+			"caption": "",
+			"takenAt": "2026-07-29T16:24:33Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "003.jpg",
+			"caption": "",
+			"takenAt": "2026-07-29T16:36:54Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "004.jpg",
+			"caption": "",
+			"takenAt": "2026-07-29T16:45:51Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "005.jpg",
+			"caption": "",
+			"takenAt": "2026-07-29T16:46:18Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "006.jpg",
+			"caption": "",
+			"takenAt": "2026-07-29T16:59:51Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "007.jpg",
+			"caption": "",
+			"takenAt": "2026-07-30T11:13:57Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "008.jpg",
+			"caption": "",
+			"takenAt": "2026-07-30T12:56:32Z",
+			"lat": null,
+			"lng": null
+		}
 	]
 }

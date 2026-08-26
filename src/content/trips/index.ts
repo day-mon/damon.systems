@@ -19,6 +19,9 @@ export interface Trip {
 	dateRange: { start: string; end: string };
 	blurb: string;
 	photos: TripPhoto[];
+	// when set, photos resolve live from this public icloud share at render
+	// time instead of reading the committed photos array
+	sharedAlbumUrl?: string;
 }
 
 // json modules lack slug/photo ordering guarantees; normalize both here
