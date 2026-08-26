@@ -25,10 +25,10 @@ import { saveTrip } from "#/lib/trips/trips.service";
 import { useSharedAlbumPreview } from "#/queries/shared-album/queries";
 
 export const Route = createFileRoute("/admin")({
+	ssr: false,
 	head: () => ({
 		meta: [{ title: "admin" }, { name: "robots", content: "noindex" }],
 	}),
-	ssr: false,
 	component: AdminPortal,
 });
 
