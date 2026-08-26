@@ -1,6 +1,15 @@
 import "../styles.css";
 
-import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import * as stylex from "@stylexjs/stylex";
+import {
+	createRootRoute,
+	HeadContent,
+	Link,
+	Scripts,
+} from "@tanstack/react-router";
+
+import { Footer } from "../components/footer";
+import { Navbar } from "../components/navbar";
 import { Providers } from "../providers";
 
 export const Route = createRootRoute({
@@ -27,8 +36,50 @@ export const Route = createRootRoute({
 				: []),
 		],
 	}),
+	notFoundComponent: NotFound,
 	shellComponent: RootDocument,
 });
+
+const fadeIn = stylex.keyframes({
+	from: { opacity: 0 },
+	to: { opacity: 1 },
+});
+
+const notFoundStyles = stylex.create({
+	main: {
+		display: "flex",
+		minHeight: "100vh",
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 16,
+		paddingInline: 32,
+		animationName: fadeIn,
+		animationDuration: "0.4s",
+		animationTimingFunction: "ease-out",
+	},
+	code: {
+		fontSize: "3rem",
+		fontWeight: 300,
+		letterSpacing: "-0.025em",
+		margin: 0,
+	},
+	muted: {
+		fontSize: "1.125rem",
+		opacity: 0.6,
+		margin: 0,
+	},
+});
+
+function NotFound() {
+	return (
+		<main {...stylex.props(notFoundStyles.main)}>
+			<h1 {...stylex.props(notFoundStyles.code)}>404</h1>
+			<p {...stylex.props(notFoundStyles.muted)}>page not found</p>
+			<Link to="/">home</Link>
+		</main>
+	);
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
@@ -37,7 +88,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<Providers>{children}</Providers>
+				<Providers>
+					<Navbar />
+					{children}
+					<Footer />
+				</Providers>
 
 				<Scripts />
 			</body>
