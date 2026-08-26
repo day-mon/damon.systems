@@ -140,7 +140,6 @@ export class CloudKitClient {
 				searchParams: CloudKitClient.buildParams,
 			},
 		);
-		if (!res.ok) throw new Error(`records/resolve ${res.status}`);
 		const record = (await res.json<{ results?: CkResolveResult[] }>())
 			.results?.[0];
 		if (!record) throw new Error("records/resolve returned no results");
@@ -181,7 +180,6 @@ export class CloudKitClient {
 			`database/1/${CloudKitClient.CK_CONTAINER}/production/shared/records/query`,
 			{ json: body, searchParams: CloudKitClient.buildParams },
 		);
-		if (!res.ok) throw new Error(`records/query ${res.status}`);
 		return res.json();
 	}
 
