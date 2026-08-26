@@ -13,15 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
-import { Route as DesignIndexRouteImport } from './routes/design/index'
-import { Route as DesignBentoRouteImport } from './routes/design/bento'
-import { Route as DesignEcosystemRouteImport } from './routes/design/ecosystem'
-import { Route as DesignFaqRouteImport } from './routes/design/faq'
-import { Route as DesignIndexFirstRouteImport } from './routes/design/index-first'
-import { Route as DesignLetterRouteImport } from './routes/design/letter'
-import { Route as DesignManifestoRouteImport } from './routes/design/manifesto'
-import { Route as DesignMarqueeRouteImport } from './routes/design/marquee'
-import { Route as DesignSplitRouteImport } from './routes/design/split'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
@@ -50,51 +41,6 @@ const ContactRoute = ContactRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignIndexRoute = DesignIndexRouteImport.update({
-  id: '/design/',
-  path: '/design/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignBentoRoute = DesignBentoRouteImport.update({
-  id: '/design/bento',
-  path: '/design/bento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignEcosystemRoute = DesignEcosystemRouteImport.update({
-  id: '/design/ecosystem',
-  path: '/design/ecosystem',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignFaqRoute = DesignFaqRouteImport.update({
-  id: '/design/faq',
-  path: '/design/faq',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignIndexFirstRoute = DesignIndexFirstRouteImport.update({
-  id: '/design/index-first',
-  path: '/design/index-first',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignLetterRoute = DesignLetterRouteImport.update({
-  id: '/design/letter',
-  path: '/design/letter',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignManifestoRoute = DesignManifestoRouteImport.update({
-  id: '/design/manifesto',
-  path: '/design/manifesto',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignMarqueeRoute = DesignMarqueeRouteImport.update({
-  id: '/design/marquee',
-  path: '/design/marquee',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignSplitRoute = DesignSplitRouteImport.update({
-  id: '/design/split',
-  path: '/design/split',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabIndexRoute = LabIndexRouteImport.update({
@@ -148,15 +94,6 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/design/bento': typeof DesignBentoRoute
-  '/design/ecosystem': typeof DesignEcosystemRoute
-  '/design/faq': typeof DesignFaqRoute
-  '/design/index-first': typeof DesignIndexFirstRoute
-  '/design/letter': typeof DesignLetterRoute
-  '/design/manifesto': typeof DesignManifestoRoute
-  '/design/marquee': typeof DesignMarqueeRoute
-  '/design/split': typeof DesignSplitRoute
-  '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -172,15 +109,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/design/bento': typeof DesignBentoRoute
-  '/design/ecosystem': typeof DesignEcosystemRoute
-  '/design/faq': typeof DesignFaqRoute
-  '/design/index-first': typeof DesignIndexFirstRoute
-  '/design/letter': typeof DesignLetterRoute
-  '/design/manifesto': typeof DesignManifestoRoute
-  '/design/marquee': typeof DesignMarqueeRoute
-  '/design/split': typeof DesignSplitRoute
-  '/design': typeof DesignIndexRoute
   '/lab': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -197,15 +125,6 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/design/bento': typeof DesignBentoRoute
-  '/design/ecosystem': typeof DesignEcosystemRoute
-  '/design/faq': typeof DesignFaqRoute
-  '/design/index-first': typeof DesignIndexFirstRoute
-  '/design/letter': typeof DesignLetterRoute
-  '/design/manifesto': typeof DesignManifestoRoute
-  '/design/marquee': typeof DesignMarqueeRoute
-  '/design/split': typeof DesignSplitRoute
-  '/design/': typeof DesignIndexRoute
   '/lab/': typeof LabIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -223,15 +142,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
-    | '/design/bento'
-    | '/design/ecosystem'
-    | '/design/faq'
-    | '/design/index-first'
-    | '/design/letter'
-    | '/design/manifesto'
-    | '/design/marquee'
-    | '/design/split'
-    | '/design/'
     | '/lab/'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -247,15 +157,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
-    | '/design/bento'
-    | '/design/ecosystem'
-    | '/design/faq'
-    | '/design/index-first'
-    | '/design/letter'
-    | '/design/manifesto'
-    | '/design/marquee'
-    | '/design/split'
-    | '/design'
     | '/lab'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -271,15 +172,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
-    | '/design/bento'
-    | '/design/ecosystem'
-    | '/design/faq'
-    | '/design/index-first'
-    | '/design/letter'
-    | '/design/manifesto'
-    | '/design/marquee'
-    | '/design/split'
-    | '/design/'
     | '/lab/'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -296,15 +188,6 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
-  DesignBentoRoute: typeof DesignBentoRoute
-  DesignEcosystemRoute: typeof DesignEcosystemRoute
-  DesignFaqRoute: typeof DesignFaqRoute
-  DesignIndexFirstRoute: typeof DesignIndexFirstRoute
-  DesignLetterRoute: typeof DesignLetterRoute
-  DesignManifestoRoute: typeof DesignManifestoRoute
-  DesignMarqueeRoute: typeof DesignMarqueeRoute
-  DesignSplitRoute: typeof DesignSplitRoute
-  DesignIndexRoute: typeof DesignIndexRoute
   LabIndexRoute: typeof LabIndexRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
   ApiLabPointsRoute: typeof ApiLabPointsRoute
@@ -344,69 +227,6 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/': {
-      id: '/design/'
-      path: '/design'
-      fullPath: '/design/'
-      preLoaderRoute: typeof DesignIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/bento': {
-      id: '/design/bento'
-      path: '/design/bento'
-      fullPath: '/design/bento'
-      preLoaderRoute: typeof DesignBentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/ecosystem': {
-      id: '/design/ecosystem'
-      path: '/design/ecosystem'
-      fullPath: '/design/ecosystem'
-      preLoaderRoute: typeof DesignEcosystemRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/faq': {
-      id: '/design/faq'
-      path: '/design/faq'
-      fullPath: '/design/faq'
-      preLoaderRoute: typeof DesignFaqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/index-first': {
-      id: '/design/index-first'
-      path: '/design/index-first'
-      fullPath: '/design/index-first'
-      preLoaderRoute: typeof DesignIndexFirstRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/letter': {
-      id: '/design/letter'
-      path: '/design/letter'
-      fullPath: '/design/letter'
-      preLoaderRoute: typeof DesignLetterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/manifesto': {
-      id: '/design/manifesto'
-      path: '/design/manifesto'
-      fullPath: '/design/manifesto'
-      preLoaderRoute: typeof DesignManifestoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/marquee': {
-      id: '/design/marquee'
-      path: '/design/marquee'
-      fullPath: '/design/marquee'
-      preLoaderRoute: typeof DesignMarqueeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design/split': {
-      id: '/design/split'
-      path: '/design/split'
-      fullPath: '/design/split'
-      preLoaderRoute: typeof DesignSplitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/': {
@@ -480,15 +300,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
-  DesignBentoRoute: DesignBentoRoute,
-  DesignEcosystemRoute: DesignEcosystemRoute,
-  DesignFaqRoute: DesignFaqRoute,
-  DesignIndexFirstRoute: DesignIndexFirstRoute,
-  DesignLetterRoute: DesignLetterRoute,
-  DesignManifestoRoute: DesignManifestoRoute,
-  DesignMarqueeRoute: DesignMarqueeRoute,
-  DesignSplitRoute: DesignSplitRoute,
-  DesignIndexRoute: DesignIndexRoute,
   LabIndexRoute: LabIndexRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,
   ApiLabPointsRoute: ApiLabPointsRoute,

@@ -86,8 +86,7 @@ const footerStyles = stylex.create({
 export function Footer() {
 	const { pathname } = useLocation();
 	const isHome = pathname === "/" || pathname === "";
-	// design system preview routes carry their own chrome
-	if (isHome || pathname.startsWith("/design")) return null;
+	if (isHome) return null;
 
 	return (
 		<footer {...stylex.props(footerStyles.footer)}>
