@@ -1,5 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { useQuery } from "@tanstack/react-query";
+import ky from "ky";
 import type { GitHubRepo, GitHubReposRequest } from "./types";
 
 export const githubKeys = createQueryKeys("github", {
@@ -15,16 +16,12 @@ export function useGithubRepos({
 } = {}) {
 	return useQuery({
 		queryKey: githubKeys.repos({ username, per_page }).queryKey,
-		queryFn: async () => {
-			const res = await fetch(
-				`https://api.github.com/users/${username}/repos?per_page=${per_page}`,
-				{ headers: { "X-Github-Api-Version": "2022-11-28" } },
-			);
-			if (!res.ok) {
-				throw new Error(`github api failed: ${res.status}`);
-			}
-			return res.json() as Promise<GitHubRepo[]>;
-		},
+		queryFn: () =>
+			ky(`https://api.github.com/users/${username}/repos`, {
+				searchParams: { per_page },
+				headers: { "X-Github-Api-Version": "2022-11-28" },
+				retry: 0,
+			}).json<GitHubRepo[]>(),
 		select,
 		staleTime: Infinity,
 	});

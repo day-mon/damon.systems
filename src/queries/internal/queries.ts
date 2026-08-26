@@ -1,5 +1,6 @@
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 import { type UseQueryResult, useQuery } from "@tanstack/react-query";
+import ky from "ky";
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
 import type {
 	FilterOptionsResult,
@@ -17,12 +18,10 @@ export const ticketKeys = createQueryKeys("tickets", {
 	filters: null,
 });
 
-async function fetchJson<T>(url: string): Promise<T> {
-	const res = await fetch(url);
-	if (!res.ok) {
-		throw new Error(`request failed: ${res.status}`);
-	}
-	return res.json() as Promise<T>;
+// ky throws HTTPError on non-2xx, so callers don't need res.ok checks
+async function fetchJson<T>(base: string, params: URLSearchParams): Promise<T> {
+	// retry: 0 — tanstack query already owns retries; don't multiply attempts
+	return ky(base, { searchParams: params, retry: 0 }).json<T>();
 }
 
 function buildParams(filters: TicketFilters): URLSearchParams {
@@ -63,7 +62,8 @@ export function useStatsCounts({
 		queryKey: ticketKeys.statsCounts(filters).queryKey,
 		queryFn: () =>
 			fetchJson<StatsCountsResult>(
-				`/api/lab/stats-counts?${buildParams(filters)}`,
+				"/api/lab/stats-counts",
+				buildParams(filters),
 			),
 		staleTime: 10 * 60 * 1000,
 		gcTime: 30 * 60 * 1000,
@@ -95,7 +95,8 @@ export function useStatsBreakdowns({
 		queryKey: ticketKeys.statsBreakdowns(filters).queryKey,
 		queryFn: () =>
 			fetchJson<StatsBreakdownsResult>(
-				`/api/lab/stats-breakdowns?${buildParams(filters)}`,
+				"/api/lab/stats-breakdowns",
+				buildParams(filters),
 			),
 		staleTime: 10 * 60 * 1000,
 		gcTime: 30 * 60 * 1000,
@@ -131,7 +132,7 @@ export function usePoints({
 		queryFn: () => {
 			const params = buildParams(filters);
 			params.set("limit", String(limit));
-			return fetchJson<PointsResult>(`/api/lab/points?${params}`);
+			return fetchJson<PointsResult>("/api/lab/points", params);
 		},
 		staleTime: 10 * 60 * 1000,
 		gcTime: 30 * 60 * 1000,
@@ -164,22 +165,10 @@ export function useTickets({
 	};
 	return useQuery<TicketsResult>({
 		queryKey: ticketKeys.list(filters, page).queryKey,
-		queryFn: async () => {
-			const p = new URLSearchParams();
-			p.set("page", String(page));
-			if (status) p.set("status", status);
-			if (year) p.set("year", year);
-			if (violation) p.set("violation", violation);
-			if (plate) p.set("plate", plate);
-			if (location) p.set("location", location);
-			if (dateFrom) p.set("dateFrom", dateFrom);
-			if (dateTo) p.set("dateTo", dateTo);
-			if (officer) p.set("officer", officer);
-			const res = await fetch(`/api/lab/tickets?${p.toString()}`);
-			if (!res.ok) {
-				throw new Error(`request failed: ${res.status}`);
-			}
-			return res.json() as Promise<TicketsResult>;
+		queryFn: () => {
+			const params = buildParams(filters);
+			params.set("page", String(page));
+			return fetchJson<TicketsResult>("/api/lab/tickets", params);
 		},
 		staleTime: 0,
 		gcTime: 0,
@@ -191,7 +180,8 @@ export function useTickets({
 export function useFilterOptions(): UseQueryResult<FilterOptionsResult> {
 	return useQuery<FilterOptionsResult>({
 		queryKey: ticketKeys.filters.queryKey,
-		queryFn: () => fetchJson<FilterOptionsResult>("/api/lab/filters"),
+		queryFn: () =>
+			fetchJson<FilterOptionsResult>("/api/lab/filters", new URLSearchParams()),
 		staleTime: Infinity,
 		gcTime: Infinity,
 		refetchOnMount: false,
