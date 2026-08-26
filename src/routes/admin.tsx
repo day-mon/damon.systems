@@ -9,11 +9,10 @@ server fn.
 
 import * as stylex from "@stylexjs/stylex";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-import { getSharedAlbum } from "#/lib/shared-album/shared-album.service";
 import { saveTrip } from "#/lib/trips/trips.service";
+import { useSharedAlbumPreview } from "#/queries/shared-album/queries";
 
 export const Route = createFileRoute("/admin")({
 	head: () => ({
@@ -126,9 +125,32 @@ function FieldError({ errors }: { errors: unknown[] }) {
 	return <span {...stylex.props(styles.error)}>{String(errors[0])}</span>;
 }
 
-function AdminPortal() {
-	const [albumStatus, setAlbumStatus] = useState<string | null>(null);
+function AlbumStatus({
+	query,
+}: {
+	query: ReturnType<typeof useSharedAlbumPreview>;
+}) {
+	const album = query.data;
+	if (query.isFetching) {
+		return <p {...stylex.props(styles.statusLine)}>resolving album…</p>;
+	}
+	if (query.isError || (album && !album.ok)) {
+		return <p {...stylex.props(styles.error)}>album resolve failed</p>;
+	}
+	if (album?.ok) {
+		const dates = album.photos.map((p) => p.takenAt.slice(0, 10)).sort();
+		return (
+			<p {...stylex.props(styles.statusLine)}>
+				{album.photos.length} photos · {dates[0] ?? "?"} →{" "}
+				{dates[dates.length - 1] ?? "?"} (dates prefilled)
+			</p>
+		);
+	}
+	return null;
+}
 
+function AdminPortal() {
+	const navigate = useNavigate();
 	const form = useForm({
 		defaultValues: {
 			token: "",
@@ -145,48 +167,39 @@ function AdminPortal() {
 			if (!result.ok) {
 				throw new Error(result.error ?? "save failed");
 			}
-			window.location.assign(`/travel/${value.slug}`);
+			await navigate({ to: "/travel/$slug", params: { slug: value.slug } });
 		},
 		onSubmitInvalid: () => undefined,
 	});
-	function FetchAlbumButton({
-		onStatus,
-	}: {
-		onStatus: (s: string | null) => void;
-	}) {
-		const [busy, setBusy] = useState(false);
+	function FetchAlbumButton({ url }: { url: string }) {
+		// manual-trigger query: enabled false, refetch on click. busy /
+		// error / success all come off the query - no local state, and
+		// a second click on an unchanged url is a five-minute cache hit.
+		const query = useSharedAlbumPreview(url, { enabled: false });
+
 		return (
-			<form.Subscribe selector={(state) => state.values.sharedAlbumUrl}>
-				{(url) => (
-					<button
-						type="button"
-						disabled={busy || !url}
-						onClick={async () => {
-							setBusy(true);
-							onStatus("resolving album…");
-							const album = await getSharedAlbum({ data: url });
-							setBusy(false);
-							if (!album.ok) {
-								onStatus("album resolve failed");
-								return;
-							}
-							const dates = album.photos
-								.map((p) => p.takenAt.slice(0, 10))
-								.sort();
-							if (dates.length > 0) {
-								form.setFieldValue("start", dates[0]);
-								form.setFieldValue("end", dates[dates.length - 1]);
-							}
-							onStatus(
-								`${album.photos.length} photos · ${dates[0] ?? "?"} → ${dates[dates.length - 1] ?? "?"} (dates prefilled)`,
-							);
-						}}
-						{...stylex.props(styles.button)}
-					>
-						{busy ? "fetching…" : "fetch"}
-					</button>
-				)}
-			</form.Subscribe>
+			<div {...stylex.props(styles.field)}>
+				<button
+					type="button"
+					disabled={!url || query.isFetching}
+					onClick={async () => {
+						const res = await query.refetch();
+						const album = res.data;
+						if (!album?.ok) return;
+						const dates = album.photos
+							.map((p) => p.takenAt.slice(0, 10))
+							.sort();
+						if (dates.length > 0) {
+							form.setFieldValue("start", dates[0]);
+							form.setFieldValue("end", dates[dates.length - 1]);
+						}
+					}}
+					{...stylex.props(styles.button)}
+				>
+					{query.isFetching ? "fetching…" : "fetch"}
+				</button>
+				<AlbumStatus query={query} />
+			</div>
 		);
 	}
 
@@ -240,11 +253,10 @@ function AdminPortal() {
 							)}
 						</form.Field>
 					</div>
-					<FetchAlbumButton onStatus={setAlbumStatus} />
+					<form.Subscribe selector={(state) => state.values.sharedAlbumUrl}>
+						{(url) => <FetchAlbumButton url={url} />}
+					</form.Subscribe>
 				</div>
-				{albumStatus && (
-					<p {...stylex.props(styles.statusLine)}>{albumStatus}</p>
-				)}
 
 				<div {...stylex.props(styles.row)}>
 					<div {...stylex.props(styles.half)}>
