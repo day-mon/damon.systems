@@ -162,14 +162,18 @@ function AdminPortal() {
 			end: "",
 			blurb: "",
 		} satisfies TripForm,
+		// docs-canonical server error surface: async submit validator
+		// returns the error string (lands in state.errors), onSubmit only
+		// runs on success and navigates to the new trip page
+		validators: {
+			onSubmitAsync: async ({ value }) => {
+				const result = await saveTrip({ data: value });
+				return result.ok ? undefined : (result.error ?? "save failed");
+			},
+		},
 		onSubmit: async ({ value }) => {
-			const result = await saveTrip({ data: value });
-			if (!result.ok) {
-				throw new Error(result.error ?? "save failed");
-			}
 			await navigate({ to: "/travel/$slug", params: { slug: value.slug } });
 		},
-		onSubmitInvalid: () => undefined,
 	});
 	function FetchAlbumButton({ url }: { url: string }) {
 		// manual-trigger query: enabled false, refetch on click. busy /
