@@ -16,7 +16,7 @@ const styles = stylex.create({
 	},
 	hint: {
 		fontSize: "0.75rem",
-		opacity: 0.6,
+		color: "var(--muted-foreground)",
 		margin: 0,
 	},
 	rows: {

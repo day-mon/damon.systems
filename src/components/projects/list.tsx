@@ -66,9 +66,13 @@ const styles = stylex.create({
 		flexShrink: 0,
 	},
 	metaEnd: {
-		opacity: 0.6,
+		color: "var(--muted-foreground)",
 		fontSize: "0.75rem",
 		marginLeft: "auto",
+	},
+	homepageLink: {
+		color: "var(--muted-foreground)",
+		display: "inline-flex",
 	},
 	langDot: (color: string) => ({
 		display: "inline-block",
@@ -174,6 +178,7 @@ export function ProjectsList() {
 								target="_blank"
 								rel="noopener noreferrer"
 								aria-label={`${repo.name} homepage`}
+								{...stylex.props(styles.homepageLink)}
 							>
 								<ExternalLink size={12} />
 							</a>

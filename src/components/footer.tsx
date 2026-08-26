@@ -26,7 +26,7 @@ const styles = stylex.create({
 		display: "flex",
 		gap: 16,
 		fontSize: "0.875rem",
-		opacity: 0.7,
+		color: "var(--muted-foreground)",
 	},
 });
 
@@ -75,7 +75,7 @@ const footerStyles = stylex.create({
 		left: 0,
 		right: 0,
 		padding: 16,
-		backgroundColor: "Canvas",
+		backgroundColor: "var(--background)",
 	},
 	inner: {
 		maxWidth: "48rem",
