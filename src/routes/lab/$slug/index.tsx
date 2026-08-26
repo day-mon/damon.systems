@@ -33,10 +33,15 @@ const styles = stylex.create({
 	},
 	back: {
 		fontSize: "0.875rem",
-		color: "var(--muted-foreground)",
 		display: "inline-block",
 		marginBottom: 32,
 		textDecoration: "none",
+		transitionProperty: "color",
+		transitionDuration: "0.2s",
+		color: {
+			default: "var(--muted-foreground)",
+			":hover": "var(--foreground)",
+		},
 	},
 	header: {
 		marginBottom: 48,
@@ -78,6 +83,18 @@ const styles = stylex.create({
 		color: "inherit",
 		transitionProperty: "background-color",
 		transitionDuration: "0.2s",
+		backgroundColor: {
+			default: null,
+			":hover": "color-mix(in oklab, var(--accent) 20%, transparent)",
+		},
+	},
+	demoArrow: {
+		fontSize: "0.875rem",
+		transitionProperty: "transform",
+		transitionDuration: "0.2s",
+	},
+	demoArrowHover: {
+		transform: "translateX(4px)",
 	},
 	demoInner: {
 		display: "flex",
@@ -94,9 +111,6 @@ const styles = stylex.create({
 		fontSize: "0.75rem",
 		color: "var(--muted-foreground)",
 		marginTop: 4,
-	},
-	prose: {
-		lineHeight: 1.75,
 	},
 });
 
@@ -148,12 +162,12 @@ function LabPost() {
 								interactive map, filters, and ticket lookup
 							</span>
 						</div>
-						<span>&rarr;</span>
+						<span {...stylex.props(styles.demoArrow)}>&rarr;</span>
 					</div>
 				</Link>
 			)}
 
-			<div {...stylex.props(styles.prose)}>
+			<div className="mdx-body">
 				<Content />
 			</div>
 		</article>

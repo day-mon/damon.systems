@@ -50,7 +50,7 @@ const styles = stylex.create({
 		flexShrink: 0,
 	},
 	meta: {
-		opacity: 0.6,
+		color: "var(--muted-foreground)",
 		fontSize: "0.75rem",
 		display: "flex",
 		alignItems: "center",
@@ -58,7 +58,7 @@ const styles = stylex.create({
 		flexShrink: 0,
 	},
 	metaLang: {
-		opacity: 0.6,
+		color: "var(--muted-foreground)",
 		fontSize: "0.75rem",
 		display: "flex",
 		alignItems: "center",
@@ -77,7 +77,7 @@ const styles = stylex.create({
 		backgroundColor: color,
 	}),
 	description: {
-		opacity: 0.6,
+		color: "var(--muted-foreground)",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		whiteSpace: "nowrap",

@@ -38,13 +38,13 @@ const styles = stylex.create({
 		marginBottom: 32,
 	},
 	body: {
-		opacity: 0.75,
+		color: "var(--muted-foreground)",
 		display: "flex",
 		flexDirection: "column",
 		gap: 16,
 	},
 	footerNote: {
-		opacity: 0.75,
+		color: "var(--muted-foreground)",
 		marginTop: 32,
 	},
 });

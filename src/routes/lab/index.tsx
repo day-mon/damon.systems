@@ -1,5 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { LAB_POSTS } from "#/content/lab";
 
@@ -49,8 +50,15 @@ const styles = stylex.create({
 		color: "inherit",
 		transitionProperty: "background-color",
 		transitionDuration: "0.2s",
+		backgroundColor: {
+			default: null,
+			":hover": "color-mix(in oklab, var(--accent) 50%, transparent)",
+		},
 	},
-	cardHover: {},
+	cardTitleHover: {
+		textDecoration: "underline",
+		textUnderlineOffset: 2,
+	},
 	headRow: {
 		display: "flex",
 		alignItems: "baseline",
@@ -101,6 +109,7 @@ function LabIndex() {
 	const posts = [...LAB_POSTS].sort(
 		(a, b) => b.date.getTime() - a.date.getTime(),
 	);
+	const [hovered, setHovered] = useState<string | null>(null);
 
 	return (
 		<main {...stylex.props(styles.main)}>
@@ -112,10 +121,19 @@ function LabIndex() {
 						key={post.slug}
 						to="/lab/$slug"
 						params={{ slug: post.slug }}
+						onMouseEnter={() => setHovered(post.slug)}
+						onMouseLeave={() => setHovered(null)}
 						{...stylex.props(styles.card)}
 					>
 						<div {...stylex.props(styles.headRow)}>
-							<h2 {...stylex.props(styles.cardTitle)}>{post.title}</h2>
+							<h2
+								{...stylex.props(
+									styles.cardTitle,
+									hovered === post.slug && styles.cardTitleHover,
+								)}
+							>
+								{post.title}
+							</h2>
 							<time {...stylex.props(styles.time)}>
 								{formatDate(post.date)}
 							</time>

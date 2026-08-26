@@ -1,8 +1,25 @@
 import { DropdownMenu } from "@astryxdesign/core/DropdownMenu";
+import * as stylex from "@stylexjs/stylex";
 import { Laptop, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export type ThemeMode = "light" | "dark" | "system";
+
+const placeholderButton = stylex.create({
+	button: {
+		display: "inline-flex",
+		alignItems: "center",
+		justifyContent: "center",
+		width: 36,
+		height: 36,
+		padding: 0,
+		backgroundColor: "transparent",
+		borderWidth: 0,
+		borderStyle: "none",
+		color: "inherit",
+		cursor: "pointer",
+	},
+}).button;
 
 const THEME_STORAGE_KEY = "theme";
 
@@ -42,7 +59,11 @@ export function ThemeSwitch() {
 
 	if (!mounted) {
 		return (
-			<button type="button" aria-label="Toggle theme">
+			<button
+				type="button"
+				aria-label="Toggle theme"
+				{...stylex.props(placeholderButton)}
+			>
 				<Sun size={18} />
 			</button>
 		);

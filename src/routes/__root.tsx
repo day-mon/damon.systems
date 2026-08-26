@@ -23,6 +23,7 @@ export const Route = createRootRoute({
 			{ property: "og:type", content: "website" },
 		],
 		links: [
+			{ rel: "stylesheet", href: "/layers.css" },
 			{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
 			{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
 			// StyleX dev-only CSS endpoint (prod build appends to the css asset)

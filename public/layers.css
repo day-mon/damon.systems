@@ -1,0 +1,2 @@
+/* Author layer order: astryx sits under stylex atomic layers so component-level stylex overrides win. */
+@layer reset, base, astryx-base, astryx-theme, priority1, priority2, priority3, priority4, priority5;
