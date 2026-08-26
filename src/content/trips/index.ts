@@ -15,11 +15,13 @@ export interface TripPhoto {
 export interface Trip {
 	slug: string;
 	title: string;
+	location: string;
 	dateRange: { start: string; end: string };
 	blurb: string;
 	photos: TripPhoto[];
 }
 
+// json modules lack slug/photo ordering guarantees; normalize both here
 const files = import.meta.glob<Trip>("./*.json", {
 	eager: true,
 	import: "default",

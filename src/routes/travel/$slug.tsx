@@ -135,6 +135,7 @@ function TripPage() {
 					&larr; all trips
 				</Link>
 				<time {...stylex.props(styles.time)}>
+					{trip.location} ·{" "}
 					{dateRangeLabel(trip.dateRange.start, trip.dateRange.end)}
 				</time>
 				<h1 {...stylex.props(styles.title)}>{trip.title}</h1>

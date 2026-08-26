@@ -82,7 +82,7 @@ const styles = stylex.create({
 		fontSize: "0.875rem",
 		color: "var(--muted-foreground)",
 	},
-	photoCount: {
+	metaLine: {
 		fontSize: "0.75rem",
 		color: "var(--muted-foreground)",
 		opacity: 0.6,
@@ -139,8 +139,10 @@ function TravelIndex() {
 						</div>
 						<p {...stylex.props(styles.desc)}>{trip.blurb}</p>
 						{trip.photos.length > 0 && (
-							<p {...stylex.props(styles.photoCount)}>
+							<p {...stylex.props(styles.metaLine)}>
 								{trip.photos.length} photo{trip.photos.length === 1 ? "" : "s"}
+								{" · "}
+								{trip.location}
 							</p>
 						)}
 					</Link>

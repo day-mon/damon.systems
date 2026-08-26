@@ -1,7 +1,65 @@
 {
 	"slug": "placeholder",
 	"title": "the first trip lands here",
+	"location": "somewhere with good light",
 	"dateRange": { "start": "1970-01-01", "end": "1970-01-01" },
-	"blurb": "placeholder trip so the routes have something to hang onto. run the icloud sync, write a blurb, delete this file.",
-	"photos": []
+	"blurb": "placeholder trip so the routes have something to hang onto. run the icloud sync, write a blurb, delete this file.\nphotos below are picsum stand-ins at real aspect ratios so the wall layout is testable.",
+	"photos": [
+		{
+			"file": "001.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T09:12:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "002.jpg",
+			"caption": "python is missing",
+			"takenAt": "1970-01-01T10:03:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "003.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T11:45:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "004.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T13:20:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "005.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T15:00:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "006.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T17:30:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "007.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T18:04:00Z",
+			"lat": null,
+			"lng": null
+		},
+		{
+			"file": "008.jpg",
+			"caption": "",
+			"takenAt": "1970-01-01T19:15:00Z",
+			"lat": null,
+			"lng": null
+		}
+	]
 }
