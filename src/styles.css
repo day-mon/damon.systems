@@ -1,16 +1,16 @@
-
-
-* {
-  box-sizing: border-box;
-}
+@import '@astryxdesign/core/reset.css';
+@import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-neutral/theme.css';
 
 body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
+  font-feature-settings: 'rlig' 1, 'calt' 1;
 }
 
-main {
-  width: min(42rem, calc(100% - 2rem));
-  margin: 4rem auto;
+a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
+a:hover {
+  opacity: 0.7;
+}
