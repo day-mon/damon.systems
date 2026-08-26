@@ -22,6 +22,21 @@ const VARIANTS = [
 		name: "C · letter",
 		desc: "serif note on warm paper. links woven into prose instead of a nav.",
 	},
+	{
+		to: "/design/bento",
+		name: "D · bento grid",
+		desc: "playful tiles of unequal size: intro, writeup, demo, code, a fun fact.",
+	},
+	{
+		to: "/design/ecosystem",
+		name: "E · ecosystem",
+		desc: "three-column data surfaces: featured dispatch, browse, elsewhere.",
+	},
+	{
+		to: "/design/faq",
+		name: "F · conversational faq",
+		desc: "the site interviews itself. bold questions, honest answers.",
+	},
 ];
 
 const styles = stylex.create({
@@ -54,8 +69,8 @@ function DesignHub() {
 		<main {...stylex.props(styles.wrap)}>
 			<h1 {...stylex.props(styles.h1)}>pick a direction</h1>
 			<p {...stylex.props(styles.hint)}>
-				three candidates. winner gets ported across every route; losers get
-				deleted.
+				six candidates, six different page anatomies. winner gets ported across
+				every route; losers get deleted.
 			</p>
 			<div {...stylex.props(styles.list)}>
 				{VARIANTS.map((v) => (

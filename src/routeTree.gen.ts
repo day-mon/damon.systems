@@ -14,6 +14,9 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as DesignIndexRouteImport } from './routes/design/index'
+import { Route as DesignBentoRouteImport } from './routes/design/bento'
+import { Route as DesignEcosystemRouteImport } from './routes/design/ecosystem'
+import { Route as DesignFaqRouteImport } from './routes/design/faq'
 import { Route as DesignIndexFirstRouteImport } from './routes/design/index-first'
 import { Route as DesignLetterRouteImport } from './routes/design/letter'
 import { Route as DesignManifestoRouteImport } from './routes/design/manifesto'
@@ -50,6 +53,21 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const DesignIndexRoute = DesignIndexRouteImport.update({
   id: '/design/',
   path: '/design/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignBentoRoute = DesignBentoRouteImport.update({
+  id: '/design/bento',
+  path: '/design/bento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignEcosystemRoute = DesignEcosystemRouteImport.update({
+  id: '/design/ecosystem',
+  path: '/design/ecosystem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignFaqRoute = DesignFaqRouteImport.update({
+  id: '/design/faq',
+  path: '/design/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignIndexFirstRoute = DesignIndexFirstRouteImport.update({
@@ -118,6 +136,9 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/bento': typeof DesignBentoRoute
+  '/design/ecosystem': typeof DesignEcosystemRoute
+  '/design/faq': typeof DesignFaqRoute
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
@@ -137,6 +158,9 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/bento': typeof DesignBentoRoute
+  '/design/ecosystem': typeof DesignEcosystemRoute
+  '/design/faq': typeof DesignFaqRoute
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
@@ -157,6 +181,9 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/design/bento': typeof DesignBentoRoute
+  '/design/ecosystem': typeof DesignEcosystemRoute
+  '/design/faq': typeof DesignFaqRoute
   '/design/index-first': typeof DesignIndexFirstRoute
   '/design/letter': typeof DesignLetterRoute
   '/design/manifesto': typeof DesignManifestoRoute
@@ -178,6 +205,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/bento'
+    | '/design/ecosystem'
+    | '/design/faq'
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
@@ -197,6 +227,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/bento'
+    | '/design/ecosystem'
+    | '/design/faq'
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
@@ -216,6 +249,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/design/bento'
+    | '/design/ecosystem'
+    | '/design/faq'
     | '/design/index-first'
     | '/design/letter'
     | '/design/manifesto'
@@ -236,6 +272,9 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
+  DesignBentoRoute: typeof DesignBentoRoute
+  DesignEcosystemRoute: typeof DesignEcosystemRoute
+  DesignFaqRoute: typeof DesignFaqRoute
   DesignIndexFirstRoute: typeof DesignIndexFirstRoute
   DesignLetterRoute: typeof DesignLetterRoute
   DesignManifestoRoute: typeof DesignManifestoRoute
@@ -286,6 +325,27 @@ declare module '@tanstack/react-router' {
       path: '/design'
       fullPath: '/design/'
       preLoaderRoute: typeof DesignIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/bento': {
+      id: '/design/bento'
+      path: '/design/bento'
+      fullPath: '/design/bento'
+      preLoaderRoute: typeof DesignBentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/ecosystem': {
+      id: '/design/ecosystem'
+      path: '/design/ecosystem'
+      fullPath: '/design/ecosystem'
+      preLoaderRoute: typeof DesignEcosystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design/faq': {
+      id: '/design/faq'
+      path: '/design/faq'
+      fullPath: '/design/faq'
+      preLoaderRoute: typeof DesignFaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/design/index-first': {
@@ -380,6 +440,9 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
+  DesignBentoRoute: DesignBentoRoute,
+  DesignEcosystemRoute: DesignEcosystemRoute,
+  DesignFaqRoute: DesignFaqRoute,
   DesignIndexFirstRoute: DesignIndexFirstRoute,
   DesignLetterRoute: DesignLetterRoute,
   DesignManifestoRoute: DesignManifestoRoute,
