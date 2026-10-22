@@ -40,7 +40,7 @@ resources:
 
 postgresql:
   enabled: true
-  image: postgres:17-alpine
+  image: postgres:17.11-alpine
   auth:
     username: pgh_ticket
     password: "" # overridden by sealed secret
