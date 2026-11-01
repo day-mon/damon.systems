@@ -1,5 +1,11 @@
 replicaCount: 1
 
+# amd64-only image: kubelet will fake it with rosetta/qemu on arm nodes
+# and bun dies with SIGABRT. pin to the arch the image actually is.
+nodeSelector:
+  kubernetes.io/arch: amd64
+
+
 image:
   repository: ghcr.io/day-mon/damon.systems
   tag: main
