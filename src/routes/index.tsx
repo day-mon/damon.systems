@@ -13,25 +13,26 @@ function Home() {
 
 	return (
 		<main className="relative flex min-h-screen animate-in fade-in flex-col items-center justify-center px-8 duration-[400ms] ease-out">
-			{/* near-invisible dither texture to fill the page's dead space */}
+			{/* near-invisible dither texture to fill the page's dead space.
+			    backgroundColor must exactly match --background or it reads as a film. */}
 			<div
 				aria-hidden
 				className="pointer-events-none absolute inset-0 -z-10"
-				style={{ opacity: isDark ? 0.06 : 0.08 }}
+				style={{ opacity: isDark ? 0.12 : 0.18 }}
 			>
 				<Dither
 					waveColor={isDark ? [1, 1, 1] : [0, 0, 0]}
-					backgroundColor={isDark ? [0.145, 0.145, 0.145] : [1, 1, 1]}
-					colorNum={2}
-					pixelSize={3}
-					waveSpeed={0.02}
-					waveFrequency={2.1}
+					backgroundColor={isDark ? [9 / 255, 9 / 255, 11 / 255] : [1, 1, 1]}
+					colorNum={4}
+					pixelSize={2}
+					waveSpeed={0.03}
+					waveFrequency={4}
+					waveAmplitude={0.6}
+					contrast={1.6}
 					enableMouseInteraction={false}
-					disableAnimation={false}
 					className="size-full"
 				/>
 			</div>
-
 			<SplitText
 				tag="h1"
 				text="damon"

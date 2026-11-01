@@ -87,7 +87,9 @@ const falloff = (color: string, softness: number) => {
 };
 
 const CARD =
-	"relative isolate overflow-hidden rounded-3xl p-8 [background-color:var(--spotlight-card-surface)] [box-shadow:var(--spotlight-card-shadow)]";
+	// vendored: stripped the marketing-card chrome (rounded-3xl, p-8, surface, shadow)
+	// so call sites keep owning padding/surface; keep only what the glow needs.
+	"relative isolate overflow-hidden";
 
 const SpotlightCard = ({
 	children,
