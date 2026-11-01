@@ -58,8 +58,9 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # NOTE: explicit platforms because QEMU cross builds; drop arm64 if build times become a problem
-          platforms: linux/amd64,linux/arm64
+          # amd64 only: the workload runs on one amd64 node; arm64 via qemu
+          # doubled wall time for zero value.
+          platforms: linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
