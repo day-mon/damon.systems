@@ -1,11 +1,11 @@
-FROM oven/bun:1 as base
+FROM oven/bun:1 AS base
 
 WORKDIR /app
 
 COPY package.json .
-COPY bun.lockb .
+COPY bun.lock .
 
-RUN bun install
+RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
@@ -13,4 +13,4 @@ ENV HOST=0.0.0.0
 ENV PORT=4321
 EXPOSE 4321
 
-ENTRYPOINT ["bun", "./dist/server/entry.mjs"]
+ENTRYPOINT ["bun", "dist/server/server.js"]
