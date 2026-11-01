@@ -1,5 +1,5 @@
 import { Laptop, Moon, Sun } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -11,43 +11,68 @@ import {
 
 type Theme = "light" | "dark" | "system";
 
-function subscribeToSystemTheme(callback: () => void) {
-	const mq = window.matchMedia("(prefers-color-scheme: dark)");
-	mq.addEventListener("change", callback);
+const THEME_KEY = "theme";
 
-	return () => mq.removeEventListener("change", callback);
-}
-
-function useSystemIsDark() {
-	return useSyncExternalStore(
-		subscribeToSystemTheme,
-		() => window.matchMedia("(prefers-color-scheme: dark)").matches,
-		() => false,
-	);
-}
+// one external store: the stored theme drives the system-preference read.
+// writes notify listeners manually because same-tab localStorage sets
+// don't fire the storage event.
+const themeListeners = new Set<() => void>();
 
 function readStoredTheme(): Theme {
 	if (typeof window === "undefined") return "system";
 
 	// SAFETY: we own the "theme" key and only ever write Theme values
-	return (localStorage.getItem("theme") as Theme) || "system";
+	return (localStorage.getItem(THEME_KEY) as Theme) || "system";
+}
+
+function subscribeToTheme(callback: () => void) {
+	if (typeof window === "undefined") return () => undefined;
+
+	const mq = window.matchMedia("(prefers-color-scheme: dark)");
+	mq.addEventListener("change", callback);
+	window.addEventListener("storage", callback);
+	themeListeners.add(callback);
+
+	return () => {
+		mq.removeEventListener("change", callback);
+		window.removeEventListener("storage", callback);
+		themeListeners.delete(callback);
+	};
+}
+
+function getResolvedTheme(): "dark" | "light" {
+	const stored = readStoredTheme();
+
+	if (stored === "system") {
+		return window.matchMedia("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
+	}
+
+	return stored;
+}
+
+function setTheme(theme: Theme) {
+	localStorage.setItem(THEME_KEY, theme);
+
+	document.documentElement.classList.toggle(
+		"dark",
+		theme === "dark" ||
+			(theme === "system" &&
+				window.matchMedia("(prefers-color-scheme: dark)").matches),
+	);
+
+	for (const listener of themeListeners) listener();
 }
 
 export function ThemeSwitch() {
-	const systemDark = useSystemIsDark();
-	const [theme, setTheme] = useState<Theme>(readStoredTheme);
+	const resolved = useSyncExternalStore(
+		subscribeToTheme,
+		getResolvedTheme,
+		() => "dark" as const,
+	);
 
-	const resolved = theme === "system" ? (systemDark ? "dark" : "light") : theme;
 	const iconState = resolved === "dark" ? "b" : "a";
-
-	function handleSetTheme(t: Theme) {
-		setTheme(t);
-		localStorage.setItem("theme", t);
-		document.documentElement.classList.toggle(
-			"dark",
-			t === "dark" || (t === "system" && systemDark),
-		);
-	}
 
 	return (
 		<DropdownMenu>
@@ -71,15 +96,15 @@ export function ThemeSwitch() {
 				</span>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem onClick={() => handleSetTheme("light")}>
+				<DropdownMenuItem onClick={() => setTheme("light")}>
 					<Sun />
 					<span>Light</span>
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => handleSetTheme("dark")}>
+				<DropdownMenuItem onClick={() => setTheme("dark")}>
 					<Moon />
 					<span>Dark</span>
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => handleSetTheme("system")}>
+				<DropdownMenuItem onClick={() => setTheme("system")}>
 					<Laptop />
 					<span>System</span>
 				</DropdownMenuItem>
