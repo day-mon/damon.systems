@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-import Dither from "#/components/ui/Dither";
 import SplitText from "#/components/ui/SplitText";
 import { useResolvedTheme } from "#/lib/theme";
 
@@ -12,26 +11,22 @@ function Home() {
 
 	return (
 		<main className="relative flex min-h-screen animate-in fade-in flex-col items-center justify-center px-8 duration-[400ms] ease-out">
-			{/* near-invisible dither texture to fill the page's dead space.
-			    backgroundColor must exactly match --background or it reads as a film. */}
+			{/*
+				near-invisible dot texture fills the page's dead space.
+				pure css after webgl dither proved fragile (gpu-crashed grey
+				film on damon's chrome). boring, unbreakable.
+			*/}
 			<div
 				aria-hidden
 				className="pointer-events-none absolute inset-0 -z-10"
-				style={{ opacity: isDark ? 0.12 : 0.18 }}
-			>
-				<Dither
-					waveColor={isDark ? [1, 1, 1] : [0, 0, 0]}
-					backgroundColor={isDark ? [9 / 255, 9 / 255, 11 / 255] : [1, 1, 1]}
-					colorNum={4}
-					pixelSize={2}
-					waveSpeed={0.03}
-					waveFrequency={4}
-					waveAmplitude={0.6}
-					contrast={1.6}
-					enableMouseInteraction={false}
-					className="size-full"
-				/>
-			</div>
+				style={{
+					opacity: isDark ? 0.045 : 0.06,
+					backgroundImage:
+						"radial-gradient(circle, var(--foreground) 1px, transparent 1px)",
+					backgroundSize: "32px 32px",
+					backgroundPosition: "16px 16px",
+				}}
+			/>
 			<SplitText
 				tag="h1"
 				text="damon"
