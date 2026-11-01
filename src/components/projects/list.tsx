@@ -1,6 +1,5 @@
 import { ExternalLink, RefreshCw, Star } from "lucide-react";
 import { m } from "motion/react";
-import { useState } from "react";
 
 import { EXCLUDED_REPOS, getLanguageColor } from "#/constants";
 import { useGithubRepos } from "#/queries/github/queries";
@@ -10,9 +9,7 @@ import { ProjectsError } from "./error";
 import { ProjectsSkeleton } from "./skeleton";
 
 export function ProjectsList() {
-	const [isRefreshSpinning, setIsRefreshSpinning] = useState(false);
-
-	const { data, isPending, error, refetch } = useGithubRepos({
+	const { data, isPending, isFetching, error, refetch } = useGithubRepos({
 		select: (repos: GitHubRepo[]) =>
 			repos
 				.filter(
@@ -42,20 +39,12 @@ export function ProjectsList() {
 					variant="ghost"
 					size="icon-sm"
 					aria-label="Refresh projects"
-					disabled={isRefreshSpinning}
-					onClick={async () => {
-						setIsRefreshSpinning(true);
-
-						try {
-							await refetch();
-						} finally {
-							setIsRefreshSpinning(false);
-						}
-					}}
+					disabled={isFetching}
+					onClick={() => refetch()}
 				>
 					<RefreshCw
 						size={14}
-						className={isRefreshSpinning ? "animate-spin" : undefined}
+						className={isFetching ? "animate-spin" : undefined}
 					/>
 				</Button>
 			</div>
