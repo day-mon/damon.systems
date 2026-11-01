@@ -16,6 +16,14 @@ export default defineConfig({
 		".intent/**",
 		"src/routeTree.gen.ts",
 	],
+	categories: {
+		suspicious: "error",
+		perf: "warn",
+		restriction: "off",
+		style: "off",
+		nursery: "off",
+		pedantic: "off",
+	},
 	jsPlugins: [
 		{ name: "anti-slop", specifier: "./tools/oxlint/anti-slop/index.ts" },
 	],

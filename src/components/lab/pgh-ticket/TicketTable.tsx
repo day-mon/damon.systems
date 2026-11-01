@@ -69,7 +69,7 @@ export function TicketTable({
 		}
 	}
 
-	const sorted = [...tickets].sort((a: TicketRow, b: TicketRow) => {
+	const sorted = tickets.toSorted((a: TicketRow, b: TicketRow) => {
 		const av = a[sortKey] || "";
 		const bv = b[sortKey] || "";
 		const cmp = String(av).localeCompare(String(bv));

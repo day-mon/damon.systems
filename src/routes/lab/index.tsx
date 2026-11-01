@@ -22,7 +22,7 @@ function formatDate(d: Date): string {
 }
 
 function LabIndex() {
-	const posts = [...LAB_POSTS].sort(
+	const posts = LAB_POSTS.toSorted(
 		(a, b) => b.date.getTime() - a.date.getTime(),
 	);
 

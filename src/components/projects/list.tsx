@@ -19,7 +19,9 @@ export function ProjectsList() {
 					(repo) =>
 						!repo.private && !repo.fork && !EXCLUDED_REPOS.includes(repo.name),
 				)
-				.sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0)),
+				.toSorted(
+					(a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0),
+				),
 	});
 
 	if (isPending) {
