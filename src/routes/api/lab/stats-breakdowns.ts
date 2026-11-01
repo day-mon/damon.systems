@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { json } from "#/lib/json";
 import { pghTicketService } from "#/lib/pgh-ticket/pgh.service";
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
 
@@ -10,6 +9,7 @@ export const Route = createFileRoute("/api/lab/stats-breakdowns")({
 			GET: async ({ request }: { request: Request }) => {
 				try {
 					const url = new URL(request.url);
+
 					const filters: TicketFilters | undefined =
 						url.searchParams.get("status") || url.searchParams.get("year")
 							? {
@@ -17,8 +17,10 @@ export const Route = createFileRoute("/api/lab/stats-breakdowns")({
 									year: url.searchParams.get("year") ?? undefined,
 								}
 							: undefined;
+
 					const data = await pghTicketService.getStatsBreakdowns(filters);
-					return json(data, {
+
+					return Response.json(data, {
 						headers: {
 							"Cache-Control":
 								"public, max-age=300, stale-while-revalidate=3600",
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/api/lab/stats-breakdowns")({
 					});
 				} catch (error) {
 					console.error("/api/lab/stats-breakdowns error:", error);
+
 					return Response.json({ error: "internal error" }, { status: 500 });
 				}
 			},

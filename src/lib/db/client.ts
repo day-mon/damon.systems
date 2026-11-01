@@ -15,4 +15,5 @@ export const postgresClient = postgres(PG_URL, { max: 5 });
 export const db = drizzle(postgresClient);
 
 export type DrizzleDb = typeof db;
+
 export type PgClient = typeof postgresClient;

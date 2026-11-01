@@ -23,14 +23,23 @@ export const ticketKeys = createQueryKeys("tickets", {
 
 function buildParams(filters: TicketFilters): URLSearchParams {
 	const p = new URLSearchParams();
+
 	if (filters.status) p.set("status", filters.status);
+
 	if (filters.year) p.set("year", filters.year);
+
 	if (filters.violation) p.set("violation", filters.violation);
+
 	if (filters.plate) p.set("plate", filters.plate);
+
 	if (filters.location) p.set("location", filters.location);
+
 	if (filters.dateFrom) p.set("dateFrom", filters.dateFrom);
+
 	if (filters.dateTo) p.set("dateTo", filters.dateTo);
+
 	if (filters.officer) p.set("officer", filters.officer);
+
 	return p;
 }
 
@@ -55,6 +64,7 @@ export function useStatsCounts({
 		dateTo,
 		officer,
 	};
+
 	return useQuery<StatsCountsResult>({
 		queryKey: ticketKeys.statsCounts(filters).queryKey,
 		queryFn: () =>
@@ -88,6 +98,7 @@ export function useStatsBreakdowns({
 		dateTo,
 		officer,
 	};
+
 	return useQuery<StatsBreakdownsResult>({
 		queryKey: ticketKeys.statsBreakdowns(filters).queryKey,
 		queryFn: () =>
@@ -124,11 +135,13 @@ export function usePoints({
 		dateTo,
 		officer,
 	};
+
 	return useQuery<PointsResult>({
 		queryKey: ticketKeys.points(filters, limit).queryKey,
 		queryFn: () => {
 			const params = buildParams(filters);
 			params.set("limit", String(limit));
+
 			return ky("/api/lab/points", {
 				searchParams: params,
 				retry: 0,
@@ -163,11 +176,13 @@ export function useTickets({
 		dateTo,
 		officer,
 	};
+
 	return useQuery<TicketsResult>({
 		queryKey: ticketKeys.list(filters, page).queryKey,
 		queryFn: () => {
 			const params = buildParams(filters);
 			params.set("page", String(page));
+
 			return ky("/api/lab/tickets", {
 				searchParams: params,
 				retry: 0,

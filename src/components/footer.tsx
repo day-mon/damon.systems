@@ -16,6 +16,7 @@ const FALLOFF = 0.4;
 
 function liftForDistance(distance: number, active: boolean): number {
 	if (active) return LIFT_PX;
+
 	return LIFT_PX * FALLOFF ** Math.abs(distance);
 }
 
@@ -86,6 +87,7 @@ const footerStyles = stylex.create({
 export function Footer() {
 	const { pathname } = useLocation();
 	const isHome = pathname === "/" || pathname === "";
+
 	if (isHome) return null;
 
 	return (

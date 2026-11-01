@@ -1,6 +1,5 @@
-import stylex from "@stylexjs/unplugin";
-
 import mdx from "@mdx-js/rollup";
+import stylex from "@stylexjs/unplugin";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import remarkFrontmatter from "remark-frontmatter";
@@ -12,7 +11,10 @@ const config = defineConfig({
 	plugins: [
 		stylex.vite({ useCSSLayers: true }),
 		// markdown: enforce extension so implicit .md/.mdx include logic stays explicit
-		{ enforce: "pre", ...mdx({ remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter] }) },
+		{
+			enforce: "pre",
+			...mdx({ remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter] }),
+		},
 		tanstackStart(),
 		viteReact(),
 	],

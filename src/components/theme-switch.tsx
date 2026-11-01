@@ -26,11 +26,14 @@ const THEME_STORAGE_KEY = "theme";
 /** Applies the resolved scheme so astryx light-dark() and site palette follow. */
 function applyTheme(mode: ThemeMode, systemIsDark: boolean) {
 	const root = document.documentElement;
+
 	if (mode === "system") {
 		root.removeAttribute("data-theme");
 		root.style.colorScheme = systemIsDark ? "dark" : "light";
+
 		return;
 	}
+
 	root.setAttribute("data-theme", mode);
 	root.style.colorScheme = mode;
 }
@@ -44,12 +47,15 @@ export function ThemeSwitch() {
 		const mq = window.matchMedia("(prefers-color-scheme: dark)");
 		setSystemIsDark(mq.matches);
 		const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+
 		if (stored === "light" || stored === "dark") {
 			setTheme(stored);
 		}
+
 		const onChange = () => setSystemIsDark(mq.matches);
 		mq.addEventListener("change", onChange);
 		setMounted(true);
+
 		return () => mq.removeEventListener("change", onChange);
 	}, []);
 
@@ -73,6 +79,7 @@ export function ThemeSwitch() {
 
 	function handleSetMode(next: ThemeMode) {
 		setTheme(next);
+
 		if (next === "system") {
 			window.localStorage.removeItem(THEME_STORAGE_KEY);
 		} else {

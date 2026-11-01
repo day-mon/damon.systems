@@ -143,6 +143,7 @@ function StatusBadge({ status }: { status: string }) {
 			: status === "paid" || status === "closed"
 				? styles.badgeSecondary
 				: styles.badgeOutline;
+
 	return (
 		<span {...stylex.props(styles.badgeBase, variantStyle)}>{status}</span>
 	);
@@ -187,10 +188,12 @@ export function TicketTable({
 		const av = a[sortKey] || "";
 		const bv = b[sortKey] || "";
 		const cmp = String(av).localeCompare(String(bv));
+
 		return sortDir === "asc" ? cmp : -cmp;
 	});
 
 	const pageItems: (number | "...")[] = [];
+
 	for (let i = 1; i <= totalPages; i++) {
 		if (i === 1 || i === totalPages || Math.abs(i - page) <= 2) {
 			pageItems.push(i);

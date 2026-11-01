@@ -40,6 +40,7 @@ export function ClientTicketMap({ points }: { points: TicketPoint[] }) {
 	if (!mounted) {
 		return <Fallback />;
 	}
+
 	return (
 		<Suspense fallback={<Fallback />}>
 			<LazyTicketMap points={points} />

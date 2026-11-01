@@ -1,6 +1,6 @@
 import * as stylex from "@stylexjs/stylex";
-
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
+import type { FilterOptionsResult } from "#/queries/internal/types";
 
 const POINT_LIMITS = [5000, 10000, 20000, 50000, 100000];
 
@@ -42,7 +42,7 @@ const styles = stylex.create({
 interface FilterPanelProps {
 	filters: TicketFilters;
 	onFilter: (key: keyof TicketFilters, value: string | null) => void;
-	filterOpts: Record<string, string[]>;
+	filterOpts: FilterOptionsResult;
 	pointLimit: number;
 	onPointLimit: (v: number) => void;
 }

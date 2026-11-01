@@ -26,9 +26,11 @@ async function main() {
     const stateFile = stateFileForEvent(event)
     const additionalContext = await createSessionCatalogContext(rootForEvent(event))
     appendObservation(stateFile, { action: 'list', raw: CATALOG_COMMAND })
+
     if (additionalContext) {
       process.stdout.write(JSON.stringify(sessionStartOutput(additionalContext)))
     }
+
     return
   }
 
@@ -40,6 +42,7 @@ async function main() {
   }
 
   const toolName = event?.tool_name ?? event?.toolName
+
   if (typeof toolName === 'string' && EDIT_TOOLS.has(toolName) && !hasIntentCheck(stateFile)) {
     process.stdout.write(JSON.stringify(denyOutput()))
   }
@@ -69,6 +72,7 @@ async function createSessionCatalogContext(root) {
     console.error(
       `[intent-${AGENT}-session-catalog] listIntentSkills found ${result.skills.length} skills from ${result.packages.length} packages in ${formatDuration(durationMs)} (packageJsonReadCount=${result.debug?.scan.packageJsonReadCount ?? 'unknown'})`,
     )
+
     return formatSessionCatalog(result)
   } catch {
     return ''
@@ -85,6 +89,7 @@ function readIntentList(root) {
     stdio: ['ignore', 'pipe', 'pipe'],
     timeout: 9000,
   })
+
   return JSON.parse(output)
 }
 
@@ -132,6 +137,7 @@ function formatWarnings(result) {
   ]
 
   if (warnings.length === 0) return ''
+
   return `\nWarnings:\n${warnings.map((warning) => `- ${warning}`).join('\n')}`
 }
 
@@ -152,6 +158,7 @@ function stateFileForEvent(event) {
   const sessionId = typeof event?.session_id === 'string' ? event.session_id : 'unknown'
   const cwd = typeof event?.cwd === 'string' ? event.cwd : process.cwd()
   const key = createHash('sha256').update(AGENT + '\0' + cwd + '\0' + sessionId).digest('hex')
+
   return join(tmpdir(), 'tanstack-intent-hooks', key + '.jsonl')
 }
 
@@ -159,21 +166,28 @@ function observationFromEvent(event) {
   if (!event || typeof event !== 'object') return undefined
   const toolName = event.tool_name ?? event.toolName
   const toolInput = event.tool_input ?? event.toolArgs
+
   if (toolName !== 'Bash') return undefined
   const command = typeof toolInput === 'string' ? safeCommandFromString(toolInput) : commandFromObject(toolInput)
   const parsed = parseIntentInvocation(command)
+
   if (!parsed || typeof command !== 'string') return undefined
+
   return { action: parsed.action, skillUse: parsed.skillUse, raw: command }
 }
 
 function parseIntentInvocation(command) {
   if (typeof command !== 'string') return undefined
   const match = command.match(INTENT_COMMAND_PATTERN)
+
   if (!match?.[1] || !match[2]) return undefined
   const action = match[2].toLowerCase()
+
   if (action !== 'list' && action !== 'load') return undefined
   const skillUse = action === 'load' ? match[3] : undefined
+
   if (action === 'load' && !skillUse) return undefined
+
   return action === 'load' ? { action, skillUse } : { action }
 }
 
@@ -184,6 +198,7 @@ function commandFromObject(value) {
 function safeCommandFromString(value) {
   try {
     const command = commandFromObject(JSON.parse(value))
+
     return typeof command === 'string' ? command : value
   } catch {
     return value
@@ -200,6 +215,7 @@ function appendObservation(stateFile, observation) {
 
 function hasIntentCheck(stateFile) {
   if (!existsSync(stateFile)) return false
+
   try {
     return readFileSync(stateFile, 'utf8')
       .split('\n')
@@ -207,6 +223,7 @@ function hasIntentCheck(stateFile) {
       .some((line) => {
         try {
           const action = JSON.parse(line).action
+
           return action === 'list' || action === 'load'
         } catch {
           return false

@@ -8,13 +8,14 @@ import {
 
 import { useCallback, useState } from "react";
 
-import type { TicketFilters, TicketRow } from "#/lib/pgh-ticket/types";
+import { TICKET_SORT_KEYS, type TicketFilters } from "#/lib/pgh-ticket/types";
 import {
 	useFilterOptions,
 	usePoints,
 	useStatsBreakdowns,
 	useStatsCounts,
 } from "#/queries/internal/queries";
+import type { FilterOptionsResult } from "#/queries/internal/types";
 import { BreakdownPanel } from "./BreakdownPanel";
 import { ClientTicketMap } from "./ClientTicketMap";
 import { DashboardSkeleton } from "./DashboardSkeleton";
@@ -82,11 +83,19 @@ const styles = stylex.create({
 	},
 });
 
+const EMPTY_FILTER_OPTS: FilterOptionsResult = {
+	officers: [],
+	years: [],
+	statuses: [],
+	violations: [],
+	locations: [],
+};
+
 export function Dashboard() {
 	const [state, setState] = useQueryStates({
 		view: parseAsStringEnum(["map", "table"]).withDefault("map"),
 		page: parseAsInteger.withDefault(1),
-		sortKey: parseAsString.withDefault("issue_date"),
+		sortKey: parseAsStringEnum([...TICKET_SORT_KEYS]).withDefault("issue_date"),
 		sortDir: parseAsStringEnum(["asc", "desc"]).withDefault("desc"),
 		officer: parseAsString,
 		year: parseAsString,
@@ -132,7 +141,7 @@ export function Dashboard() {
 			<FilterPanel
 				filters={filterValues}
 				onFilter={handleFilter}
-				filterOpts={(filterOpts.data ?? {}) as Record<string, string[]>}
+				filterOpts={filterOpts.data ?? EMPTY_FILTER_OPTS}
 				pointLimit={pointLimit}
 				onPointLimit={setPointLimit}
 			/>
@@ -175,8 +184,8 @@ export function Dashboard() {
 				<TicketTable
 					filters={filterValues}
 					page={page ?? 1}
-					sortKey={(sortKey as keyof TicketRow) ?? "issue_date"}
-					sortDir={(sortDir as "asc" | "desc") ?? "desc"}
+					sortKey={sortKey}
+					sortDir={sortDir}
 					onPageChange={(p) => setState({ page: p })}
 					onSortChange={(k, d) => setState({ sortKey: k, sortDir: d })}
 				/>

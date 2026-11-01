@@ -109,6 +109,7 @@ function LabIndex() {
 	const posts = [...LAB_POSTS].sort(
 		(a, b) => b.date.getTime() - a.date.getTime(),
 	);
+
 	const [hovered, setHovered] = useState<string | null>(null);
 
 	return (

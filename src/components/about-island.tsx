@@ -6,12 +6,14 @@ function getAge(): number {
 	const now = new Date();
 	let age = now.getFullYear() - BIRTH_DATE.getFullYear();
 	const monthDelta = now.getMonth() - BIRTH_DATE.getMonth();
+
 	if (
 		monthDelta < 0 ||
 		(monthDelta === 0 && now.getDate() < BIRTH_DATE.getDate())
 	) {
 		age--;
 	}
+
 	return age;
 }
 
@@ -26,6 +28,7 @@ export function AboutIsland() {
 	const [funFact] = useState(
 		() => FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length)],
 	);
+
 	const age = getAge();
 
 	return (

@@ -53,51 +53,55 @@ const styles = stylex.create({
 function fmtCount(n: number): string {
 	if (n >= 1_000_000)
 		return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+
 	if (n >= 1_000) return `${(n / 1_000).toFixed(1).replace(/\.0$/, "")}K`;
+
 	return n.toLocaleString();
+}
+
+interface BreakdownRow {
+	label: string;
+	count: number;
 }
 
 function TopList({
 	title,
 	items,
-	labelKey,
 	onSelect,
 }: {
 	title: string;
-	items: { count: number }[];
-	labelKey: string;
+	items: BreakdownRow[];
 	onSelect: (v: string) => void;
 }) {
-	if (!items.length) return null;
+	const rows = items.filter((r) => r.label);
+
+	if (!rows.length) return null;
 
 	return (
 		<div>
 			<h3 {...stylex.props(styles.title)}>{title}</h3>
 			<div {...stylex.props(styles.list)}>
-				{items.map((item) => {
-					const label = (item as Record<string, unknown>)[labelKey] as string;
-					if (!label) return null;
-					return (
-						<button
-							key={label}
-							type="button"
-							{...stylex.props(styles.itemBtn)}
-							onClick={() => onSelect(label)}
+				{rows.map((row) => (
+					<button
+						key={row.label}
+						type="button"
+						{...stylex.props(styles.itemBtn)}
+						onClick={() => onSelect(row.label)}
+					>
+						<span {...stylex.props(styles.label)}>{row.label}</span>
+						<span
+							{...stylex.props(styles.count)}
+							title={row.count.toLocaleString()}
 						>
-							<span {...stylex.props(styles.label)}>{label}</span>
-							<span
-								{...stylex.props(styles.count)}
-								title={item.count.toLocaleString()}
-							>
-								{fmtCount(item.count)}
-							</span>
-						</button>
-					);
-				})}
+							{fmtCount(row.count)}
+						</span>
+					</button>
+				))}
 			</div>
 		</div>
 	);
 }
+
 export function BreakdownPanel({
 	stats,
 	onFilter,
@@ -109,32 +113,36 @@ export function BreakdownPanel({
 		<div {...stylex.props(styles.groups)}>
 			<TopList
 				title="top violations"
-				items={stats.topViolations}
-				labelKey="violation"
+				items={stats.topViolations.map((r) => ({
+					label: r.violation,
+					count: r.count,
+				}))}
 				onSelect={(v) => onFilter("violation", v)}
 			/>
 			<TopList
 				title="top locations"
-				items={stats.topLocations}
-				labelKey="location"
+				items={stats.topLocations.map((r) => ({
+					label: r.location,
+					count: r.count,
+				}))}
 				onSelect={(v) => onFilter("location", v)}
 			/>
 			<TopList
 				title="top officers"
-				items={stats.topOfficers}
-				labelKey="officer"
+				items={stats.topOfficers.map((r) => ({
+					label: r.officer,
+					count: r.count,
+				}))}
 				onSelect={(v) => onFilter("officer", v)}
 			/>
 			<TopList
 				title="by status"
-				items={stats.byStatus}
-				labelKey="status"
+				items={stats.byStatus.map((r) => ({ label: r.status, count: r.count }))}
 				onSelect={(v) => onFilter("status", v)}
 			/>
 			<TopList
 				title="by year"
-				items={stats.byYear}
-				labelKey="year"
+				items={stats.byYear.map((r) => ({ label: r.year, count: r.count }))}
 				onSelect={(v) => onFilter("year", v)}
 			/>
 		</div>

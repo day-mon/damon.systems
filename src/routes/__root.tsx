@@ -31,11 +31,9 @@ export const Route = createRootRoute({
 				? [{ rel: "stylesheet", href: "/virtual:stylex.css" }]
 				: []),
 		],
-		scripts: [
-			...(import.meta.env.DEV
-				? [{ src: "/@id/virtual:stylex:runtime", type: "module" }]
-				: []),
-		],
+		scripts: import.meta.env.DEV
+			? [{ src: "/@id/virtual:stylex:runtime", type: "module" }]
+			: [],
 	}),
 	notFoundComponent: NotFound,
 	shellComponent: RootDocument,

@@ -17,6 +17,7 @@ import type {
 } from "#/lib/pgh-ticket/types";
 
 type Sql = PgClient;
+
 type SqlFragment = ReturnType<Sql>;
 
 interface CountsRow {
@@ -38,34 +39,46 @@ export class PghTicketRepo {
 
 	private buildWhere(f: TicketFilters): SqlFragment {
 		const sql = this.sql;
+
 		const parts: SqlFragment[] = [
 			sql`t.location IS NOT NULL AND t.location != ''`,
 		];
 
 		if (f.officer) parts.push(sql`t.officer = ${f.officer}`);
+
 		if (f.year) {
 			const y = Number.parseInt(f.year, 10);
+
 			if (!Number.isNaN(y)) {
 				parts.push(sql`t.issue_date >= ${`${y}-01-01`}::date`);
 				parts.push(sql`t.issue_date < ${`${y + 1}-01-01`}::date`);
 			}
 		}
+
 		if (f.status) parts.push(sql`t.status = ${f.status}`);
+
 		if (f.violation) parts.push(sql`t.violation = ${f.violation}`);
+
 		if (f.location) parts.push(sql`t.location = ${f.location}`);
+
 		if (f.plate) parts.push(sql`t.license_plate ILIKE ${`%${f.plate}%`}`);
+
 		if (f.dateFrom) parts.push(sql`t.issue_date >= ${f.dateFrom}::date`);
+
 		if (f.dateTo) parts.push(sql`t.issue_date <= ${f.dateTo}::date`);
 
 		let result = parts[0];
+
 		for (let i = 1; i < parts.length; i++) {
 			result = sql`${result} AND ${parts[i]}`;
 		}
+
 		return result;
 	}
 
 	private buildPointWhere(f: TicketFilters): SqlFragment {
 		const base = this.buildWhere(f);
+
 		return this
 			.sql`${base} AND l.latitude IS NOT NULL AND t.location = l.raw_location`;
 	}
@@ -73,6 +86,7 @@ export class PghTicketRepo {
 	async fetchCounts(filters: TicketFilters = {}) {
 		const sql = this.sql;
 		const where = this.buildWhere(filters);
+
 		const [r] = await sql<CountsRow[]>`
 			SELECT
 				(SELECT COUNT(*) FROM tickets t WHERE ${where}) AS total,
@@ -84,6 +98,7 @@ export class PghTicketRepo {
 				(SELECT MIN(t.issue_date)::text FROM tickets t WHERE ${where}) AS min_date,
 				(SELECT MAX(t.issue_date)::text FROM tickets t WHERE ${where}) AS max_date
 		`;
+
 		return {
 			total: Number(r.total ?? 0),
 			openTickets: Number(r.open_tickets ?? 0),
@@ -129,6 +144,7 @@ export class PghTicketRepo {
 		]);
 
 		const empty: StatItem[] = [];
+
 		const get = (i: number) =>
 			results[i].status === "fulfilled" && results[i]
 				? results[i].value
@@ -192,6 +208,7 @@ export class PghTicketRepo {
 
 	async fetchFilterOptions() {
 		const sql = this.sql;
+
 		const [officers, years, statuses, violations, locs] = await Promise.all([
 			sql<
 				{ officer: string }[]

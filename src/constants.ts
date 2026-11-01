@@ -1,4 +1,8 @@
-export const LANGUAGE_COLORS: Record<string, string> = {
+export interface LanguageColors {
+	[language: string]: string;
+}
+
+export const LANGUAGE_COLORS: LanguageColors = {
 	JavaScript: "#f1e05a",
 	TypeScript: "#3178c6",
 	Python: "#3572A5",

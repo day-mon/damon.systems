@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { json } from "#/lib/json";
 import { pghTicketService } from "#/lib/pgh-ticket/pgh.service";
 import type { TicketFilters } from "#/lib/pgh-ticket/types";
 
@@ -10,6 +9,7 @@ export const Route = createFileRoute("/api/lab/points")({
 			GET: async ({ request }: { request: Request }) => {
 				try {
 					const url = new URL(request.url);
+
 					const limit = Math.min(
 						Number.parseInt(url.searchParams.get("limit") || "20000", 10),
 						100_000,
@@ -27,7 +27,8 @@ export const Route = createFileRoute("/api/lab/points")({
 					};
 
 					const points = await pghTicketService.getPoints(limit, filters);
-					return json(points, {
+
+					return Response.json(points, {
 						headers: {
 							"Cache-Control":
 								"public, max-age=300, stale-while-revalidate=3600",
@@ -35,6 +36,7 @@ export const Route = createFileRoute("/api/lab/points")({
 					});
 				} catch (error) {
 					console.error("/api/lab/points error:", error);
+
 					return Response.json({ error: "internal error" }, { status: 500 });
 				}
 			},

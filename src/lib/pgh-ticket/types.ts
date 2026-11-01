@@ -49,6 +49,17 @@ export interface TicketPoint {
 	longitude: number;
 }
 
+export const TICKET_SORT_KEYS = [
+	"ticket_number",
+	"license_plate",
+	"state",
+	"location",
+	"issue_date",
+	"status",
+	"violation",
+	"amount_due",
+] as const satisfies readonly (keyof TicketRow)[];
+
 export interface TicketRow {
 	ticket_number: string;
 	license_plate: string;

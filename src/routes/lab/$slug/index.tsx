@@ -8,9 +8,11 @@ export const Route = createFileRoute("/lab/$slug/")({
 	// carry everything except it and re-resolve Content in the component.
 	loader: ({ params }) => {
 		const post = getLabPost(params.slug);
+
 		if (!post) {
 			throw notFound();
 		}
+
 		return {
 			slug: post.slug,
 			title: post.title,
@@ -133,6 +135,7 @@ function LabPost() {
 	const meta = Route.useLoaderData();
 	// loader 404-gates this slug; this guard only narrows Content lookup type
 	const post = getLabPost(meta.slug);
+
 	if (!post) {
 		throw notFound();
 	}

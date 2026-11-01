@@ -7,9 +7,11 @@ import { getLabPost } from "#/content/lab";
 export const Route = createFileRoute("/lab/$slug/demo")({
 	loader: ({ params }) => {
 		const post = getLabPost(params.slug);
+
 		if (!post?.demoComponent) {
 			throw notFound();
 		}
+
 		return {
 			slug: post.slug,
 			title: post.title,

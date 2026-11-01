@@ -35,6 +35,7 @@ export class PghTicketService {
 			this.repo.fetchCounts(filters),
 			this.repo.fetchBreakdowns(filters),
 		]);
+
 		return { ...counts, ...breakdowns };
 	}
 }

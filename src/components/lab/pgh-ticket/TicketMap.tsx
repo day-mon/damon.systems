@@ -22,8 +22,11 @@ const STATUSES = [
 
 function markerColor(status: string): string {
 	const s = STATUSES.find((st) => st.label === status);
+
 	if (s) return s.color;
+
 	if (status === "open in collections*") return "#f97316";
+
 	return "#a1a1aa";
 }
 
@@ -55,6 +58,7 @@ function Legend() {
 		};
 
 		legend.addTo(map);
+
 		return () => {
 			legend.remove();
 		};
@@ -103,6 +107,7 @@ function clusterIcon(cluster: L.MarkerCluster) {
 	const count = cluster.getChildCount();
 	const size = count < 10 ? 30 : count < 100 ? 36 : count < 1000 ? 42 : 48;
 	const fs = count < 10 ? 11 : count < 100 ? 10 : count < 1000 ? 10 : 9;
+
 	const label =
 		count < 1000
 			? String(count)
@@ -141,11 +146,15 @@ function MarkerClusterLayer({ points }: { points: TicketPoint[] }) {
 			chunkInterval: 50,
 			animate: false,
 			removeOutsideVisibleBounds: true,
-			iconCreateFunction: (c) => clusterIcon(c as L.MarkerCluster),
+			iconCreateFunction: (c) =>
+				// SAFETY: leaflet.markercluster types iconCreateFunction's
+				// argument too loosely; every value it hands us is a cluster.
+				clusterIcon(c as L.MarkerCluster),
 		});
 
 		for (const p of points) {
 			if (!p.latitude || !p.longitude) continue;
+
 			const marker = L.circleMarker([p.latitude, p.longitude], {
 				radius: 3.5,
 				fillColor: markerColor(p.status),
@@ -153,6 +162,7 @@ function MarkerClusterLayer({ points }: { points: TicketPoint[] }) {
 				fillOpacity: 0.55,
 				weight: 0,
 			});
+
 			marker.bindPopup(popupHtml(p));
 			cluster.addLayer(marker);
 		}
@@ -175,12 +185,15 @@ function FitBounds({ points }: { points: TicketPoint[] }) {
 	useEffect(() => {
 		if (hasFit.current) return;
 		const filtered = points.filter((p) => p.latitude && p.longitude);
+
 		if (filtered.length === 0) return;
 
 		const bounds = L.latLngBounds([]);
+
 		for (const p of filtered) {
 			bounds.extend([p.latitude, p.longitude]);
 		}
+
 		map.fitBounds(bounds, { padding: [30, 30], maxZoom: 15 });
 		hasFit.current = true;
 	}, [map, points]);
@@ -193,6 +206,7 @@ export function TicketMap({ points }: { points: TicketPoint[] }) {
 		const style = document.createElement("style");
 		style.textContent = POPUP_STYLE;
 		document.head.appendChild(style);
+
 		return () => {
 			style.remove();
 		};

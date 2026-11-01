@@ -12,9 +12,11 @@ type AnchorProps = ComponentProps<"a"> & { href?: string };
 /** Bridges astryx's href-based Link to TanStack Router's to-based Link. */
 function RouterLinkAdapter({ href = "/", ...rest }: AnchorProps) {
 	const isExternal = /^(https?:)?\/\//.test(href) || href.startsWith("mailto:");
+
 	if (isExternal) {
 		return <a href={href} {...rest} />;
 	}
+
 	return <Link to={href} {...rest} />;
 }
 
