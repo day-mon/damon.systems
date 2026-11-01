@@ -11,12 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
-import { Route as TravelIndexRouteImport } from './routes/travel/index'
-import { Route as TravelSlugRouteImport } from './routes/travel/$slug'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
 import { Route as ApiLabStatsRouteImport } from './routes/api/lab/stats'
@@ -36,11 +33,6 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -54,16 +46,6 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const LabIndexRoute = LabIndexRouteImport.update({
   id: '/lab/',
   path: '/lab/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TravelIndexRoute = TravelIndexRouteImport.update({
-  id: '/travel/',
-  path: '/travel/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TravelSlugRoute = TravelSlugRouteImport.update({
-  id: '/travel/$slug',
-  path: '/travel/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLabFiltersRoute = ApiLabFiltersRouteImport.update({
@@ -110,12 +92,9 @@ const LabSlugDemoRoute = LabSlugDemoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
-  '/travel/': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -128,12 +107,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/travel/$slug': typeof TravelSlugRoute
   '/lab': typeof LabIndexRoute
-  '/travel': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -147,12 +123,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
-  '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
-  '/travel/': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -167,12 +140,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/projects'
-    | '/travel/$slug'
     | '/lab/'
-    | '/travel/'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -185,12 +155,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/projects'
-    | '/travel/$slug'
     | '/lab'
-    | '/travel'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -203,12 +170,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/projects'
-    | '/travel/$slug'
     | '/lab/'
-    | '/travel/'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -222,12 +186,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
-  TravelSlugRoute: typeof TravelSlugRoute
   LabIndexRoute: typeof LabIndexRoute
-  TravelIndexRoute: typeof TravelIndexRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
   ApiLabPointsRoute: typeof ApiLabPointsRoute
   ApiLabStatsRoute: typeof ApiLabStatsRoute
@@ -254,13 +215,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -280,20 +234,6 @@ declare module '@tanstack/react-router' {
       path: '/lab'
       fullPath: '/lab/'
       preLoaderRoute: typeof LabIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/travel/': {
-      id: '/travel/'
-      path: '/travel'
-      fullPath: '/travel/'
-      preLoaderRoute: typeof TravelIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/travel/$slug': {
-      id: '/travel/$slug'
-      path: '/travel/$slug'
-      fullPath: '/travel/$slug'
-      preLoaderRoute: typeof TravelSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/lab/filters': {
@@ -358,12 +298,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
-  TravelSlugRoute: TravelSlugRoute,
   LabIndexRoute: LabIndexRoute,
-  TravelIndexRoute: TravelIndexRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,
   ApiLabPointsRoute: ApiLabPointsRoute,
   ApiLabStatsRoute: ApiLabStatsRoute,

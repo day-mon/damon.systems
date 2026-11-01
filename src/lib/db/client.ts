@@ -1,6 +1,6 @@
 /*
-shared postgres client + drizzle instance. every repo (trips, pgh ticket,
-…) hangs off these singletons so the pool is one per process, not one
+shared postgres client + drizzle instance. the pgh-ticket repo hangs
+off these singletons so the pool is one per process, not one
 per module.
 */
 
