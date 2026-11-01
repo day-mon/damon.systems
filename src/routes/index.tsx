@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import Dither from "#/components/ui/Dither";
 import SplitText from "#/components/ui/SplitText";
-import TextType from "#/components/ui/TextType";
 import { useResolvedTheme } from "#/lib/theme";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -43,16 +42,7 @@ function Home() {
 				staggerFrom="start"
 				delay={40}
 			/>
-			<TextType
-				as="p"
-				text="software engineer"
-				className="mt-3 font-mono text-lg opacity-60"
-				cursorStyle="underscore"
-				cursorCharacter="_"
-				typingSpeed={70}
-				loop={false}
-				typeEffect="fade"
-			/>
+			<p className="mt-3 text-lg opacity-60">software engineer</p>
 			<nav className="mt-8 flex flex-col gap-3 text-center text-lg">
 				<Link to="/about">about</Link>
 				<Link to="/projects">projects</Link>
