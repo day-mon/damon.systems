@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-
+import SpotlightCard from "#/components/ui/SpotlightCard";
 import { LAB_POSTS } from "#/content/lab";
+import { useResolvedTheme } from "#/lib/theme";
 
 export const Route = createFileRoute("/lab/")({
 	head: () => ({
@@ -22,6 +23,8 @@ function formatDate(d: Date): string {
 }
 
 function LabIndex() {
+	const theme = useResolvedTheme();
+
 	const posts = LAB_POSTS.toSorted(
 		(a, b) => b.date.getTime() - a.date.getTime(),
 	);
@@ -32,34 +35,41 @@ function LabIndex() {
 
 			<div className="grid gap-6">
 				{posts.map((post) => (
-					<Link
+					<SpotlightCard
 						key={post.slug}
-						to="/lab/$slug"
-						params={{ slug: post.slug }}
-						className="group block border border-border p-6 text-inherit no-underline transition-colors duration-200 hover:bg-accent/50"
+						theme={theme}
+						className="block border border-border"
 					>
-						<div className="mb-2 flex items-baseline justify-between gap-4">
-							<h2 className="text-lg font-medium underline-offset-2 group-hover:underline">
-								{post.title}
-							</h2>
-							<time className="shrink-0 font-mono text-xs text-muted-foreground">
-								{formatDate(post.date)}
-							</time>
-						</div>
-						<p className="text-sm text-muted-foreground">{post.description}</p>
-						{post.tags.length > 0 && (
-							<div className="mt-3 flex flex-wrap gap-1.5">
-								{post.tags.map((tag) => (
-									<span
-										key={tag}
-										className="text-xs text-muted-foreground opacity-60"
-									>
-										{tag}
-									</span>
-								))}
+						<Link
+							to="/lab/$slug"
+							params={{ slug: post.slug }}
+							className="group block p-6 text-inherit no-underline"
+						>
+							<div className="mb-2 flex items-baseline justify-between gap-4">
+								<h2 className="text-lg font-medium underline-offset-2 group-hover:underline">
+									{post.title}
+								</h2>
+								<time className="shrink-0 font-mono text-xs text-muted-foreground">
+									{formatDate(post.date)}
+								</time>
 							</div>
-						)}
-					</Link>
+							<p className="text-sm text-muted-foreground">
+								{post.description}
+							</p>
+							{post.tags.length > 0 && (
+								<div className="mt-3 flex flex-wrap gap-1.5">
+									{post.tags.map((tag) => (
+										<span
+											key={tag}
+											className="text-xs text-muted-foreground opacity-60"
+										>
+											{tag}
+										</span>
+									))}
+								</div>
+							)}
+						</Link>
+					</SpotlightCard>
 				))}
 			</div>
 

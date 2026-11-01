@@ -15,6 +15,7 @@ export default defineConfig({
 		".astro/**",
 		".intent/**",
 		"src/routeTree.gen.ts",
+		"src/components/ui/**",
 	],
 	categories: {
 		suspicious: "error",
