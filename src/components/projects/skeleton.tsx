@@ -1,58 +1,75 @@
-import { Skeleton } from "~/components/ui/skeleton";
+import { RefreshCw } from "lucide-react";
 
 /*
-skeleton mirrors ProjectsList's loaded layout 1:1 so the swap is a crossfade,
-not a reflow. measured against the real dom: rows are 21px-tall flex lines on
-an 8px gap pitched 33px apart, columns are
-
-  [repo name ~120px strong] [stars ~30px] [lang ~36px] [link icon 12px] [description flex]
-
-and the header is a 77x32 "projects" h1 with a 28x28 refresh badge beside it.
-
-row count = 19, the actual number of repos rendered on load; name widths are
-sampled to fake the star-sorted kebab-case mix.
+skeleton rules followed here:
+- static chrome is REAL: the h1 and refresh affordance live in markup,
+  not as grey boxes pretending to be loading.
+- pulse rows are statistical, not literal: name widths sample the real
+  star-sorted kebab-case distribution, only ~30% of rows have a star
+  count (loaded state shows them only when stars > 0), and description
+  bars vary in length instead of forming a uniform wall.
+- rows stagger in like the loaded list does (30ms) so the skeleton ->
+  data swap reads as "the data arrived", not "the layout rebuilt".
 */
-const NAME_WIDTHS: { id: string; w: number }[] = [
-	{ id: "s01", w: 120 },
-	{ id: "s02", w: 148 },
-	{ id: "s03", w: 96 },
-	{ id: "s04", w: 104 },
-	{ id: "s05", w: 88 },
-	{ id: "s06", w: 132 },
-	{ id: "s07", w: 116 },
-	{ id: "s08", w: 92 },
-	{ id: "s09", w: 152 },
-	{ id: "s10", w: 108 },
-	{ id: "s11", w: 124 },
-	{ id: "s12", w: 84 },
-	{ id: "s13", w: 140 },
-	{ id: "s14", w: 100 },
-	{ id: "s15", w: 112 },
-	{ id: "s16", w: 96 },
-	{ id: "s17", w: 128 },
-	{ id: "s18", w: 92 },
-	{ id: "s19", w: 108 },
+import { Skeleton } from "~/components/ui/skeleton";
+
+interface SkeletonRow {
+	id: string;
+	name: number;
+	stars: boolean;
+	icon: boolean;
+	desc: number;
+}
+
+const ROWS: SkeletonRow[] = [
+	{ id: "s01", name: 120, stars: true, icon: true, desc: 64 },
+	{ id: "s02", name: 148, stars: true, icon: false, desc: 47 },
+	{ id: "s03", name: 96, stars: false, icon: true, desc: 71 },
+	{ id: "s04", name: 104, stars: true, icon: false, desc: 38 },
+	{ id: "s05", name: 88, stars: false, icon: true, desc: 55 },
+	{ id: "s06", name: 132, stars: true, icon: false, desc: 62 },
+	{ id: "s07", name: 116, stars: false, icon: true, desc: 44 },
+	{ id: "s08", name: 92, stars: false, icon: false, desc: 76 },
+	{ id: "s09", name: 152, stars: true, icon: true, desc: 52 },
+	{ id: "s10", name: 108, stars: false, icon: false, desc: 41 },
+	{ id: "s11", name: 124, stars: true, icon: true, desc: 68 },
+	{ id: "s12", name: 84, stars: false, icon: false, desc: 59 },
+	{ id: "s13", name: 140, stars: true, icon: true, desc: 36 },
+	{ id: "s14", name: 100, stars: false, icon: false, desc: 73 },
+	{ id: "s15", name: 112, stars: false, icon: true, desc: 48 },
+	{ id: "s16", name: 96, stars: true, icon: false, desc: 61 },
+	{ id: "s17", name: 128, stars: false, icon: true, desc: 43 },
+	{ id: "s18", name: 92, stars: false, icon: false, desc: 69 },
+	{ id: "s19", name: 108, stars: false, icon: true, desc: 57 },
 ];
 
 export function ProjectsSkeleton() {
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex h-8 items-center gap-3">
-				<Skeleton className="h-7 w-[77px] rounded-[1px]" />
-				<Skeleton className="size-7 rounded-[1px]" />
+				<h1 className="m-0 text-2xl font-light tracking-tight">projects</h1>
+				{/* mirroring the refresh button's disabled-spinning state */}
+				<RefreshCw size={14} className="animate-spin opacity-40" />
 			</div>
 
-			<div className="flex flex-col gap-3">
-				{NAME_WIDTHS.map(({ id, w }) => (
-					<div key={id} className="flex h-[21px] items-center gap-2">
-						<Skeleton className="h-3.5 rounded-[1px]" style={{ width: w }} />
-						<Skeleton className="h-3 w-[30px] rounded-[1px]" />
+			<ul className="m-0 flex list-none flex-col gap-3 p-0 text-sm">
+				{ROWS.map(({ id, name, stars, icon, desc }, i) => (
+					<li
+						key={id}
+						className="flex h-[21px] animate-in fade-in items-center gap-2 duration-200"
+						style={{ animationDelay: `${i * 30}ms` }}
+					>
+						<Skeleton className="h-3.5 rounded-[1px]" style={{ width: name }} />
+						{stars && <Skeleton className="h-3 w-[30px] rounded-[1px]" />}
 						<Skeleton className="h-3 w-9 rounded-[1px]" />
-						<Skeleton className="size-3 rounded-[1px]" />
-						<Skeleton className="h-3 flex-1 rounded-[1px]" />
-					</div>
+						{icon && <Skeleton className="size-3 rounded-[1px]" />}
+						<Skeleton
+							className="h-3 rounded-[1px]"
+							style={{ width: `${desc}%` }}
+						/>
+					</li>
 				))}
-			</div>
+			</ul>
 		</div>
 	);
 }
