@@ -522,6 +522,11 @@ async function initializeServer() {
   const server = Bun.serve({
     port: SERVER_PORT,
 
+    // Default is 10s; the pgh dashboard's first uncached stats query takes
+    // several seconds against 4.7m rows and was being aborted mid-request
+    // (AbortError code 20 + postgres logging "broken pipe").
+    idleTimeout: 60,
+
     routes: {
       // Serve static assets (preloaded or on-demand)
       ...routes,

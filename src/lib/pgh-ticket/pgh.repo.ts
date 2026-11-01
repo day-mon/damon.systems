@@ -9,6 +9,12 @@ the table shapes still live declared in lib/db/schema.ts.
 */
 
 import { type PgClient, postgresClient } from "#/lib/db/client";
+import {
+	type DashboardBreakdowns,
+	type DashboardCounts,
+	type DashboardFilterOptions,
+	readSnapshot,
+} from "#/lib/pgh-ticket/dashboard-snapshot";
 import type {
 	StatItem,
 	TicketFilters,
@@ -19,6 +25,10 @@ import type {
 type Sql = PgClient;
 
 type SqlFragment = ReturnType<Sql>;
+
+function hasAnyFilter(f: TicketFilters): boolean {
+	return Object.values(f).some((v) => v != null && v !== "");
+}
 
 interface CountsRow {
 	total: string | number;
@@ -84,19 +94,33 @@ export class PghTicketRepo {
 	}
 
 	async fetchCounts(filters: TicketFilters = {}) {
+		// frozen dataset: the unfiltered payload lives in dashboard_snapshot
+		if (!hasAnyFilter(filters)) {
+			const snap = await readSnapshot<DashboardCounts>("counts");
+
+			if (snap) return snap;
+		}
+
 		const sql = this.sql;
 		const where = this.buildWhere(filters);
 
+		// one pass over tickets instead of six subquery scans - naive form
+		// cost ~6 seq scans and occasionally outlived bun's 10s idle timeout.
 		const [r] = await sql<CountsRow[]>`
 			SELECT
-				(SELECT COUNT(*) FROM tickets t WHERE ${where}) AS total,
-				(SELECT COUNT(*) FROM tickets t WHERE ${where} AND t.status = 'open') AS open_tickets,
-				(SELECT COALESCE(SUM(CAST(REPLACE(REPLACE(t.amount_due, '$', ''), ',', '') AS double precision)), 0)
-				 FROM tickets t WHERE ${where} AND t.amount_due LIKE '$%' AND t.status = 'open') AS total_amount,
+				COUNT(*) AS total,
+				COUNT(*) FILTER (WHERE t.status = 'open') AS open_tickets,
+				COALESCE(SUM(
+					CASE WHEN t.amount_due LIKE '$%' AND t.status = 'open'
+						THEN CAST(REPLACE(REPLACE(t.amount_due, '$', ''), ',', '') AS double precision)
+					END
+				), 0) AS total_amount,
 				(SELECT COUNT(*) FROM locations WHERE latitude IS NOT NULL) AS geocoded_count,
-				(SELECT COUNT(DISTINCT t.location) FROM tickets t WHERE ${where}) AS total_locations,
-				(SELECT MIN(t.issue_date)::text FROM tickets t WHERE ${where}) AS min_date,
-				(SELECT MAX(t.issue_date)::text FROM tickets t WHERE ${where}) AS max_date
+				COUNT(DISTINCT t.location) AS total_locations,
+				MIN(t.issue_date)::text AS min_date,
+				MAX(t.issue_date)::text AS max_date
+			FROM tickets t
+			WHERE ${where}
 		`;
 
 		return {
@@ -113,6 +137,12 @@ export class PghTicketRepo {
 	}
 
 	async fetchBreakdowns(filters: TicketFilters = {}) {
+		if (!hasAnyFilter(filters)) {
+			const snap = await readSnapshot<DashboardBreakdowns>("breakdowns");
+
+			if (snap) return snap;
+		}
+
 		const sql = this.sql;
 		const where = this.buildWhere(filters);
 
@@ -167,8 +197,17 @@ export class PghTicketRepo {
 		const where = this.buildWhere(filters);
 		const offset = (page - 1) * pageSize;
 
+		const snapTotal =
+			hasAnyFilter(filters) === false
+				? ((await readSnapshot<DashboardCounts>("counts"))?.total ?? null)
+				: null;
+
 		const [countResult, rows] = await Promise.all([
-			sql<CountRow[]>`SELECT COUNT(*) AS value FROM tickets t WHERE ${where}`,
+			snapTotal == null
+				? sql<
+						CountRow[]
+					>`SELECT COUNT(*) AS value FROM tickets t WHERE ${where}`
+				: Promise.resolve([{ value: String(snapTotal) } satisfies CountRow]),
 			sql<TicketRow[]>`
 				SELECT t.ticket_number, t.license_plate, t.state, t.location,
 							 TO_CHAR(t.issue_date, 'YYYY-MM-DD') AS issue_date,
@@ -207,6 +246,10 @@ export class PghTicketRepo {
 	}
 
 	async fetchFilterOptions() {
+		const snap = await readSnapshot<DashboardFilterOptions>("filter_options");
+
+		if (snap) return snap;
+
 		const sql = this.sql;
 
 		const [officers, years, statuses, violations, locs] = await Promise.all([

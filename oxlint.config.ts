@@ -16,6 +16,7 @@ export default defineConfig({
 		".intent/**",
 		"src/routeTree.gen.ts",
 		"src/components/ui/**",
+		"server.ts",
 	],
 	categories: {
 		suspicious: "error",
