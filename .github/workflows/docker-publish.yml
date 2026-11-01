@@ -10,7 +10,101 @@ on:
     branches:
       - main
 
+# NOTE: previously called the reusable workflow at
+# day-mon/k3s/.github/workflows/docker-publish.yml@main; github could not
+# resolve it (private-repo reusable workflow access never engaged) and every
+# run failed at parse time. jobs are inlined here verbatim from that file so
+# CI runs again; return to the reusable once access is sorted.
+
 jobs:
-  docker:
-    uses: day-mon/k3s/.github/workflows/docker-publish.yml@main
-    secrets: inherit
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: determine image name
+        id: image
+        run: echo "name=ghcr.io/${{ github.repository }}" >> $GITHUB_OUTPUT
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=,suffix=,enable=${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
+            type=raw,value=main,enable=${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
+            type=ref,event=branch,enable=${{ github.ref_type == 'branch' && github.ref_name != 'main' }}
+            type=ref,event=pr
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # NOTE: explicit platforms because QEMU cross builds; drop arm64 if build times become a problem
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+  preview-comment:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+            if (!prNumber) return;
+
+            const url = `https://pr-${prNumber}.preview.damon.systems`;
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            if (comments.data.some(c => c.user.type === 'Bot' && c.body.includes('preview.damon.systems'))) {
+              core.info('preview comment already exists, skipping');
+              return;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: [
+                `## Preview Environment`,
+                ``,
+                `A preview environment is being deployed.`,
+                ``,
+                `- URL: ${url}`,
+                `- Image: \`pr-${prNumber}\` (building now)`,
+                `- Status: check the **argocd/preview** commit status below`,
+                ``,
+                `The URL will be live once the image build finishes and argocd syncs (~2-3 min).`,
+              ].join('\n'),
+            });
