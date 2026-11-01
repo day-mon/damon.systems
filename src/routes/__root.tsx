@@ -5,7 +5,9 @@ import {
 	HeadContent,
 	Link,
 	Scripts,
+	useLocation,
 } from "@tanstack/react-router";
+import { AnimatePresence, m, useReducedMotion } from "motion/react";
 
 import { Footer } from "../components/footer";
 import { Navbar } from "../components/navbar";
@@ -44,6 +46,27 @@ function NotFound() {
 	);
 }
 
+function RouteTransitions({ children }: { children: React.ReactNode }) {
+	const { pathname } = useLocation();
+	const reduceMotion = useReducedMotion();
+
+	// enter 200ms ease-out, exit 120ms ease-in - exits are always snappier.
+	// keyed on pathname so every route swap gets the bridge instead of teleporting.
+	return (
+		<AnimatePresence mode="wait" initial={false}>
+			<m.div
+				key={pathname}
+				initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
+				animate={{ opacity: 1, y: 0 }}
+				exit={{ opacity: 0, transition: { duration: 0.12, ease: "easeIn" } }}
+				transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+			>
+				{children}
+			</m.div>
+		</AnimatePresence>
+	);
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		// suppressHydrationWarning: THEME_INIT adds .dark client-side before paint
@@ -54,7 +77,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body>
 				<Providers>
 					<Navbar />
-					{children}
+					<RouteTransitions>{children}</RouteTransitions>
 					<Footer />
 				</Providers>
 

@@ -30,7 +30,7 @@ function LabIndex() {
 	);
 
 	return (
-		<main className="mx-auto max-w-3xl animate-in fade-in px-4 py-16 duration-[400ms] ease-out">
+		<main className="mx-auto max-w-3xl px-4 py-16">
 			<h1 className="mb-12 text-3xl font-light tracking-tight">lab</h1>
 
 			<div className="grid gap-6">

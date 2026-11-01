@@ -15,7 +15,7 @@ export const Route = createFileRoute("/about")({
 
 function About() {
 	return (
-		<main className="mx-auto max-w-3xl animate-in fade-in px-8 pt-12 pb-20 leading-relaxed duration-[400ms] ease-out">
+		<main className="mx-auto max-w-3xl px-8 pt-12 pb-20 leading-relaxed">
 			<h1 className="mb-8 text-2xl font-light tracking-tight">about</h1>
 
 			<div className="flex flex-col gap-4 text-muted-foreground">

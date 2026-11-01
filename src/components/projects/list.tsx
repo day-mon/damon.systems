@@ -1,5 +1,5 @@
 import { ExternalLink, RefreshCw, Star } from "lucide-react";
-import { m } from "motion/react";
+import { m, useReducedMotion } from "motion/react";
 
 import { EXCLUDED_REPOS, getLanguageColor } from "#/constants";
 import { useGithubRepos } from "#/queries/github/queries";
@@ -9,6 +9,8 @@ import { ProjectsError } from "./error";
 import { ProjectsSkeleton } from "./skeleton";
 
 export function ProjectsList() {
+	const reduceMotion = useReducedMotion();
+
 	const { data, isPending, isFetching, error, refetch } = useGithubRepos({
 		select: (repos: GitHubRepo[]) =>
 			repos
@@ -49,16 +51,21 @@ export function ProjectsList() {
 				</Button>
 			</div>
 
-			<ul className="m-0 flex list-none flex-col gap-3 p-0 text-sm">
+			{/* blur+dim while fetching: bridges the row-swap snap after refresh */}
+			<ul
+				className={`m-0 flex list-none flex-col gap-3 p-0 text-sm transition-[filter,opacity] duration-200 ease-out${
+					isFetching ? " opacity-70 blur-[2px]" : ""
+				}`}
+			>
 				{repos.map((repo, i) => (
 					<m.li
 						key={repo.name}
-						initial={{ opacity: 0, y: 8 }}
+						initial={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{
-							delay: i * 0.04,
+							delay: i * 0.03,
 							duration: 0.3,
-							ease: [0.22, 1, 0.36, 1],
+							ease: [0.23, 1, 0.32, 1],
 						}}
 						className="flex items-baseline gap-2"
 					>

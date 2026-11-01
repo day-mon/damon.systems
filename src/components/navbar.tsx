@@ -11,7 +11,7 @@ export function Navbar() {
 			{!isHome && (
 				<Link
 					to="/"
-					className="text-base font-light tracking-tight no-underline hover:opacity-100"
+					className="inline-block text-base font-light tracking-tight no-underline transition-transform duration-[160ms] ease-out hover:opacity-100 active:scale-[0.97]"
 				>
 					damon
 				</Link>

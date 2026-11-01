@@ -60,7 +60,7 @@ const LINKS = [
 
 function Contact() {
 	return (
-		<main className="mx-auto max-w-3xl animate-in fade-in px-8 pt-12 pb-20 duration-[400ms] ease-out">
+		<main className="mx-auto max-w-3xl px-8 pt-12 pb-20">
 			<h1 className="mb-8 text-2xl font-light tracking-tight">contact</h1>
 
 			<div className="flex flex-col gap-3">

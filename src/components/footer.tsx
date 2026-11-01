@@ -36,6 +36,7 @@ function FooterLinks() {
 					key={label}
 					to={to}
 					initial={false}
+					whileTap={{ scale: 0.97 }}
 					animate={
 						reduceMotion
 							? {}
