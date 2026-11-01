@@ -14,7 +14,7 @@ function Fallback() {
 	);
 }
 
-/** Loads leaflet only in the browser; it is not SSR-safe. */
+/** Loads maplibre only in the browser; it is not SSR-safe. */
 export function ClientTicketMap({ points }: { points: TicketPoint[] }) {
 	const [mounted, setMounted] = useState(false);
 	useEffect(() => setMounted(true), []);
