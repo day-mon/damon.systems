@@ -13,4 +13,4 @@ ENV HOST=0.0.0.0
 ENV PORT=4321
 EXPOSE 4321
 
-ENTRYPOINT ["bun", "dist/server/server.js"]
+ENTRYPOINT ["bun", "server.ts"]
