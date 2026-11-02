@@ -21,9 +21,18 @@ export const TripMetaSchema = z.object({
 
 export type TripMeta = z.infer<typeof TripMetaSchema>;
 
+export interface TripPhoto {
+	/** original full-res */
+	full: string;
+	/** 2048w webp */
+	large: string;
+	/** 800w webp */
+	thumb: string;
+}
+
 export interface Trip extends TripMeta {
 	slug: string;
-	photos: string[];
+	photos: TripPhoto[];
 }
 
 const MONTHS = [

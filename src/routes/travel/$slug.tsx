@@ -114,7 +114,7 @@ export function TripJourney({ trip }: { trip: Trip }) {
 			{view === "sphere" ? (
 				<div className="relative mx-auto h-[60vh] w-full max-w-5xl animate-in fade-in duration-200">
 					<DomeGallery
-						images={trip.photos}
+						images={trip.photos.map((p) => p.thumb)}
 						grayscale={false}
 						segments={18}
 						padFactor={0.22}
@@ -124,15 +124,16 @@ export function TripJourney({ trip }: { trip: Trip }) {
 				</div>
 			) : (
 				<div className="mx-auto mt-8 flex w-full max-w-5xl animate-in fade-in flex-col gap-10 px-8 duration-200">
-					{trip.photos.slice(0, 8).map((src, i) => (
-						<img
-							key={src}
-							src={src}
-							alt={`${trip.name} ${i + 1}`}
-							loading="lazy"
-							className="w-full object-cover"
-							style={{ aspectRatio: i % 3 === 1 ? "16/9" : "21/9" }}
-						/>
+					{trip.photos.slice(0, 8).map((p, i) => (
+						<a key={p.full} href={p.full} target="_blank" rel="noreferrer">
+							<img
+								src={p.large}
+								alt={`${trip.name} ${i + 1}`}
+								loading="lazy"
+								className="w-full object-cover"
+								style={{ aspectRatio: i % 3 === 1 ? "16/9" : "21/9" }}
+							/>
+						</a>
 					))}
 				</div>
 			)}

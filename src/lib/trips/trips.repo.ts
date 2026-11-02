@@ -7,12 +7,12 @@ the api. ttl keeps edits eventually-visible without a deploy.
 import { logger } from "#/lib/logger";
 
 import { b2Configured, fetchJson, listPrefix, publicUrlFor } from "./b2";
-import { TripMetaSchema, clampRating, type Trip } from "./types";
+import { TripMetaSchema, clampRating, type Trip, type TripPhoto } from "./types";
 
 const TRAVEL_PREFIX = "travel/";
 const TTL_MS = 10 * 60 * 1000;
 
-const PHOTO_EXT = /\.(jpe?g|png|webp|gif|avif)$/i;
+const ORIGINAL = /^travel\/[^/]+\/([a-f0-9]+)\.(jpe?g|png|webp|gif|avif)$/i;
 
 let cache: { at: number; trips: Trip[] } | null = null;
 
@@ -42,11 +42,22 @@ async function loadAllTrips(): Promise<Trip[]> {
 
 			const meta = { ...parsed.data, rating: clampRating(parsed.data.rating) };
 
-			const photoUrls = photos.files
-				.filter((f) => PHOTO_EXT.test(f))
-				.map(publicUrlFor);
+			// originals carry the digest name; derivatives mirror it as webp
+			const entries: TripPhoto[] = photos.files.flatMap((k) => {
+				const m = ORIGINAL.exec(k);
 
-			trips.push({ ...meta, slug, photos: photoUrls });
+				if (!m) return [];
+
+				return [
+					{
+						full: publicUrlFor(k),
+						large: publicUrlFor(`${TRAVEL_PREFIX}${slug}/large/${m[1]}.webp`),
+						thumb: publicUrlFor(`${TRAVEL_PREFIX}${slug}/thumb/${m[1]}.webp`),
+					},
+				];
+			});
+
+			trips.push({ ...meta, slug, photos: entries });
 		} catch (err) {
 			logger.warn({ slug, err: String(err) }, "trip load failed; skipped");
 		}
