@@ -4,22 +4,14 @@ admin trip editor — meta fields + photo upload. the same page handles create
 */
 
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import type { TripMeta } from "#/lib/trips/types";
 import { saveTripMeta, uploadTripPhotos } from "#/queries/trips/manage";
 import { tripQuery } from "#/queries/trips/queries";
-import { mySession } from "#/queries/session/queries";
 
 export const Route = createFileRoute("/admin/trips/$slug")({
-	beforeLoad: async () => {
-		const session = await mySession();
-
-		if (!session) throw redirect({ href: "/auth/login" });
-
-		return { session };
-	},
 	component: TripEditorPage,
 });
 
@@ -154,7 +146,7 @@ function TripEditorPage() {
 	const labelCls = "mb-1 block text-muted-foreground text-xs";
 
 	return (
-		<main className="mx-auto max-w-2xl px-8 pt-12 pb-20">
+		<div className="mt-10">
 			<div className="flex items-baseline justify-between">
 				<h1 className="m-0 font-light text-2xl tracking-tight">
 					{isNew ? "new trip" : `edit · ${form.name || slug}`}
@@ -265,6 +257,6 @@ function TripEditorPage() {
 				</button>
 				{status && <span className="text-muted-foreground text-xs">{status}</span>}
 			</div>
-		</main>
+		</div>
 	);
 }
