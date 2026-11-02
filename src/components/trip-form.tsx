@@ -11,7 +11,14 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { Trip, TripMeta } from "#/lib/trips/types";
 import { uploadStore } from "#/lib/upload-store";
 import { saveTripMeta } from "#/queries/trips/manage";
-import CoordPicker from "../routes/admin.trips.$slug/-coord-picker";
+import TripStopsMap from "#/components/trip-stops-map";
+
+/** stop coords stay stringy in the form (same treatment lat/lng used to get) */
+export interface FormStop {
+	name: string;
+	lat: string;
+	lng: string;
+}
 
 export interface TripFormValues {
 	slug: string;
@@ -21,8 +28,7 @@ export interface TripFormValues {
 	from: string;
 	to: string;
 	rating: number;
-	lat: string;
-	lng: string;
+	stops: FormStop[];
 	blurb: string;
 	photos: PhotoEntry[];
 }
@@ -35,8 +41,7 @@ const EMPTY: TripFormValues = {
 	from: "",
 	to: "",
 	rating: 4,
-	lat: "",
-	lng: "",
+	stops: [],
 	blurb: "",
 	photos: [],
 };
@@ -49,8 +54,7 @@ const fromTrip = (slug: string, t: Trip): TripFormValues => ({
 	from: t.dates[0],
 	to: t.dates[1],
 	rating: t.rating,
-	lat: String(t.lat),
-	lng: String(t.lng),
+	stops: t.stops.map((st) => ({ name: st.name, lat: String(st.lat), lng: String(st.lng) })),
 	blurb: t.blurb,
 	photos: [],
 });
@@ -129,8 +133,11 @@ export function TripForm({ trip, routeSlug }: Props) {
 			place: value.place,
 			dates: [value.from, value.to],
 			rating: value.rating,
-			lat: Number(value.lat),
-			lng: Number(value.lng),
+			stops: value.stops.map((st) => ({
+				name: st.name.trim(),
+				lat: Number(st.lat),
+				lng: Number(st.lng),
+			})),
 			blurb: value.blurb,
 		};
 
@@ -330,66 +337,59 @@ export function TripForm({ trip, routeSlug }: Props) {
 					</form.Field>
 				</div>
 
-				<div className="col-span-2">
-					<label className={LABEL}>where (click the map)</label>
-					<form.Subscribe selector={(s) => [s.values.lat, s.values.lng]}>
-						{([lat, lng]) => (
-							<CoordPicker
-								lat={String(lat)}
-								lng={String(lng)}
-								onPick={(la, lo) => {
-									form.setFieldValue("lat", la.toFixed(5));
-									form.setFieldValue("lng", lo.toFixed(5));
-								}}
-							/>
-						)}
-					</form.Subscribe>
-				</div>
-
-				<div>
+					<div className="col-span-2">
 					<form.Field
-						name="lat"
-						validators={{ onSubmit: ({ value }) => (value ? undefined : "pin the map") }}
+						name="stops"
+						mode="array"
+						validators={{
+							onSubmit: ({ value }) => (value.length > 0 ? undefined : "pin at least one stop"),
+						}}
 					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>
-									lat
+								<label className={LABEL}>
+									route — click the map to drop stops in visit order
 								</label>
-								<input
-									id={f.name}
-									className={INPUT}
-									value={f.state.value}
-									onBlur={f.handleBlur}
-									onChange={(e) => f.handleChange(e.target.value)}
-									placeholder="61.2"
-									inputMode="decimal"
+								<TripStopsMap
+									className="h-64 w-full overflow-hidden rounded-lg border border-border"
+									stops={f.state.value
+										.map((st) => ({
+											name: st.name || "stop",
+											lat: Number(st.lat),
+											lng: Number(st.lng),
+										}))
+										.filter((st) => Number.isFinite(st.lat) && Number.isFinite(st.lng))}
+									onPick={(la, lo) => f.pushValue({ name: "", lat: la.toFixed(5), lng: lo.toFixed(5) })}
 								/>
-								<FieldError errors={f.state.meta.errors} />
-							</>
-						)}
-					</form.Field>
-				</div>
-
-				<div>
-					<form.Field
-						name="lng"
-						validators={{ onSubmit: ({ value }) => (value ? undefined : "pin the map") }}
-					>
-						{(f) => (
-							<>
-								<label className={LABEL} htmlFor={f.name}>
-									lng
-								</label>
-								<input
-									id={f.name}
-									className={INPUT}
-									value={f.state.value}
-									onBlur={f.handleBlur}
-									onChange={(e) => f.handleChange(e.target.value)}
-									placeholder="-149.9"
-									inputMode="decimal"
-								/>
+								{f.state.value.length > 0 && (
+									<ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
+										{f.state.value.map((st, i) => (
+											<li key={i} className="flex items-center gap-2">
+												<span className="w-5 shrink-0 text-center font-mono text-muted-foreground text-xs">
+													{i + 1}
+												</span>
+												<input
+													className={INPUT}
+													value={st.name}
+													onChange={(e) =>
+														form.setFieldValue(`stops[${i}].name`, e.target.value)
+													}
+													placeholder="stop name (kamloops, banff…)"
+												/>
+												<span className="shrink-0 font-mono text-muted-foreground text-xs">
+													{Number(st.lat).toFixed(2)}, {Number(st.lng).toFixed(2)}
+												</span>
+												<button
+													type="button"
+													onClick={() => f.removeValue(i)}
+													className="shrink-0 px-2 text-muted-foreground text-xs hover:text-destructive"
+												>
+													✕
+												</button>
+											</li>
+										))}
+									</ul>
+								)}
 								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}

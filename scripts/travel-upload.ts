@@ -4,7 +4,7 @@ upload a trip folder to b2:  bun scripts/travel-upload.ts ./my-trip
 
 the local folder must look like:
 	my-trip/
-		meta.json      name, place, dates, rating, lat, lng, blurb
+		meta.json      name, place, dates, rating, stops (name+lat+lng list), blurb
 		*.jpg|.png|.webp|.gif|.avif
 
 it uploads to b2 as  travel/<folder-name>/<file>  — meta.json first (so the

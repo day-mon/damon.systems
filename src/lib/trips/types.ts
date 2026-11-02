@@ -6,20 +6,54 @@ via scripts/travel-upload.ts. keeping the schema deliberately dumb.
 
 import { z } from "zod";
 
-export const TripMetaSchema = z.object({
+export const TripStopSchema = z.object({
 	name: z.string().min(1),
-	place: z.string().min(1),
-	dates: z.tuple([
-		z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-		z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-	]),
-	rating: z.number().min(0).max(5),
 	lat: z.number().min(-90).max(90),
 	lng: z.number().min(-180).max(180),
+});
+
+export type TripStop = z.infer<typeof TripStopSchema>;
+
+const DateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+const CurrentMeta = z.object({
+	name: z.string().min(1),
+	place: z.string().min(1),
+	dates: z.tuple([DateString, DateString]),
+	rating: z.number().min(0).max(5),
+	stops: z.array(TripStopSchema).min(1),
 	blurb: z.string().min(1),
 });
 
+/* legacy metas pinned one lat/lng at the root — the union discriminates on stops */
+const LegacyMeta = CurrentMeta.omit({ stops: true }).extend({
+	lat: z.number().min(-90).max(90),
+	lng: z.number().min(-180).max(180),
+});
+
+export const TripMetaSchema = z.union([CurrentMeta, LegacyMeta]).transform((m) =>
+	"stops" in m
+		? m
+		: {
+				name: m.name,
+				place: m.place,
+				dates: m.dates,
+				rating: m.rating,
+				blurb: m.blurb,
+				stops: [{ name: m.place, lat: m.lat, lng: m.lng }],
+			},
+);
+
 export type TripMeta = z.infer<typeof TripMetaSchema>;
+
+/** geographic middle of the route — for globe focus / copy fallbacks */
+export function tripCenter(stops: TripStop[]): [number, number] {
+	const n = Math.max(1, stops.length);
+	const lat = stops.reduce((s, t) => s + t.lat, 0) / n;
+	const lng = stops.reduce((s, t) => s + t.lng, 0) / n;
+
+	return [lat, lng];
+}
 
 export interface TripPhoto {
 	/** original full-res */

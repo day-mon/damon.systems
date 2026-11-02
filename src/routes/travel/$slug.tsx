@@ -7,8 +7,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { parseAsStringEnum, useQueryState } from "nuqs";
 
+import TripStopsMap from "#/components/trip-stops-map";
 import DomeGallery from "#/components/ui/DomeGallery";
-import { formatCoords, formatTripDates, ogImageFor, type Trip } from "#/lib/trips/types";
+import { formatCoords, formatTripDates, ogImageFor, tripCenter, type Trip } from "#/lib/trips/types";
 import { queryClient } from "#/lib/query-client";
 import { tripQuery } from "#/queries/trips/queries";
 
@@ -94,7 +95,7 @@ export function TripJourney({ trip }: { trip: Trip }) {
 						<span>{trip.place}</span>
 						<span aria-hidden>·</span>
 						<span className="tabular-nums">
-							{formatCoords(trip.lat, trip.lng)}
+							{trip.stops.length === 1 ? "1 stop" : `${trip.stops.length} stops`}
 						</span>
 						<span aria-hidden>·</span>
 						<span>{formatTripDates(trip.dates)}</span>
@@ -138,13 +139,20 @@ export function TripJourney({ trip }: { trip: Trip }) {
 				</div>
 			)}
 
+			<section className="mx-auto w-full max-w-5xl px-8 pt-10">
+				<TripStopsMap
+					stops={trip.stops}
+					className="h-[420px] w-full overflow-hidden rounded-lg border border-border/60"
+				/>
+			</section>
+
 			<article className="mx-auto w-full max-w-2xl px-8 py-14">
 				<p className="text-foreground/90 text-sm leading-relaxed">
 					{trip.blurb}
 				</p>
 				<p className="mt-6 text-muted-foreground text-xs">
 					{trip.rating} / 5 — wheels down review ·{" "}
-					{formatCoords(trip.lat, trip.lng)}
+					{formatCoords(...tripCenter(trip.stops))}
 				</p>
 			</article>
 		</div>

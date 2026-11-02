@@ -8,7 +8,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { TravelGlobe } from "#/components/travel/globe";
-import { formatTripDates, type Trip } from "#/lib/trips/types";
+import { formatTripDates, tripCenter, type Trip } from "#/lib/trips/types";
 import { tripsQuery } from "#/queries/trips/queries";
 
 export const Route = createFileRoute("/travel/")({
@@ -44,10 +44,12 @@ function TravelIndexPage() {
 		);
 	}
 
-	const markers = trips.map((t) => ({
-		// SAFETY: Trip lat/lng is a tuple by contract.
-		location: [t.lat, t.lng] as [number, number],
-	}));
+	const markers = trips.flatMap((t) =>
+		t.stops.map((st) => ({
+			// SAFETY: schema pins lat in [-90,90], lng in [-180,180]; the tuple shape is stable.
+			location: [st.lat, st.lng] as [number, number],
+		})),
+	);
 
 	return (
 		<div className="mx-auto grid w-full max-w-5xl grid-cols-1 items-center gap-8 px-8 py-12 md:grid-cols-[minmax(0,380px)_1fr]">
@@ -104,7 +106,7 @@ function TravelIndexPage() {
 					markers={markers}
 					size={520}
 					opacity={hovered ? 1 : 0.72}
-					focus={hovered ? [hovered.lat, hovered.lng] : undefined}
+					focus={hovered ? tripCenter(hovered.stops) : undefined}
 				/>
 			</div>
 		</div>
