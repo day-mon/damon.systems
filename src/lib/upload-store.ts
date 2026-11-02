@@ -48,5 +48,9 @@ export const uploadStore = {
 };
 
 export function useUploadJob(): UploadJob | null {
-	return useSyncExternalStore(uploadStore.subscribe, uploadStore.get, () => null);
+	return useSyncExternalStore(
+		uploadStore.subscribe,
+		uploadStore.get,
+		() => null,
+	);
 }

@@ -14,7 +14,5 @@ export interface SessionUser {
 }
 
 export const mySession = createServerFn({ method: "GET" }).handler(() =>
-	authz
-		.getSession(getRequestHeaders())
-		.catch(() => null),
+	authz.getSession(getRequestHeaders()).catch(() => null),
 );

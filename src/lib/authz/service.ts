@@ -60,9 +60,11 @@ export class Authz {
 
 	/** typed session read; null when signed out. headers = the request's. */
 	getSession(headers: Headers): Promise<SessionIdentity | null> {
-		return this.auth.api.getSession({ headers }).then((s) =>
-			s ? { name: s.user.name || "admin", email: s.user.email } : null,
-		);
+		return this.auth.api
+			.getSession({ headers })
+			.then((s) =>
+				s ? { name: s.user.name || "admin", email: s.user.email } : null,
+			);
 	}
 
 	/** raw better-auth api for cli/migrations */

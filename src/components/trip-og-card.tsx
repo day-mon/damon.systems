@@ -18,7 +18,13 @@ export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
 const geistMono = (file: string): Buffer =>
-	readFileSync(join(dirname(require.resolve("geist/package.json")), "dist/fonts/geist-mono", file));
+	readFileSync(
+		join(
+			dirname(require.resolve("geist/package.json")),
+			"dist/fonts/geist-mono",
+			file,
+		),
+	);
 
 const GEIST_MONO_REGULAR = geistMono("GeistMono-Regular.ttf");
 const GEIST_MONO_BOLD = geistMono("GeistMono-Bold.ttf");
@@ -32,14 +38,15 @@ const STARS = (rating: number): string => {
 	const full = Math.floor(rating);
 	const half = rating - full >= 0.5;
 
-	return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - (half ? 1 : 0));
+	return (
+		"★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - (half ? 1 : 0))
+	);
 };
 
 /** dotted-cap motif in the corner — echoes the travel globe, pure divs */
 function Globe({ size = 340 }: { size?: number }) {
 	const rows = 11;
 	const dots: React.ReactNode[] = [];
-
 
 	for (let r = 0; r < rows; r++) {
 		const rowY = (r / (rows - 1)) * 2 - 1;
@@ -63,7 +70,10 @@ function Globe({ size = 340 }: { size?: number }) {
 		});
 
 		dots.push(
-			<div key={r} style={{ display: "flex", justifyContent: "space-between", height: 5 }}>
+			<div
+				key={r}
+				style={{ display: "flex", justifyContent: "space-between", height: 5 }}
+			>
 				{cols}
 			</div>,
 		);
@@ -118,19 +128,39 @@ export async function renderTripOgImage(
 						DAMON.SYSTEMS — TRAVEL
 					</span>
 
-					<span style={{ fontSize: 76, fontWeight: 700, marginTop: 36, lineHeight: 1.05 }}>
+					<span
+						style={{
+							fontSize: 76,
+							fontWeight: 700,
+							marginTop: 36,
+							lineHeight: 1.05,
+						}}
+					>
 						{meta.name}
 					</span>
 
-					<span style={{ fontSize: 28, color: MUTED, marginTop: 18 }}>{meta.place}</span>
+					<span style={{ fontSize: 28, color: MUTED, marginTop: 18 }}>
+						{meta.place}
+					</span>
 
-					<span style={{ fontSize: 24, color: MUTED, marginTop: 10 }}>{dateLine}</span>
+					<span style={{ fontSize: 24, color: MUTED, marginTop: 10 }}>
+						{dateLine}
+					</span>
 				</div>
 
-				<div style={{ display: "flex", alignItems: "center", fontSize: 30, color: FG }}>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "center",
+						fontSize: 30,
+						color: FG,
+					}}
+				>
 					<span>{STARS(meta.rating)}</span>
 					<span style={{ color: MUTED, fontSize: 22, marginLeft: 18 }}>
-						{photoCount > 0 ? `${photoCount} photo${photoCount === 1 ? "" : "s"}` : "photos syncing"}
+						{photoCount > 0
+							? `${photoCount} photo${photoCount === 1 ? "" : "s"}`
+							: "photos syncing"}
 					</span>
 				</div>
 			</div>
@@ -151,11 +181,28 @@ export async function renderTripOgImage(
 				{photos.length === 0 ? (
 					<Globe />
 				) : photos.length === 1 ? (
-					<img src={photos[0]} style={{ width: 460, height: 502, objectFit: "cover" }} alt="" />
+					<img
+						src={photos[0]}
+						style={{ width: 460, height: 502, objectFit: "cover" }}
+						alt=""
+					/>
 				) : (
-					<div style={{ display: "flex", flexWrap: "wrap", width: 460, height: 502, gap: 10 }}>
+					<div
+						style={{
+							display: "flex",
+							flexWrap: "wrap",
+							width: 460,
+							height: 502,
+							gap: 10,
+						}}
+					>
 						{photos.slice(0, 4).map((src) => (
-							<img key={src} src={src} style={{ width: 225, height: 246, objectFit: "cover" }} alt="" />
+							<img
+								key={src}
+								src={src}
+								style={{ width: 225, height: 246, objectFit: "cover" }}
+								alt=""
+							/>
 						))}
 					</div>
 				)}
@@ -178,8 +225,18 @@ export async function renderTripOgImage(
 			width: OG_WIDTH,
 			height: OG_HEIGHT,
 			fonts: [
-				{ name: "Geist Mono", data: GEIST_MONO_REGULAR, weight: 400, style: "normal" },
-				{ name: "Geist Mono", data: GEIST_MONO_BOLD, weight: 700, style: "normal" },
+				{
+					name: "Geist Mono",
+					data: GEIST_MONO_REGULAR,
+					weight: 400,
+					style: "normal",
+				},
+				{
+					name: "Geist Mono",
+					data: GEIST_MONO_BOLD,
+					weight: 700,
+					style: "normal",
+				},
 			],
 		},
 	);

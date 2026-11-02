@@ -36,17 +36,22 @@ const pool = Array.from({ length: CONCURRENCY }, () =>
 			if (!job) return;
 
 			// oxlint-disable-next-line no-await-in-loop -- worker queue is serial by design; the N workers are the parallelism
-		const res = await fetch(storage.publicUrlFor(job.key));
+			const res = await fetch(storage.publicUrlFor(job.key));
 
 			if (!res.ok) {
 				console.error(`✗ fetch ${job.key}: ${res.status}`);
 				continue;
 			}
 
-				// oxlint-disable-next-line no-await-in-loop
+			// oxlint-disable-next-line no-await-in-loop
 			const bytes = Buffer.from(await res.arrayBuffer());
-				// oxlint-disable-next-line no-await-in-loop
-			const out = await storage.uploadPhoto(job.slug, job.key.split("/").pop() ?? "photo.jpg", bytes);
+
+			// oxlint-disable-next-line no-await-in-loop
+			const out = await storage.uploadPhoto(
+				job.slug,
+				job.key.split("/").pop() ?? "photo.jpg",
+				bytes,
+			);
 
 			console.log(`✓ ${job.slug}/${out.digest} (${cursor}/${jobs.length})`);
 		}
@@ -56,4 +61,3 @@ const pool = Array.from({ length: CONCURRENCY }, () =>
 await Promise.all(pool);
 
 console.log(`done — ${jobs.length} originals`);
-

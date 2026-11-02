@@ -7,7 +7,12 @@ sparing the bucket a burst of per-page listing requests.
 import { logger } from "#/lib/logger";
 
 import { TripsStorage } from "./storage/service";
-import { TripMetaSchema, clampRating, type Trip, type TripPhoto } from "./types";
+import {
+	TripMetaSchema,
+	clampRating,
+	type Trip,
+	type TripPhoto,
+} from "./types";
 
 const TRAVEL_PREFIX = "travel/";
 const ORIGINAL = /^travel\/[^/]+\/([a-f0-9]+)\.(jpe?g|png|webp|gif|avif)$/i;
@@ -19,7 +24,10 @@ export interface CatalogConfig {
 export class TripCatalog {
 	private cache: { at: number; trips: Trip[] } | null = null;
 
-	static create(config: CatalogConfig = { ttlMs: 10 * 60 * 1000 }, store = TripsStorage.create()): TripCatalog {
+	static create(
+		config: CatalogConfig = { ttlMs: 10 * 60 * 1000 },
+		store = TripsStorage.create(),
+	): TripCatalog {
 		return new TripCatalog(config, store);
 	}
 
@@ -29,7 +37,8 @@ export class TripCatalog {
 	) {}
 
 	async list(): Promise<Trip[]> {
-		if (this.cache && Date.now() - this.cache.at < this.config.ttlMs) return this.cache.trips;
+		if (this.cache && Date.now() - this.cache.at < this.config.ttlMs)
+			return this.cache.trips;
 
 		try {
 			const trips = await this.loadAll();
@@ -38,7 +47,10 @@ export class TripCatalog {
 
 			return trips;
 		} catch (err) {
-			logger.warn({ err: String(err) }, "b2 trip listing failed; serving empty");
+			logger.warn(
+				{ err: String(err) },
+				"b2 trip listing failed; serving empty",
+			);
 
 			return this.cache?.trips ?? [];
 		}
@@ -98,8 +110,12 @@ export class TripCatalog {
 				return [
 					{
 						full: this.store.publicUrlFor(k),
-						large: this.store.publicUrlFor(`${TRAVEL_PREFIX}${slug}/large/${m[1]}.webp`),
-						thumb: this.store.publicUrlFor(`${TRAVEL_PREFIX}${slug}/thumb/${m[1]}.webp`),
+						large: this.store.publicUrlFor(
+							`${TRAVEL_PREFIX}${slug}/large/${m[1]}.webp`,
+						),
+						thumb: this.store.publicUrlFor(
+							`${TRAVEL_PREFIX}${slug}/thumb/${m[1]}.webp`,
+						),
 					},
 				];
 			});

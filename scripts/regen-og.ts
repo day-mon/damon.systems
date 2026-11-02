@@ -6,7 +6,13 @@ import { storage } from "#/lib/trips/storage/service";
 const all = await trips.list();
 
 for (const t of all) {
-	const png = await renderTripOgImage(t, t.photos.length, await storage.cardPhotos(t.slug));
+	const png = await renderTripOgImage(
+		t,
+		t.photos.length,
+		await storage.cardPhotos(t.slug),
+	);
+
 	await storage.saveOgPng(t.slug, png);
+
 	console.log("✓", t.slug);
 }

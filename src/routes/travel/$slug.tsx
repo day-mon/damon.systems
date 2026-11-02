@@ -9,7 +9,13 @@ import { parseAsStringEnum, useQueryState } from "nuqs";
 
 import TripStopsMap from "#/components/trip-stops-map";
 import DomeGallery from "#/components/ui/DomeGallery";
-import { formatCoords, formatTripDates, ogImageFor, tripCenter, type Trip } from "#/lib/trips/types";
+import {
+	formatCoords,
+	formatTripDates,
+	ogImageFor,
+	tripCenter,
+	type Trip,
+} from "#/lib/trips/types";
 import { queryClient } from "#/lib/query-client";
 import { tripQuery } from "#/queries/trips/queries";
 
@@ -31,7 +37,10 @@ export const Route = createFileRoute("/travel/$slug")({
 				{ property: "og:image", content: image },
 				{ property: "og:image:width", content: "1200" },
 				{ property: "og:image:height", content: "630" },
-				{ property: "og:url", content: `https://damon.systems/travel/${loaderData.slug}` },
+				{
+					property: "og:url",
+					content: `https://damon.systems/travel/${loaderData.slug}`,
+				},
 				{ name: "twitter:card", content: "summary_large_image" },
 			],
 		};
@@ -95,7 +104,9 @@ export function TripJourney({ trip }: { trip: Trip }) {
 						<span>{trip.place}</span>
 						<span aria-hidden>·</span>
 						<span className="tabular-nums">
-							{trip.stops.length === 1 ? "1 stop" : `${trip.stops.length} stops`}
+							{trip.stops.length === 1
+								? "1 stop"
+								: `${trip.stops.length} stops`}
 						</span>
 						<span aria-hidden>·</span>
 						<span>{formatTripDates(trip.dates)}</span>

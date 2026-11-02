@@ -7,11 +7,10 @@
 	},
 	"scripts": {
 		"build": "vite build",
-		"check": "biome check",
+		"check": "oxfmt --check src scripts vite.config.ts index.html",
 		"dev": "bash -c 'set -a && source .env 2>/dev/null || true; set +a; exec vite dev --port 3000'",
-		"format": "biome format",
+		"format": "oxfmt src scripts vite.config.ts index.html",
 		"generate-routes": "tsr generate",
-		"lint": "biome lint",
 		"oxlint": "oxlint --config oxlint.config.ts",
 		"preview": "vite preview",
 		"typecheck": "tsc --noEmit",
@@ -57,7 +56,6 @@
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.5",
 		"@mdx-js/rollup": "^3.1.1",
 		"@oxlint/plugins": "1.78.0",
 		"@tanstack/router-cli": "^1.167.33",
@@ -68,6 +66,7 @@
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
 		"@vitejs/plugin-react": "^6.0.1",
+		"oxfmt": "^0.75.0",
 		"oxlint": "1.78.0",
 		"remark-frontmatter": "^5.0.0",
 		"remark-mdx-frontmatter": "^5.2.0",

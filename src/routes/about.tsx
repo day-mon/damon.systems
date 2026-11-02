@@ -15,7 +15,10 @@ function getAge(): number {
 	let age = now.getFullYear() - BIRTH_DATE.getFullYear();
 	const monthDelta = now.getMonth() - BIRTH_DATE.getMonth();
 
-	if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < BIRTH_DATE.getDate())) {
+	if (
+		monthDelta < 0 ||
+		(monthDelta === 0 && now.getDate() < BIRTH_DATE.getDate())
+	) {
 		age--;
 	}
 

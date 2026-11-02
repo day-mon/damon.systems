@@ -38,7 +38,10 @@ function buildData(stops: StopPoint[]): GeoJSON.FeatureCollection {
 		features.push({
 			type: "Feature",
 			properties: { kind: "line" },
-			geometry: { type: "LineString", coordinates: stops.map((s) => [s.lng, s.lat]) },
+			geometry: {
+				type: "LineString",
+				coordinates: stops.map((s) => [s.lng, s.lat]),
+			},
 		});
 	}
 
@@ -158,7 +161,8 @@ export default function TripStopsMap({ stops, onPick, className }: Props) {
 			if (stops.length === 1) {
 				const s = stops[0];
 
-				if (map.getZoom() < 1.5) map.jumpTo({ center: [s.lng, s.lat], zoom: 5 });
+				if (map.getZoom() < 1.5)
+					map.jumpTo({ center: [s.lng, s.lat], zoom: 5 });
 
 				return;
 			}

@@ -47,7 +47,9 @@ const CountsSchema = z.object({
 	totalAmount: z.number(),
 	geocodedCount: z.number(),
 	totalLocations: z.number(),
-	dateRange: z.object({ min_date: z.string(), max_date: z.string() }).nullable(),
+	dateRange: z
+		.object({ min_date: z.string(), max_date: z.string() })
+		.nullable(),
 });
 
 const BreakdownsSchema = z.object({
@@ -83,14 +85,19 @@ const SCHEMAS = {
 
 export type SnapshotKey = keyof typeof SCHEMAS;
 
-export type SnapshotPayload<K extends SnapshotKey> = z.infer<(typeof SCHEMAS)[K]>;
+export type SnapshotPayload<K extends SnapshotKey> = z.infer<
+	(typeof SCHEMAS)[K]
+>;
 
 type PgClient = ReturnType<typeof postgres>;
 
 export class DashboardSnapshot {
 	private buildPromise: Promise<void> | null = null;
 
-	static create(orm: DrizzleDb = db, pg: PgClient = postgresClient): DashboardSnapshot {
+	static create(
+		orm: DrizzleDb = db,
+		pg: PgClient = postgresClient,
+	): DashboardSnapshot {
 		return new DashboardSnapshot(orm, pg);
 	}
 
@@ -103,7 +110,9 @@ export class DashboardSnapshot {
 	 * read one entry, null when missing or malformed (caller falls back to
 	 * the live query path). a miss schedules an out-of-band rebuild.
 	 */
-	async read<K extends SnapshotKey>(key: K): Promise<SnapshotPayload<K> | null> {
+	async read<K extends SnapshotKey>(
+		key: K,
+	): Promise<SnapshotPayload<K> | null> {
 		try {
 			await this.ensureTable();
 
@@ -122,7 +131,10 @@ export class DashboardSnapshot {
 			const parsed = SCHEMAS[key].safeParse(rows[0].payload);
 
 			if (!parsed.success) {
-				logger.warn({ key }, "dashboard snapshot row failed schema — delete the row to rebuild");
+				logger.warn(
+					{ key },
+					"dashboard snapshot row failed schema — delete the row to rebuild",
+				);
 
 				return null;
 			}
@@ -171,10 +183,15 @@ export class DashboardSnapshot {
 			.groupBy(expr)
 			.orderBy(desc(count()))
 			.limit(10)
-			.then((rows) => rows.map((r) => ({ [outputKey]: r.value, count: Number(r.count) })));
+			.then((rows) =>
+				rows.map((r) => ({ [outputKey]: r.value, count: Number(r.count) })),
+			);
 	}
 
-	private distinctList(col: SQL | AnyPgColumn, limit?: number): Promise<string[]> {
+	private distinctList(
+		col: SQL | AnyPgColumn,
+		limit?: number,
+	): Promise<string[]> {
 		const q = this.orm
 			.selectDistinct({ value: sql<string>`${col}` })
 			.from(pghTickets)
@@ -225,13 +242,24 @@ export class DashboardSnapshot {
 				.from(pghLocations)
 				.where(isNotNull(pghLocations.latitude)),
 			orm.select({ c: count() }).from(pghLocations),
-			this.group(sql<string>`${pghTickets.status}`, "status", ne(pghTickets.status, "")),
+			this.group(
+				sql<string>`${pghTickets.status}`,
+				"status",
+				ne(pghTickets.status, ""),
+			),
 			this.group(sql<string>`state`, "state", sql`state != ''`),
 			this.group(sql<string>`officer`, "officer", sql`officer != ''`),
-			this.group(sql<string>`license_plate`, "license_plate", sql`license_plate != ''`),
+			this.group(
+				sql<string>`license_plate`,
+				"license_plate",
+				sql`license_plate != ''`,
+			),
 			this.group(sql<string>`location`, "location", sql`location != ''`),
 			this.group(sql<string>`violation`, "violation", sql`violation != ''`),
-			this.group(sql<string>`coalesce(nullif(vehicle_make,''),'Unknown')`, "make"),
+			this.group(
+				sql<string>`coalesce(nullif(vehicle_make,''),'Unknown')`,
+				"make",
+			),
 			this.group(
 				sql<string>`extract(year from issue_date)::text`,
 				"year",
@@ -242,7 +270,9 @@ export class DashboardSnapshot {
 			this.distinctList(sql<string>`${pghTickets.violation}`),
 			this.distinctList(sql<string>`${pghTickets.location}`, 1000),
 			orm
-				.selectDistinct({ value: sql<string>`extract(year from issue_date)::text` })
+				.selectDistinct({
+					value: sql<string>`extract(year from issue_date)::text`,
+				})
 				.from(pghTickets)
 				.where(isNotNull(pghTickets.issueDate))
 				.orderBy(desc(sql<string>`extract(year from issue_date)`)),

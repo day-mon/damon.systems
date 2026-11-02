@@ -3,7 +3,12 @@ admin portal shell — guard once here, children inherit. renders just the
 header chrome + outlet; pages live in admin.index.tsx / admin.trips.$slug.tsx.
 */
 
-import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import {
+	Outlet,
+	createFileRoute,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 
 import { authzClient } from "#/lib/authz/client";
 import { mySession } from "#/queries/session/queries";

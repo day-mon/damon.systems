@@ -10,16 +10,19 @@ import { storage } from "#/lib/trips/storage/service";
 
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
-const jsonError = (error: string, status: number) => Response.json({ error }, { status });
+const jsonError = (error: string, status: number) =>
+	Response.json({ error }, { status });
 
 export const Route = createFileRoute("/api/trips/upload-photo")({
 	server: {
 		handlers: {
 			POST: async ({ request }) =>
-				authz
-					.betterAuth.api.getSession({ headers: request.headers })
+				authz.betterAuth.api
+					.getSession({ headers: request.headers })
 					.then((session): Promise<FormData> =>
-						session ? request.formData() : Promise.reject(new Error("unauthenticated")),
+						session
+							? request.formData()
+							: Promise.reject(new Error("unauthenticated")),
 					)
 					.then((fd) => {
 						const slug = String(fd.get("slug") ?? "");
@@ -30,7 +33,11 @@ export const Route = createFileRoute("/api/trips/upload-photo")({
 						if (!(file instanceof File)) throw new Error("no photo");
 
 						return file.arrayBuffer().then(async (ab) => {
-							const url = await storage.uploadPhoto(slug, file.name, Buffer.from(ab));
+							const url = await storage.uploadPhoto(
+								slug,
+								file.name,
+								Buffer.from(ab),
+							);
 
 							return Response.json({ url });
 						});
@@ -38,7 +45,10 @@ export const Route = createFileRoute("/api/trips/upload-photo")({
 					.catch((e) => {
 						const message = e instanceof Error ? e.message : "upload failed";
 
-						return jsonError(message, message === "unauthenticated" ? 401 : 400);
+						return jsonError(
+							message,
+							message === "unauthenticated" ? 401 : 400,
+						);
 					}),
 		},
 	},

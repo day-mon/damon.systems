@@ -28,7 +28,11 @@ export function UploadPill() {
 		return (
 			<div className="fixed right-4 bottom-14 z-50 flex items-center gap-2 rounded-full border border-destructive bg-background px-3 py-1.5 text-destructive text-xs">
 				upload failed ({job.done}/{job.total}) — {job.failed}
-				<button type="button" onClick={() => uploadStore.finish()} className="opacity-60 hover:opacity-100">
+				<button
+					type="button"
+					onClick={() => uploadStore.finish()}
+					className="opacity-60 hover:opacity-100"
+				>
 					dismiss
 				</button>
 			</div>

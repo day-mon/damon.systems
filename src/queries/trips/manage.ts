@@ -12,10 +12,11 @@ import { TripMetaSchema } from "#/lib/trips/types";
 import { renderTripOgImage } from "#/components/trip-og-card";
 import { storage } from "#/lib/trips/storage/service";
 
-
-
 function sanitizeSlug(raw: string): string {
-	const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+	const slug = raw
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/(^-|-$)/g, "");
 
 	if (!slug) throw new Error("slug is empty after sanitize");
 
@@ -47,7 +48,10 @@ export const saveTripMeta = createServerFn({ method: "POST" })
 			})
 			// og card regenerate is best-effort — never fail the save over a card
 			.then(() =>
-				Promise.all([storage.countPhotos(data.slug), storage.cardPhotos(data.slug)])
+				Promise.all([
+					storage.countPhotos(data.slug),
+					storage.cardPhotos(data.slug),
+				])
 					.then(([n, photos]) => renderTripOgImage(data.meta, n, photos))
 					.then((png) => storage.saveOgPng(data.slug, png))
 					.catch((e) => console.error("og render failed", e)),

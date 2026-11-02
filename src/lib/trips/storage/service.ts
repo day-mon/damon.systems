@@ -69,10 +69,7 @@ export class TripsStorage {
 	}
 
 	publicUrlFor(key: string): string {
-		return `${TRAVEL_BASE}/${key
-			.split("/")
-			.map(encodeURIComponent)
-			.join("/")}`;
+		return `${TRAVEL_BASE}/${key.split("/").map(encodeURIComponent).join("/")}`;
 	}
 
 	async listPrefix(prefix: string): Promise<PrefixListing> {
@@ -129,27 +126,72 @@ export class TripsStorage {
 	async saveOgPng(slug: string, png: Buffer): Promise<string> {
 		const key = `travel/${slug}/og.png`;
 
-		await this.put(key, png, "image/png", "public, max-age=300, must-revalidate");
+		await this.put(
+			key,
+			png,
+			"image/png",
+			"public, max-age=300, must-revalidate",
+		);
 
 		return this.publicUrlFor(key);
 	}
 
-	async uploadPhoto(slug: string, name: string, originalBytes: Buffer): Promise<PhotoSet> {
-		const digest = createHash("sha1").update(originalBytes).digest("hex").slice(0, 8);
+	async uploadPhoto(
+		slug: string,
+		name: string,
+		originalBytes: Buffer,
+	): Promise<PhotoSet> {
+		const digest = createHash("sha1")
+			.update(originalBytes)
+			.digest("hex")
+			.slice(0, 8);
+
 		const ext = this.photoExt(name);
 
 		const [large, thumb, og] = await Promise.all([
-			sharp(originalBytes).rotate().resize(2048).toFormat("webp", { quality: 82 }).toBuffer(),
-			sharp(originalBytes).rotate().resize(800).toFormat("webp", { quality: 80 }).toBuffer(),
+			sharp(originalBytes)
+				.rotate()
+				.resize(2048)
+				.toFormat("webp", { quality: 82 })
+				.toBuffer(),
+			sharp(originalBytes)
+				.rotate()
+				.resize(800)
+				.toFormat("webp", { quality: 80 })
+				.toBuffer(),
 			// jpg, not webp — satori's image loader only sniffs png/jpeg and this stays private to og
-			sharp(originalBytes).rotate().resize(1000).toFormat("jpeg", { quality: 82 }).toBuffer(),
+			sharp(originalBytes)
+				.rotate()
+				.resize(1000)
+				.toFormat("jpeg", { quality: 82 })
+				.toBuffer(),
 		]);
 
 		await Promise.all([
-			this.put(`travel/${slug}/${digest}.${ext}`, originalBytes, `image/${ext}`, CACHE_FOREVER),
-			this.put(`travel/${slug}/large/${digest}.webp`, large, "image/webp", CACHE_FOREVER),
-			this.put(`travel/${slug}/thumb/${digest}.webp`, thumb, "image/webp", CACHE_FOREVER),
-			this.put(`travel/${slug}/og/${digest}.jpg`, og, "image/jpeg", CACHE_FOREVER),
+			this.put(
+				`travel/${slug}/${digest}.${ext}`,
+				originalBytes,
+				`image/${ext}`,
+				CACHE_FOREVER,
+			),
+			this.put(
+				`travel/${slug}/large/${digest}.webp`,
+				large,
+				"image/webp",
+				CACHE_FOREVER,
+			),
+			this.put(
+				`travel/${slug}/thumb/${digest}.webp`,
+				thumb,
+				"image/webp",
+				CACHE_FOREVER,
+			),
+			this.put(
+				`travel/${slug}/og/${digest}.jpg`,
+				og,
+				"image/jpeg",
+				CACHE_FOREVER,
+			),
 		]);
 
 		return {
@@ -166,7 +208,9 @@ export class TripsStorage {
 		const { files } = await this.listPrefix(`travel/${slug}/`);
 
 		return files
-			.filter((k) => /^travel\/[^/]+\/[^/]+\.(jpe?g|png|gif|avif|webp)$/i.test(k))
+			.filter((k) =>
+				/^travel\/[^/]+\/[^/]+\.(jpe?g|png|gif|avif|webp)$/i.test(k),
+			)
 			.toSorted()
 			.map((k) => /\/([a-f0-9]+)\.[a-z]+$/i.exec(k)?.[1])
 			.filter((d): d is string => d !== undefined)
@@ -207,7 +251,9 @@ export class TripsStorage {
 
 		await Promise.all(
 			moved.map((k) =>
-				this.s3.send(new DeleteObjectCommand({ Bucket: this.config.bucket, Key: k })),
+				this.s3.send(
+					new DeleteObjectCommand({ Bucket: this.config.bucket, Key: k }),
+				),
 			),
 		);
 
@@ -219,11 +265,19 @@ export class TripsStorage {
 
 		return files.filter(
 			(k) =>
-				PHOTO_EXT.test(k) && !k.includes("/large/") && !k.includes("/thumb/") && !k.endsWith("/og.png"),
+				PHOTO_EXT.test(k) &&
+				!k.includes("/large/") &&
+				!k.includes("/thumb/") &&
+				!k.endsWith("/og.png"),
 		).length;
 	}
 
-	private put(key: string, body: Buffer, contentType: string, cacheControl: string) {
+	private put(
+		key: string,
+		body: Buffer,
+		contentType: string,
+		cacheControl: string,
+	) {
 		return this.s3.send(
 			new PutObjectCommand({
 				Bucket: this.config.bucket,

@@ -66,8 +66,9 @@ async function main() {
 		process.exit(1);
 	}
 
-	
-	const photos = names.filter((n) => contentTypeExt(n) !== "application/octet-stream");
+	const photos = names.filter(
+		(n) => contentTypeExt(n) !== "application/octet-stream",
+	);
 
 	if (photos.length === 0) {
 		console.error("✗ no photos found (jpg/png/webp/gif/avif)");

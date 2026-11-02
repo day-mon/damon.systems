@@ -20,13 +20,19 @@ function AdminHome() {
 			<section className="mt-10 border border-border p-5">
 				<div className="flex items-baseline justify-between">
 					<h2 className="m-0 font-medium text-base">trips</h2>
-					<Link to="/admin/trips/new" className="text-muted-foreground text-xs hover:text-foreground">
+					<Link
+						to="/admin/trips/new"
+						className="text-muted-foreground text-xs hover:text-foreground"
+					>
 						+ new trip
 					</Link>
 				</div>
 				<ul className="m-0 mt-3 list-none p-0">
 					{trips.map((t) => (
-						<li key={t.slug} className="border-border/50 border-b py-2 last:border-b-0">
+						<li
+							key={t.slug}
+							className="border-border/50 border-b py-2 last:border-b-0"
+						>
 							<Link
 								to="/admin/trips/$slug"
 								params={{ slug: t.slug }}

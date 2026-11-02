@@ -54,13 +54,20 @@ const fromTrip = (slug: string, t: Trip): TripFormValues => ({
 	from: t.dates[0],
 	to: t.dates[1],
 	rating: t.rating,
-	stops: t.stops.map((st) => ({ name: st.name, lat: String(st.lat), lng: String(st.lng) })),
+	stops: t.stops.map((st) => ({
+		name: st.name,
+		lat: String(st.lat),
+		lng: String(st.lng),
+	})),
 	blurb: t.blurb,
 	photos: [],
 });
 
 function slugify(name: string): string {
-	return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+	return name
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/(^-|-$)/g, "");
 }
 
 const INPUT =
@@ -73,7 +80,11 @@ function FieldError({ errors }: { errors: (string | undefined)[] }) {
 
 	if (msgs.length === 0) return null;
 
-	return <span className="mt-1 block text-destructive text-xs">{msgs.join(" · ")}</span>;
+	return (
+		<span className="mt-1 block text-destructive text-xs">
+			{msgs.join(" · ")}
+		</span>
+	);
 }
 
 async function streamPhotos(slug: string, files: File[]): Promise<void> {
@@ -83,9 +94,15 @@ async function streamPhotos(slug: string, files: File[]): Promise<void> {
 		fd.set("photo", f);
 
 		// oxlint-disable-next-line no-await-in-loop -- deliberate serialization: one photo in flight keeps progress truthful and throttles b2
-		const res = await fetch("/api/trips/upload-photo", { method: "POST", body: fd });
+		const res = await fetch("/api/trips/upload-photo", {
+			method: "POST",
+			body: fd,
+		});
+
 		// oxlint-disable-next-line no-await-in-loop
-		const body: { url?: string; error?: string } = await res.json().catch(() => ({}));
+		const body: { url?: string; error?: string } = await res
+			.json()
+			.catch(() => ({}));
 
 		if (!res.ok || !body.url) {
 			throw new Error(body.error ?? `${f.name} → http ${res.status}`);
@@ -141,10 +158,18 @@ export function TripForm({ trip, routeSlug }: Props) {
 			blurb: value.blurb,
 		};
 
-		const metaSaved = await saveTripMeta({ data: { slug: useSlug, previousSlug: isNew ? undefined : routeSlug, meta } })
+		const metaSaved = await saveTripMeta({
+			data: {
+				slug: useSlug,
+				previousSlug: isNew ? undefined : routeSlug,
+				meta,
+			},
+		})
 			.then(() => true)
 			.catch((e) => {
-				form.setErrorMap({ onSubmit: e instanceof Error ? e.message : "save failed" });
+				form.setErrorMap({
+					onSubmit: e instanceof Error ? e.message : "save failed",
+				});
 
 				return false;
 			});
@@ -155,8 +180,16 @@ export function TripForm({ trip, routeSlug }: Props) {
 		const files = value.photos;
 
 		if (files.length > 0) {
-			uploadStore.start({ slug: useSlug, name: value.name, done: 0, total: files.length });
-			streamPhotos(useSlug, files.map((p) => p.file))
+			uploadStore.start({
+				slug: useSlug,
+				name: value.name,
+				done: 0,
+				total: files.length,
+			});
+			streamPhotos(
+				useSlug,
+				files.map((p) => p.file),
+			)
 				.then(() => {
 					uploadStore.finish();
 					queryClient.invalidateQueries({ queryKey: ["trips"] });
@@ -178,7 +211,10 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<h2 className="m-0 font-light text-2xl tracking-tight">
 					{isNew ? "new trip" : `edit · ${trip.name}`}
 				</h2>
-				<Link to="/admin" className="text-muted-foreground text-xs hover:text-foreground">
+				<Link
+					to="/admin"
+					className="text-muted-foreground text-xs hover:text-foreground"
+				>
 					← admin
 				</Link>
 			</div>
@@ -201,7 +237,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 								}
 							},
 						}}
-						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
+						validators={{
+							onSubmit: ({ value }) => (value.trim() ? undefined : "required"),
+						}}
 					>
 						{(f) => (
 							<>
@@ -225,7 +263,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<div>
 					<form.Field
 						name="slug"
-						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
+						validators={{
+							onSubmit: ({ value }) => (value.trim() ? undefined : "required"),
+						}}
 					>
 						{(f) => (
 							<>
@@ -270,7 +310,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<div>
 					<form.Field
 						name="from"
-						validators={{ onSubmit: ({ value }) => (value ? undefined : "required") }}
+						validators={{
+							onSubmit: ({ value }) => (value ? undefined : "required"),
+						}}
 					>
 						{(f) => (
 							<>
@@ -294,7 +336,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<div>
 					<form.Field
 						name="to"
-						validators={{ onSubmit: ({ value }) => (value ? undefined : "required") }}
+						validators={{
+							onSubmit: ({ value }) => (value ? undefined : "required"),
+						}}
 					>
 						{(f) => (
 							<>
@@ -320,7 +364,8 @@ export function TripForm({ trip, routeSlug }: Props) {
 						{(f) => (
 							<>
 								<label className={LABEL} htmlFor={f.name}>
-									rating — <span className="text-foreground">{f.state.value}</span> / 5
+									rating —{" "}
+									<span className="text-foreground">{f.state.value}</span> / 5
 								</label>
 								<input
 									id={f.name}
@@ -337,12 +382,13 @@ export function TripForm({ trip, routeSlug }: Props) {
 					</form.Field>
 				</div>
 
-					<div className="col-span-2">
+				<div className="col-span-2">
 					<form.Field
 						name="stops"
 						mode="array"
 						validators={{
-							onSubmit: ({ value }) => (value.length > 0 ? undefined : "pin at least one stop"),
+							onSubmit: ({ value }) =>
+								value.length > 0 ? undefined : "pin at least one stop",
 						}}
 					>
 						{(f) => (
@@ -358,8 +404,17 @@ export function TripForm({ trip, routeSlug }: Props) {
 											lat: Number(st.lat),
 											lng: Number(st.lng),
 										}))
-										.filter((st) => Number.isFinite(st.lat) && Number.isFinite(st.lng))}
-									onPick={(la, lo) => f.pushValue({ name: "", lat: la.toFixed(5), lng: lo.toFixed(5) })}
+										.filter(
+											(st) =>
+												Number.isFinite(st.lat) && Number.isFinite(st.lng),
+										)}
+									onPick={(la, lo) =>
+										f.pushValue({
+											name: "",
+											lat: la.toFixed(5),
+											lng: lo.toFixed(5),
+										})
+									}
 								/>
 								{f.state.value.length > 0 && (
 									<ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0">
@@ -372,12 +427,16 @@ export function TripForm({ trip, routeSlug }: Props) {
 													className={INPUT}
 													value={st.name}
 													onChange={(e) =>
-														form.setFieldValue(`stops[${i}].name`, e.target.value)
+														form.setFieldValue(
+															`stops[${i}].name`,
+															e.target.value,
+														)
 													}
 													placeholder="stop name (kamloops, banff…)"
 												/>
 												<span className="shrink-0 font-mono text-muted-foreground text-xs">
-													{Number(st.lat).toFixed(2)}, {Number(st.lng).toFixed(2)}
+													{Number(st.lat).toFixed(2)},{" "}
+													{Number(st.lng).toFixed(2)}
 												</span>
 												<button
 													type="button"
@@ -399,7 +458,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<div className="col-span-2">
 					<form.Field
 						name="blurb"
-						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
+						validators={{
+							onSubmit: ({ value }) => (value.trim() ? undefined : "required"),
+						}}
 					>
 						{(f) => (
 							<>
@@ -424,7 +485,9 @@ export function TripForm({ trip, routeSlug }: Props) {
 					<form.Field name="photos">
 						{(f) => (
 							<>
-								<label className={LABEL}>photos — upload happens in the background</label>
+								<label className={LABEL}>
+									photos — upload happens in the background
+								</label>
 								<input
 									type="file"
 									multiple
@@ -433,7 +496,8 @@ export function TripForm({ trip, routeSlug }: Props) {
 									onChange={(e) => {
 										// i/o boundary: mint previews for the new selection,
 										// free the old ones, hand tanstack the domain value
-										for (const p of f.state.value) URL.revokeObjectURL(p.preview);
+										for (const p of f.state.value)
+											URL.revokeObjectURL(p.preview);
 										f.handleChange(
 											Array.from(e.target.files ?? []).map((file) => ({
 												file,

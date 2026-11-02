@@ -106,7 +106,6 @@ function ProjectsSkeleton() {
 	);
 }
 
-
 function ProjectsList() {
 	const reduceMotion = useReducedMotion();
 
@@ -211,5 +210,3 @@ function ProjectsList() {
 		</div>
 	);
 }
-
-

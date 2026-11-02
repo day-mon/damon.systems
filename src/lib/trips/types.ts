@@ -31,18 +31,20 @@ const LegacyMeta = CurrentMeta.omit({ stops: true }).extend({
 	lng: z.number().min(-180).max(180),
 });
 
-export const TripMetaSchema = z.union([CurrentMeta, LegacyMeta]).transform((m) =>
-	"stops" in m
-		? m
-		: {
-				name: m.name,
-				place: m.place,
-				dates: m.dates,
-				rating: m.rating,
-				blurb: m.blurb,
-				stops: [{ name: m.place, lat: m.lat, lng: m.lng }],
-			},
-);
+export const TripMetaSchema = z
+	.union([CurrentMeta, LegacyMeta])
+	.transform((m) =>
+		"stops" in m
+			? m
+			: {
+					name: m.name,
+					place: m.place,
+					dates: m.dates,
+					rating: m.rating,
+					blurb: m.blurb,
+					stops: [{ name: m.place, lat: m.lat, lng: m.lng }],
+				},
+	);
 
 export type TripMeta = z.infer<typeof TripMetaSchema>;
 
@@ -99,7 +101,8 @@ export function formatCoords(lat: number, lng: number): string {
 	return `${Math.abs(lat).toFixed(2)}° ${ns}, ${Math.abs(lng).toFixed(2)}° ${ew}`;
 }
 
-export const TRAVEL_BASE = "https://damon-travel.s3.us-east-005.backblazeb2.com";
+export const TRAVEL_BASE =
+	"https://damon-travel.s3.us-east-005.backblazeb2.com";
 
 /** public url of a trip's generated share card (refreshed on every save) */
 export function ogImageFor(slug: string, fallback?: string): string {
