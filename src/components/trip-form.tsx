@@ -7,7 +7,6 @@ upload pill), navigates to the trip page right after meta lands.
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 
 import type { Trip, TripMeta } from "#/lib/trips/types";
 import { uploadStore } from "#/lib/upload-store";
@@ -25,7 +24,7 @@ export interface TripFormValues {
 	lat: string;
 	lng: string;
 	blurb: string;
-	photos: File[];
+	photos: PhotoEntry[];
 }
 
 const EMPTY: TripFormValues = {
@@ -65,22 +64,6 @@ const INPUT =
 
 const LABEL = "mb-1 block text-muted-foreground text-xs";
 
-/** blob url bound to component lifetime — created on mount, revoked on unmount */
-function PhotoPreview({ file }: { file: File }) {
-	const [url, setUrl] = useState<string | null>(null);
-
-	useEffect(() => {
-		const u = URL.createObjectURL(file);
-		setUrl(u);
-
-		return () => URL.revokeObjectURL(u);
-	}, [file]);
-
-	if (!url) return <div className="aspect-square w-full rounded bg-muted" />;
-
-	return <img src={url} alt={file.name} className="aspect-square w-full rounded object-cover" />;
-}
-
 function FieldError({ errors }: { errors: (string | undefined)[] }) {
 	const msgs = errors.filter((m): m is string => Boolean(m));
 
@@ -106,6 +89,12 @@ async function streamPhotos(slug: string, files: File[]): Promise<void> {
 
 		if (j) uploadStore.progress(j.done + 1);
 	}
+}
+
+/** photo as domain data: file + its preview, minted once at the input boundary */
+export interface PhotoEntry {
+	file: File;
+	preview: string;
 }
 
 interface Props {
@@ -158,7 +147,7 @@ export function TripForm({ trip, routeSlug }: Props) {
 
 		if (files.length > 0) {
 			uploadStore.start({ slug: useSlug, name: value.name, done: 0, total: files.length });
-			streamPhotos(useSlug, files)
+			streamPhotos(useSlug, files.map((p) => p.file))
 				.then(() => {
 					uploadStore.finish();
 					queryClient.invalidateQueries({ queryKey: ["trips"] });
@@ -439,12 +428,27 @@ export function TripForm({ trip, routeSlug }: Props) {
 									multiple
 									accept="image/*"
 									className="text-sm"
-									onChange={(e) => f.handleChange(Array.from(e.target.files ?? []))}
+									onChange={(e) => {
+										// i/o boundary: mint previews for the new selection,
+										// free the old ones, hand tanstack the domain value
+										for (const p of f.state.value) URL.revokeObjectURL(p.preview);
+										f.handleChange(
+											Array.from(e.target.files ?? []).map((file) => ({
+												file,
+												preview: URL.createObjectURL(file),
+											})),
+										);
+									}}
 								/>
 								{f.state.value.length > 0 && (
 									<div className="mt-3 grid grid-cols-4 gap-2">
-										{f.state.value.map((file) => (
-											<PhotoPreview key={`${file.name}-${file.size}`} file={file} />
+										{f.state.value.map((p) => (
+											<img
+												key={`${p.file.name}-${p.file.size}`}
+												src={p.preview}
+												alt={p.file.name}
+												className="aspect-square w-full rounded object-cover"
+											/>
 										))}
 									</div>
 								)}
