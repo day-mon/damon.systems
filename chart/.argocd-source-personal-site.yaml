@@ -4,5 +4,5 @@ helm:
     value: ghcr.io/day-mon/damon.systems
     forcestring: true
   - name: image.tag
-    value: 1.1.254
+    value: 1.1.255
     forcestring: true
