@@ -167,7 +167,7 @@ export class TripsStorage {
 
 		return files
 			.filter((k) => /^travel\/[^/]+\/[^/]+\.(jpe?g|png|gif|avif|webp)$/i.test(k))
-			.sort()
+			.toSorted()
 			.map((k) => /\/([a-f0-9]+)\.[a-z]+$/i.exec(k)?.[1])
 			.filter((d): d is string => d !== undefined)
 			.slice(0, max)
