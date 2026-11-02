@@ -111,10 +111,12 @@ export function TripForm({ trip, routeSlug }: Props) {
 		validators: {
 			onSubmit: (): string | undefined => undefined,
 		},
-		onSubmit: ({ value }) => submit(value),
+		onSubmit: async ({ value }) => {
+			await submit(value);
+		},
 	});
 
-	const submit = (value: TripFormValues) => {
+	const submit = async (value: TripFormValues): Promise<void> => {
 		const useSlug = value.slug || slugify(value.name);
 
 		const meta: TripMeta = {
@@ -127,30 +129,35 @@ export function TripForm({ trip, routeSlug }: Props) {
 			blurb: value.blurb,
 		};
 
-		saveTripMeta({ data: { slug: useSlug, meta } })
-			.then(() => {
-				const files = value.photos;
+		const metaSaved = await saveTripMeta({ data: { slug: useSlug, meta } })
+			.then(() => true)
+			.catch((e) => {
+				form.setErrorMap({ onSubmit: e instanceof Error ? e.message : "save failed" });
 
-				if (files.length > 0) {
-					uploadStore.start({ slug: useSlug, name: value.name, done: 0, total: files.length });
-					streamPhotos(useSlug, files)
-						.then(() => {
-							uploadStore.finish();
-							queryClient.invalidateQueries({ queryKey: ["trips"] });
-							queryClient.invalidateQueries({ queryKey: ["trips", useSlug] });
-						})
-						.catch((e) => {
-							if (uploadStore.get()) {
-								uploadStore.fail(e instanceof Error ? e.message : "upload failed");
-							}
-						});
-				}
+				return false;
+			});
 
-				navigate({ to: "/travel/$slug", params: { slug: useSlug } });
-			})
-			.catch((e) =>
-				form.setErrorMap({ onSubmit: e instanceof Error ? e.message : "save failed" }),
-			);
+		if (!metaSaved) return;
+
+		// photos stream in the background; the pill tracks progress
+		const files = value.photos;
+
+		if (files.length > 0) {
+			uploadStore.start({ slug: useSlug, name: value.name, done: 0, total: files.length });
+			streamPhotos(useSlug, files)
+				.then(() => {
+					uploadStore.finish();
+					queryClient.invalidateQueries({ queryKey: ["trips"] });
+					queryClient.invalidateQueries({ queryKey: ["trips", useSlug] });
+				})
+				.catch((e) => {
+					if (uploadStore.get()) {
+						uploadStore.fail(e instanceof Error ? e.message : "upload failed");
+					}
+				});
+		}
+
+		navigate({ to: "/travel/$slug", params: { slug: useSlug } });
 	};
 
 	return (
@@ -175,6 +182,13 @@ export function TripForm({ trip, routeSlug }: Props) {
 				<div className="col-span-2">
 					<form.Field
 						name="name"
+						listeners={{
+							onChange: ({ fieldApi, value }) => {
+								if (isNew && !fieldApi.form.getFieldValue("slugManual")) {
+									fieldApi.form.setFieldValue("slug", slugify(value));
+								}
+							},
+						}}
 						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
 					>
 						{(f) => (
@@ -187,13 +201,7 @@ export function TripForm({ trip, routeSlug }: Props) {
 									className={INPUT}
 									value={f.state.value}
 									onBlur={f.handleBlur}
-									onChange={(e) => {
-										f.handleChange(e.target.value);
-
-										if (isNew && !form.state.values.slugManual) {
-											form.setFieldValue("slug", slugify(e.target.value));
-										}
-									}}
+									onChange={(e) => f.handleChange(e.target.value)}
 									placeholder="alaska"
 								/>
 								<FieldError errors={f.state.meta.errors} />
