@@ -23,6 +23,9 @@ let auth: ReturnType<typeof createAuth> | null = null;
 
 function createAuth() {
 	return betterAuth({
+		// never derive from proxy headers: tls is terminated at traefik and the
+		// in-cluster request is http, which would poison the oidc redirect uri
+		baseURL: "https://damon.systems",
 		secret: process.env.SESSION_SECRET,
 		database: new Pool({
 			connectionString: process.env.PGH_DATABASE_URL,
