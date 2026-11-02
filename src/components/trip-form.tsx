@@ -7,7 +7,7 @@ upload pill), navigates to the trip page right after meta lands.
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 
 import type { Trip, TripMeta } from "#/lib/trips/types";
 import { uploadStore } from "#/lib/upload-store";
@@ -65,6 +65,22 @@ const INPUT =
 
 const LABEL = "mb-1 block text-muted-foreground text-xs";
 
+/** blob url bound to component lifetime — created on mount, revoked on unmount */
+function PhotoPreview({ file }: { file: File }) {
+	const [url, setUrl] = useState<string | null>(null);
+
+	useEffect(() => {
+		const u = URL.createObjectURL(file);
+		setUrl(u);
+
+		return () => URL.revokeObjectURL(u);
+	}, [file]);
+
+	if (!url) return <div className="aspect-square w-full rounded bg-muted" />;
+
+	return <img src={url} alt={file.name} className="aspect-square w-full rounded object-cover" />;
+}
+
 function FieldError({ errors }: { errors: (string | undefined)[] }) {
 	const msgs = errors.filter((m): m is string => Boolean(m));
 
@@ -102,8 +118,6 @@ export function TripForm({ trip, routeSlug }: Props) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const isNew = trip === null;
-
-	const photoPreviews = useRef(new Map<File, string>());
 
 	const form = useForm({
 		defaultValues: trip ? fromTrip(routeSlug, trip) : EMPTY,
@@ -417,38 +431,25 @@ export function TripForm({ trip, routeSlug }: Props) {
 
 				<div className="col-span-2">
 					<form.Field name="photos">
-						{(f) => {
-							for (const file of f.state.value) {
-								if (!photoPreviews.current.has(file)) {
-									photoPreviews.current.set(file, URL.createObjectURL(file));
-								}
-							}
-
-							return (
-								<>
-									<label className={LABEL}>photos — upload happens in the background</label>
-									<input
-										type="file"
-										multiple
-										accept="image/*"
-										className="text-sm"
-										onChange={(e) => f.handleChange(Array.from(e.target.files ?? []))}
-									/>
-									{f.state.value.length > 0 && (
-										<div className="mt-3 grid grid-cols-4 gap-2">
-											{f.state.value.map((file) => (
-												<img
-													key={`${file.name}-${file.size}`}
-													src={photoPreviews.current.get(file)}
-													alt={file.name}
-													className="aspect-square w-full rounded object-cover"
-												/>
-											))}
-										</div>
-									)}
-								</>
-							);
-						}}
+						{(f) => (
+							<>
+								<label className={LABEL}>photos — upload happens in the background</label>
+								<input
+									type="file"
+									multiple
+									accept="image/*"
+									className="text-sm"
+									onChange={(e) => f.handleChange(Array.from(e.target.files ?? []))}
+								/>
+								{f.state.value.length > 0 && (
+									<div className="mt-3 grid grid-cols-4 gap-2">
+										{f.state.value.map((file) => (
+											<PhotoPreview key={`${file.name}-${file.size}`} file={file} />
+										))}
+									</div>
+								)}
+							</>
+						)}
 					</form.Field>
 				</div>
 			</form>
