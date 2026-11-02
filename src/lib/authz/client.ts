@@ -9,8 +9,6 @@ import { createAuthClient } from "better-auth/react";
 type BetterAuthClient = ReturnType<typeof createAuthClient>;
 
 export class AuthzClient {
-	private static _instance: AuthzClient | null = null;
-
 	static create(): AuthzClient {
 		return new AuthzClient();
 	}

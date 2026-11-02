@@ -18,37 +18,35 @@ export interface SessionIdentity {
 	email: string;
 }
 
-type BetterAuth = ReturnType<typeof createBetterAuth>;
-
-function createBetterAuth() {
-	return betterAuth({
-		// never derive baseURL from proxy headers: traefik terminates tls and
-		// the in-cluster request is http, which would poison the oidc callback
-		baseURL: "https://damon.systems",
-		secret: env.SESSION_SECRET,
-		database: new Pool({ connectionString: env.PGH_DATABASE_URL }),
-		plugins: [
-			genericOAuth({
-				config: [
-					{
-						providerId: "authentik",
-						clientId: env.OIDC_CLIENT_ID,
-						clientSecret: env.OIDC_CLIENT_SECRET,
-						discoveryUrl: `${env.AUTHENTIK_ISSUER}.well-known/openid-configuration`,
-						scopes: ["openid", "email", "profile"],
-						pkce: true,
-					},
-				],
-			}),
-		],
-	});
-}
-
 export class Authz {
-	private readonly auth: BetterAuth;
+	private readonly auth: ReturnType<typeof Authz.buildAuth>;
 
 	private constructor() {
-		this.auth = createBetterAuth();
+		this.auth = Authz.buildAuth();
+	}
+
+	private static buildAuth() {
+		return betterAuth({
+			// never derive baseURL from proxy headers: traefik terminates tls and
+			// the in-cluster request is http, which would poison the oidc callback
+			baseURL: "https://damon.systems",
+			secret: env.SESSION_SECRET,
+			database: new Pool({ connectionString: env.PGH_DATABASE_URL }),
+			plugins: [
+				genericOAuth({
+					config: [
+						{
+							providerId: "authentik",
+							clientId: env.OIDC_CLIENT_ID,
+							clientSecret: env.OIDC_CLIENT_SECRET,
+							discoveryUrl: `${env.AUTHENTIK_ISSUER}.well-known/openid-configuration`,
+							scopes: ["openid", "email", "profile"],
+							pkce: true,
+						},
+					],
+				}),
+			],
+		});
 	}
 
 	static create(): Authz {
@@ -68,7 +66,7 @@ export class Authz {
 	}
 
 	/** raw better-auth api for cli/migrations */
-	get betterAuth(): BetterAuth {
+	get betterAuth(): ReturnType<typeof Authz.buildAuth> {
 		return this.auth;
 	}
 }
