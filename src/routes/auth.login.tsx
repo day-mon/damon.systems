@@ -6,13 +6,13 @@ a minimal "switching tracks" state while cookies + redirects churn.
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-import { startAuthentikLogin } from "#/lib/authz/client";
+import { authzClient } from "#/lib/authz/client";
 
 export const Route = createFileRoute("/auth/login")({ component: LoginPage });
 
 function LoginPage() {
 	useEffect(() => {
-		startAuthentikLogin("/admin").catch(() => {
+		authzClient.signInWithAuthentik("/admin").catch(() => {
 			// surface it plainly; this almost always means env not set server-side
 			document.body.insertAdjacentHTML(
 				"beforeend",

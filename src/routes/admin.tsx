@@ -5,7 +5,7 @@ header chrome + outlet; pages live in admin.index.tsx / admin.trips.$slug.tsx.
 
 import { Outlet, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
-import { authClient } from "#/lib/authz/client";
+import { authzClient } from "#/lib/authz/client";
 import { mySession } from "#/queries/session/queries";
 
 export const Route = createFileRoute("/admin")({
@@ -33,7 +33,7 @@ function AdminLayout() {
 					<button
 						type="button"
 						onClick={() => {
-							authClient.signOut().then(() => navigate({ to: "/" }));
+							authzClient.signOut().then(() => navigate({ to: "/" }));
 						}}
 						className="text-muted-foreground transition-colors hover:text-foreground"
 					>

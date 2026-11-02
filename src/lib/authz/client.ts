@@ -1,13 +1,33 @@
-/* browser side of better-auth: the genericOAuth server plugin registers
-   "authentik" into the standard social sign-in surface, no tricks needed. */
+/*
+AuthzClient — browser side of the auth surface. better-auth's client wraps
+the api routes; the genericOAuth plugin registers "authentik" into the
+standard social sign-in surface.
+*/
 
 import { createAuthClient } from "better-auth/react";
 
-export const authClient = createAuthClient();
+type BetterAuthClient = ReturnType<typeof createAuthClient>;
 
-export function startAuthentikLogin(callbackURL = "/admin"): Promise<void> {
-	// .then strips the opaque plugin response — callers only need completion.
-	return authClient.signIn
-		.social({ provider: "authentik", callbackURL })
-		.then(() => undefined);
+export class AuthzClient {
+	private static _instance: AuthzClient | null = null;
+
+	static create(): AuthzClient {
+		return new AuthzClient();
+	}
+
+	private constructor(
+		private readonly auth: BetterAuthClient = createAuthClient(),
+	) {}
+
+	signInWithAuthentik(callbackURL = "/admin"): Promise<void> {
+		return this.auth.signIn
+			.social({ provider: "authentik", callbackURL })
+			.then(() => undefined);
+	}
+
+	signOut(): Promise<void> {
+		return this.auth.signOut().then(() => undefined);
+	}
 }
+
+export const authzClient = AuthzClient.create();
