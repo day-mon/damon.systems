@@ -10,6 +10,7 @@ import {
 import { m, useReducedMotion } from "motion/react";
 
 import { Footer } from "../components/footer";
+import { UploadPill } from "../components/upload-pill";
 import { Navbar } from "../components/navbar";
 import { Providers } from "../providers";
 
@@ -77,6 +78,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<Navbar />
 					<RouteTransitions>{children}</RouteTransitions>
 					<Footer />
+					<UploadPill />
 				</Providers>
 
 				<Scripts />

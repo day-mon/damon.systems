@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import { getAuth } from "#/lib/authz/better";
 import type { TripMeta } from "#/lib/trips/types";
-import { saveMeta, uploadPhotos } from "#/lib/trips/write";
+import { saveMeta } from "#/lib/trips/write";
 
 const MetaInput = z.object({
 	name: z.string().min(1),
@@ -50,26 +50,4 @@ export const saveTripMeta = createServerFn({ method: "POST" })
 				return saveMeta(data.slug, data.meta as TripMeta);
 			})
 			.then(() => ({ ok: true })),
-	);
-
-export const uploadTripPhotos = createServerFn({ method: "POST" })
-	.validator((d: FormData) => {
-		const slug = sanitizeSlug(String(d.get("slug") ?? ""));
-		const files = d.getAll("photos").filter((f): f is File => f instanceof File);
-
-		if (files.length === 0) throw new Error("no photos attached");
-
-		return { slug, files };
-	})
-	.handler(({ data }) =>
-		requireSession()
-			.then(() =>
-				Promise.all(
-					data.files.map((f) =>
-						f.arrayBuffer().then((ab) => ({ name: f.name, bytes: Buffer.from(ab) })),
-					),
-				),
-			)
-			.then((files) => uploadPhotos(data.slug, files))
-			.then((urls) => ({ urls })),
 	);

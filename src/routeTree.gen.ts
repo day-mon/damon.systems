@@ -27,6 +27,7 @@ import { Route as ApiLabStatsRouteImport } from './routes/api/lab/stats'
 import { Route as ApiLabStatsBreakdownsRouteImport } from './routes/api/lab/stats-breakdowns'
 import { Route as ApiLabStatsCountsRouteImport } from './routes/api/lab/stats-counts'
 import { Route as ApiLabTicketsRouteImport } from './routes/api/lab/tickets'
+import { Route as ApiTripsUploadPhotoRouteImport } from './routes/api/trips/upload-photo'
 import { Route as LabSlugIndexRouteImport } from './routes/lab/$slug/index'
 import { Route as LabSlugDemoRouteImport } from './routes/lab/$slug/demo'
 
@@ -120,6 +121,11 @@ const ApiLabTicketsRoute = ApiLabTicketsRouteImport.update({
   path: '/api/lab/tickets',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTripsUploadPhotoRoute = ApiTripsUploadPhotoRouteImport.update({
+  id: '/api/trips/upload-photo',
+  path: '/api/trips/upload-photo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LabSlugIndexRoute = LabSlugIndexRouteImport.update({
   id: '/lab/$slug/',
   path: '/lab/$slug/',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/api/lab/stats-breakdowns': typeof ApiLabStatsBreakdownsRoute
   '/api/lab/stats-counts': typeof ApiLabStatsCountsRoute
   '/api/lab/tickets': typeof ApiLabTicketsRoute
+  '/api/trips/upload-photo': typeof ApiTripsUploadPhotoRoute
   '/lab/$slug/demo': typeof LabSlugDemoRoute
   '/lab/$slug/': typeof LabSlugIndexRoute
 }
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/api/lab/stats-breakdowns': typeof ApiLabStatsBreakdownsRoute
   '/api/lab/stats-counts': typeof ApiLabStatsCountsRoute
   '/api/lab/tickets': typeof ApiLabTicketsRoute
+  '/api/trips/upload-photo': typeof ApiTripsUploadPhotoRoute
   '/lab/$slug/demo': typeof LabSlugDemoRoute
   '/lab/$slug': typeof LabSlugIndexRoute
 }
@@ -194,6 +202,7 @@ export interface FileRoutesById {
   '/api/lab/stats-breakdowns': typeof ApiLabStatsBreakdownsRoute
   '/api/lab/stats-counts': typeof ApiLabStatsCountsRoute
   '/api/lab/tickets': typeof ApiLabTicketsRoute
+  '/api/trips/upload-photo': typeof ApiTripsUploadPhotoRoute
   '/lab/$slug/demo': typeof LabSlugDemoRoute
   '/lab/$slug/': typeof LabSlugIndexRoute
 }
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/api/lab/stats-breakdowns'
     | '/api/lab/stats-counts'
     | '/api/lab/tickets'
+    | '/api/trips/upload-photo'
     | '/lab/$slug/demo'
     | '/lab/$slug/'
   fileRoutesByTo: FileRoutesByTo
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/api/lab/stats-breakdowns'
     | '/api/lab/stats-counts'
     | '/api/lab/tickets'
+    | '/api/trips/upload-photo'
     | '/lab/$slug/demo'
     | '/lab/$slug'
   id:
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/api/lab/stats-breakdowns'
     | '/api/lab/stats-counts'
     | '/api/lab/tickets'
+    | '/api/trips/upload-photo'
     | '/lab/$slug/demo'
     | '/lab/$slug/'
   fileRoutesById: FileRoutesById
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   ApiLabStatsBreakdownsRoute: typeof ApiLabStatsBreakdownsRoute
   ApiLabStatsCountsRoute: typeof ApiLabStatsCountsRoute
   ApiLabTicketsRoute: typeof ApiLabTicketsRoute
+  ApiTripsUploadPhotoRoute: typeof ApiTripsUploadPhotoRoute
   LabSlugDemoRoute: typeof LabSlugDemoRoute
   LabSlugIndexRoute: typeof LabSlugIndexRoute
 }
@@ -414,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiLabTicketsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/trips/upload-photo': {
+      id: '/api/trips/upload-photo'
+      path: '/api/trips/upload-photo'
+      fullPath: '/api/trips/upload-photo'
+      preLoaderRoute: typeof ApiTripsUploadPhotoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lab/$slug/': {
       id: '/lab/$slug/'
       path: '/lab/$slug'
@@ -460,6 +480,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLabStatsBreakdownsRoute: ApiLabStatsBreakdownsRoute,
   ApiLabStatsCountsRoute: ApiLabStatsCountsRoute,
   ApiLabTicketsRoute: ApiLabTicketsRoute,
+  ApiTripsUploadPhotoRoute: ApiTripsUploadPhotoRoute,
   LabSlugDemoRoute: LabSlugDemoRoute,
   LabSlugIndexRoute: LabSlugIndexRoute,
 }

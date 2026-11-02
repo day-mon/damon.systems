@@ -29,28 +29,24 @@ export async function saveMeta(slug: string, meta: TripMeta): Promise<void> {
 	);
 }
 
-export async function uploadPhotos(
+export async function uploadPhoto(
 	slug: string,
-	files: { name: string; bytes: Buffer }[],
-): Promise<string[]> {
-	const urls: string[] = [];
+	name: string,
+	bytes: Buffer,
+): Promise<string> {
+	const digest = createHash("sha1").update(bytes).digest("hex").slice(0, 8);
+	const ext = photoExt(name);
+	const key = `travel/${slug}/${digest}.${ext}`;
 
-	for (const f of files) {
-		const digest = createHash("sha1").update(f.bytes).digest("hex").slice(0, 8);
-		const key = `travel/${slug}/${digest}.${photoExt(f.name)}`;
+	await b2S3().send(
+		new PutObjectCommand({
+			Bucket: BUCKET(),
+			Key: key,
+			Body: bytes,
+			ContentType: `image/${ext}`,
+			CacheControl: "public, max-age=31536000, immutable",
+		}),
+	);
 
-		await b2S3().send(
-			new PutObjectCommand({
-				Bucket: BUCKET(),
-				Key: key,
-				Body: f.bytes,
-				ContentType: `image/${photoExt(f.name)}`,
-				CacheControl: "public, max-age=31536000, immutable",
-			}),
-		);
-
-		urls.push(publicUrlFor(key));
-	}
-
-	return urls;
+	return publicUrlFor(key);
 }
