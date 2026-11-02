@@ -62,10 +62,6 @@ export class TripsStorage {
 		});
 	}
 
-	static isConfigured(): boolean {
-		return Boolean(env.B2_KEY_ID && env.B2_APPLICATION_KEY);
-	}
-
 	publicUrlFor(key: string): string {
 		return `${TRAVEL_BASE}/${key
 			.split("/")

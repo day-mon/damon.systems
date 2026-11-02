@@ -29,8 +29,6 @@ export class TripCatalog {
 	) {}
 
 	async list(): Promise<Trip[]> {
-		if (!TripsStorage.isConfigured()) return [];
-
 		if (this.cache && Date.now() - this.cache.at < this.config.ttlMs) return this.cache.trips;
 
 		try {

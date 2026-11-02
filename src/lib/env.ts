@@ -3,8 +3,8 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		B2_KEY_ID: z.string().min(1).optional(),
-		B2_APPLICATION_KEY: z.string().min(1).optional(),
+		B2_KEY_ID: z.string().min(1),
+		B2_APPLICATION_KEY: z.string().min(1),
 		B2_BUCKET_NAME: z.string().min(1).default("damon-travel"),
 		B2_REGION: z.string().min(1).default("us-east-005"),
 		PGH_DATABASE_URL: z

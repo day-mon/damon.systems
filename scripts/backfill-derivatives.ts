@@ -6,12 +6,7 @@ content-addressed, so re-runs overwrite cleanly.
   B2_KEY_ID=... B2_APPLICATION_KEY=... bun scripts/backfill-derivatives.ts
 */
 
-import { TripsStorage, storage } from "#/lib/trips/storage/service";
-
-if (!TripsStorage.isConfigured()) {
-	console.error("✗ B2 env missing");
-	process.exit(1);
-}
+import { storage } from "#/lib/trips/storage/service";
 
 const { folders } = await storage.listPrefix("travel/");
 const ORIGINAL = /^travel\/([^/]+)\/([a-f0-9]+)\.(jpe?g|png|webp|gif|avif)$/i;
