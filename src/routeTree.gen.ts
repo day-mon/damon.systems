@@ -14,6 +14,8 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
+import { Route as TravelIndexRouteImport } from './routes/travel/index'
+import { Route as TravelSlugRouteImport } from './routes/travel/$slug'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
 import { Route as ApiLabStatsRouteImport } from './routes/api/lab/stats'
@@ -46,6 +48,16 @@ const ProjectsRoute = ProjectsRouteImport.update({
 const LabIndexRoute = LabIndexRouteImport.update({
   id: '/lab/',
   path: '/lab/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TravelIndexRoute = TravelIndexRouteImport.update({
+  id: '/travel/',
+  path: '/travel/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TravelSlugRoute = TravelSlugRouteImport.update({
+  id: '/travel/$slug',
+  path: '/travel/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLabFiltersRoute = ApiLabFiltersRouteImport.update({
@@ -94,7 +106,9 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
+  '/travel/': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -109,7 +123,9 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/travel/$slug': typeof TravelSlugRoute
   '/lab': typeof LabIndexRoute
+  '/travel': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -125,7 +141,9 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
+  '/travel/': typeof TravelIndexRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -142,7 +160,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/travel/$slug'
     | '/lab/'
+    | '/travel/'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -157,7 +177,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/travel/$slug'
     | '/lab'
+    | '/travel'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -172,7 +194,9 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/projects'
+    | '/travel/$slug'
     | '/lab/'
+    | '/travel/'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -188,7 +212,9 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
+  TravelSlugRoute: typeof TravelSlugRoute
   LabIndexRoute: typeof LabIndexRoute
+  TravelIndexRoute: typeof TravelIndexRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
   ApiLabPointsRoute: typeof ApiLabPointsRoute
   ApiLabStatsRoute: typeof ApiLabStatsRoute
@@ -234,6 +260,20 @@ declare module '@tanstack/react-router' {
       path: '/lab'
       fullPath: '/lab/'
       preLoaderRoute: typeof LabIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/travel/': {
+      id: '/travel/'
+      path: '/travel'
+      fullPath: '/travel/'
+      preLoaderRoute: typeof TravelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/travel/$slug': {
+      id: '/travel/$slug'
+      path: '/travel/$slug'
+      fullPath: '/travel/$slug'
+      preLoaderRoute: typeof TravelSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/lab/filters': {
@@ -300,7 +340,9 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
+  TravelSlugRoute: TravelSlugRoute,
   LabIndexRoute: LabIndexRoute,
+  TravelIndexRoute: TravelIndexRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,
   ApiLabPointsRoute: ApiLabPointsRoute,
   ApiLabStatsRoute: ApiLabStatsRoute,

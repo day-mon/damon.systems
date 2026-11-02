@@ -1,8 +1,11 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { m, useReducedMotion } from "motion/react";
 
+import { TravelGlobe } from "#/components/travel/globe";
 import SplitText from "#/components/ui/SplitText";
 import { useResolvedTheme } from "#/lib/theme";
+import { tripsQuery } from "#/queries/trips/queries";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -10,6 +13,7 @@ const NAV = [
 	{ to: "/about", label: "about" },
 	{ to: "/projects", label: "projects" },
 	{ to: "/lab", label: "lab" },
+	{ to: "/travel", label: "travel" },
 	{ to: "/contact", label: "contact" },
 ] as const;
 
@@ -72,6 +76,31 @@ function Home() {
 					</m.span>
 				))}
 			</nav>
+			<m.div
+				initial={{ opacity: 0 }}
+				animate={{ opacity: 1 }}
+				transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
+				className="mt-10"
+			>
+				<Link
+					to="/travel"
+					aria-label="travel — everywhere i've been"
+					className="block opacity-60 transition-opacity duration-200 hover:opacity-100"
+				>
+					<HomeGlobe />
+				</Link>
+			</m.div>
 		</main>
 	);
+}
+
+function HomeGlobe() {
+	const { data: trips } = useSuspenseQuery(tripsQuery());
+
+	const markers = trips.map((t) => ({
+		// SAFETY: Trip lat/lng is a tuple by contract.
+		location: [t.lat, t.lng] as [number, number],
+	}));
+
+	return <TravelGlobe markers={markers} size={260} />;
 }

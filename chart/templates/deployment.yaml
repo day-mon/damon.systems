@@ -31,6 +31,12 @@ spec:
                   name: {{ include "personal-site.fullname" . }}-secrets
                   key: database-url
           {{- end }}
+          # travel section: optional until chart/templates/sealed-secret-b2.yaml
+          # is sealed+applied; without it /travel just shows the empty state
+          envFrom:
+            - secretRef:
+                name: personal-site-b2
+                optional: true
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
