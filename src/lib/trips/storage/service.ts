@@ -138,15 +138,18 @@ export class TripsStorage {
 		const digest = createHash("sha1").update(originalBytes).digest("hex").slice(0, 8);
 		const ext = this.photoExt(name);
 
-		const [large, thumb] = await Promise.all([
+		const [large, thumb, og] = await Promise.all([
 			sharp(originalBytes).rotate().resize(2048).toFormat("webp", { quality: 82 }).toBuffer(),
 			sharp(originalBytes).rotate().resize(800).toFormat("webp", { quality: 80 }).toBuffer(),
+			// jpg, not webp — satori's image loader only sniffs png/jpeg and this stays private to og
+			sharp(originalBytes).rotate().resize(1000).toFormat("jpeg", { quality: 82 }).toBuffer(),
 		]);
 
 		await Promise.all([
 			this.put(`travel/${slug}/${digest}.${ext}`, originalBytes, `image/${ext}`, CACHE_FOREVER),
 			this.put(`travel/${slug}/large/${digest}.webp`, large, "image/webp", CACHE_FOREVER),
 			this.put(`travel/${slug}/thumb/${digest}.webp`, thumb, "image/webp", CACHE_FOREVER),
+			this.put(`travel/${slug}/og/${digest}.jpg`, og, "image/jpeg", CACHE_FOREVER),
 		]);
 
 		return {
@@ -155,6 +158,20 @@ export class TripsStorage {
 			large: this.publicUrlFor(`travel/${slug}/large/${digest}.webp`),
 			thumb: this.publicUrlFor(`travel/${slug}/thumb/${digest}.webp`),
 		};
+	}
+
+	/** 2048w webp of the first original by digest-name (undefined = no photos yet) */
+	/** og-card sources: up to `max` og/<digest>.jpg urls, digest-sorted for stability */
+	async cardPhotos(slug: string, max = 4): Promise<string[]> {
+		const { files } = await this.listPrefix(`travel/${slug}/`);
+
+		return files
+			.filter((k) => /^travel\/[^/]+\/[^/]+\.(jpe?g|png|gif|avif|webp)$/i.test(k))
+			.sort()
+			.map((k) => /\/([a-f0-9]+)\.[a-z]+$/i.exec(k)?.[1])
+			.filter((d): d is string => d !== undefined)
+			.slice(0, max)
+			.map((d) => this.publicUrlFor(`travel/${slug}/og/${d}.jpg`));
 	}
 
 	/** move every object under travel/old/ to travel/new/ (old keys deleted) */

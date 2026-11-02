@@ -85,7 +85,11 @@ function Globe({ size = 340 }: { size?: number }) {
 	);
 }
 
-export async function renderTripOgImage(meta: TripMeta, photoCount: number): Promise<Buffer> {
+export async function renderTripOgImage(
+	meta: TripMeta,
+	photoCount: number,
+	photos: string[] = [],
+): Promise<Buffer> {
 	const dateLine = formatTripDates(meta.dates);
 
 	const svg = await satori(
@@ -100,19 +104,27 @@ export async function renderTripOgImage(meta: TripMeta, photoCount: number): Pro
 				padding: 64,
 			}}
 		>
-			<div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1 }}>
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "space-between",
+					flex: 1,
+					paddingRight: 48,
+				}}
+			>
 				<div style={{ display: "flex", flexDirection: "column" }}>
 					<span style={{ color: MUTED, fontSize: 20, letterSpacing: 4 }}>
 						DAMON.SYSTEMS — TRAVEL
 					</span>
 
-					<span style={{ fontSize: 84, fontWeight: 700, marginTop: 40, lineHeight: 1.05 }}>
+					<span style={{ fontSize: 76, fontWeight: 700, marginTop: 36, lineHeight: 1.05 }}>
 						{meta.name}
 					</span>
 
-					<span style={{ fontSize: 30, color: MUTED, marginTop: 18 }}>{meta.place}</span>
+					<span style={{ fontSize: 28, color: MUTED, marginTop: 18 }}>{meta.place}</span>
 
-					<span style={{ fontSize: 26, color: MUTED, marginTop: 10 }}>{dateLine}</span>
+					<span style={{ fontSize: 24, color: MUTED, marginTop: 10 }}>{dateLine}</span>
 				</div>
 
 				<div style={{ display: "flex", alignItems: "center", fontSize: 30, color: FG }}>
@@ -123,8 +135,30 @@ export async function renderTripOgImage(meta: TripMeta, photoCount: number): Pro
 				</div>
 			</div>
 
-			<div style={{ display: "flex", alignItems: "center" }}>
-				<Globe />
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					width: 460,
+					height: 502,
+					borderRadius: 16,
+					overflow: "hidden",
+					border: `1px solid ${BORDER}`,
+					background: "#101010",
+				}}
+			>
+				{photos.length === 0 ? (
+					<Globe />
+				) : photos.length === 1 ? (
+					<img src={photos[0]} style={{ width: 460, height: 502, objectFit: "cover" }} alt="" />
+				) : (
+					<div style={{ display: "flex", flexWrap: "wrap", width: 460, height: 502, gap: 10 }}>
+						{photos.slice(0, 4).map((src) => (
+							<img key={src} src={src} style={{ width: 225, height: 246, objectFit: "cover" }} alt="" />
+						))}
+					</div>
+				)}
 			</div>
 
 			<div

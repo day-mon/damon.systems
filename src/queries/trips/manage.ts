@@ -47,9 +47,8 @@ export const saveTripMeta = createServerFn({ method: "POST" })
 			})
 			// og card regenerate is best-effort — never fail the save over a card
 			.then(() =>
-				storage
-					.countPhotos(data.slug)
-					.then((n) => renderTripOgImage(data.meta, n))
+				Promise.all([storage.countPhotos(data.slug), storage.cardPhotos(data.slug)])
+					.then(([n, photos]) => renderTripOgImage(data.meta, n, photos))
 					.then((png) => storage.saveOgPng(data.slug, png))
 					.catch((e) => console.error("og render failed", e)),
 			)
