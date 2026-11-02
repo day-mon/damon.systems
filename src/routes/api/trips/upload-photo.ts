@@ -5,7 +5,7 @@ auth = authentik session (group-gated upstream).
 
 import { createFileRoute } from "@tanstack/react-router";
 
-import { getAuth } from "#/lib/authz/better";
+import { authz } from "#/lib/authz/service";
 import { storage } from "#/lib/trips/storage/service";
 
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -16,8 +16,8 @@ export const Route = createFileRoute("/api/trips/upload-photo")({
 	server: {
 		handlers: {
 			POST: async ({ request }) =>
-				getAuth()
-					.api.getSession({ headers: request.headers })
+				authz
+					.betterAuth.api.getSession({ headers: request.headers })
 					.then((session): Promise<FormData> =>
 						session ? request.formData() : Promise.reject(new Error("unauthenticated")),
 					)

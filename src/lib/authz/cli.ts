@@ -1,8 +1,8 @@
 /*
 entry point for the better-auth CLI (migrate/generate). real runtime code
-goes through getAuth() so client bundles never eagerly touch pg.
+goes through the service so client bundles never eagerly touch pg.
 */
 
-import { getAuth } from "./better";
+import { authz } from "./service";
 
-export const auth = getAuth();
+export const auth = authz.betterAuth;

@@ -11,9 +11,9 @@ export const env = createEnv({
 			.string()
 			.default("postgresql://pgh_ticket:pgh_ticket@localhost:5432/pgh_ticket"),
 		AUTHENTIK_ISSUER: z.string().default("https://auth.montague.im/application/o/damon-systems/"),
-		OIDC_CLIENT_ID: z.string().optional(),
-		OIDC_CLIENT_SECRET: z.string().optional(),
-		SESSION_SECRET: z.string().optional(),
+		OIDC_CLIENT_ID: z.string().min(1),
+		OIDC_CLIENT_SECRET: z.string().min(1),
+		SESSION_SECRET: z.string().min(22),
 		LOG_LEVEL: z.enum(["trace", "debug", "info", "warn", "error", "fatal"]).default("info"),
 	},
 	runtimeEnv: process.env,

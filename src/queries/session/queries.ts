@@ -6,7 +6,7 @@ endpoint in-process (same headers/cookies as the incoming request).
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 
-import { getAuth } from "#/lib/authz/better";
+import { authz } from "#/lib/authz/service";
 
 export interface SessionUser {
 	name: string;
@@ -14,12 +14,7 @@ export interface SessionUser {
 }
 
 export const mySession = createServerFn({ method: "GET" }).handler(() =>
-	getAuth()
-		.api.getSession({ headers: getRequestHeaders() })
-		// authentik only lets group members complete the flow for this app,
-		// so a valid session is definitionally admin.
-		.then((s): SessionUser | null =>
-			s ? { name: s.user.name || "admin", email: s.user.email } : null,
-		)
+	authz
+		.getSession(getRequestHeaders())
 		.catch(() => null),
 );

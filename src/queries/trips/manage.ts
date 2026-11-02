@@ -7,7 +7,7 @@ permission. never trust a slug from the wire without sanitize.
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 
-import { getAuth } from "#/lib/authz/better";
+import { authz } from "#/lib/authz/service";
 import { TripMetaSchema } from "#/lib/trips/types";
 import { renderTripOgImage } from "#/lib/og/trip-card";
 import { storage } from "#/lib/trips/storage/service";
@@ -23,7 +23,7 @@ function sanitizeSlug(raw: string): string {
 }
 
 async function requireSession() {
-	const s = await getAuth().api.getSession({ headers: getRequestHeaders() });
+	const s = await authz.getSession(getRequestHeaders());
 
 	if (!s) throw new Error("unauthenticated");
 
