@@ -8,7 +8,7 @@
 	"scripts": {
 		"build": "vite build",
 		"check": "biome check",
-		"dev": "bash -c 'set -a && for f in .env.b2 .env.site; do [ -f $f ] && source $f; done; set +a; exec vite dev --port 3000'",
+		"dev": "bash -c 'set -a && source .env 2>/dev/null || true; set +a; exec vite dev --port 3000'",
 		"format": "biome format",
 		"generate-routes": "tsr generate",
 		"lint": "biome lint",

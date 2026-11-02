@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # re-seal the site runtime secret after rotating any of: SESSION_SECRET,
 # OIDC_CLIENT_ID/SECRET (authentik), AUTHENTIK_ISSUER, ADMIN_EMAIL.
-# values come from .env.site (gitignored); result is commit-safe.
+# values come from .env (gitignored); result is commit-safe.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-[[ ! -f .env.site ]] && { echo "✗ .env.site missing — see .env.site.example"; exit 1; }
+[[ ! -f .env ]] && { echo "✗ .env missing — see .env.example"; exit 1; }
 # shellcheck disable=SC1091
-set -a; source .env.site; set +a
+set -a; source .env; set +a
 
 kubectl -n personal-site create secret generic personal-site-runtime \
 	--from-literal=SESSION_SECRET="${SESSION_SECRET:?}" \

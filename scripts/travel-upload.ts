@@ -13,6 +13,8 @@ B2_KEY_ID + B2_APPLICATION_KEY (+ optional B2_BUCKET_NAME, B2_REGION) in env.
 */
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+
+import { env } from "#/lib/env";
 import { readdir, readFile } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
 
@@ -72,17 +74,15 @@ async function main() {
 		process.exit(1);
 	}
 
-	const region = process.env.B2_REGION ?? "us-west-004";
-	const bucket = process.env.B2_BUCKET_NAME ?? "travel-albums";
-
 	const s3 = new S3Client({
-		region,
-		endpoint: `https://s3.${region}.backblazeb2.com`,
+		region: env.B2_REGION,
+		endpoint: `https://s3.${env.B2_REGION}.backblazeb2.com`,
 		credentials: {
-			accessKeyId: process.env.B2_KEY_ID ?? "",
-			secretAccessKey: process.env.B2_APPLICATION_KEY ?? "",
+			accessKeyId: env.B2_KEY_ID,
+			secretAccessKey: env.B2_APPLICATION_KEY,
 		},
 	});
+	const bucket = env.B2_BUCKET_NAME;
 
 	const put = async (name: string) => {
 		const key = `travel/${slug}/${name}`;
