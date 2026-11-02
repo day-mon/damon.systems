@@ -24,14 +24,6 @@ function AdminPage() {
 	const { session } = Route.useRouteContext();
 	const navigate = useNavigate();
 
-	if (!session.isAdmin) {
-		return (
-			<main className="mx-auto max-w-3xl px-8 pt-12 pb-20 text-muted-foreground text-sm">
-				signed in as {session.email}, but you're not on the admin list.
-			</main>
-		);
-	}
-
 	return (
 		<main className="mx-auto max-w-3xl px-8 pt-12 pb-20">
 			<div className="flex items-center justify-between">

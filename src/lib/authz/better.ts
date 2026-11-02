@@ -8,7 +8,9 @@ env contract (names only):
   PGH_DATABASE_URL     app postgres (auth tables live alongside)
   AUTHENTIK_ISSUER     https://auth.montague.im/application/o/damon-systems/
   OIDC_CLIENT_ID / OIDC_CLIENT_SECRET
-  ADMIN_EMAIL          comma-separated admin allowlist
+
+  authz lives in authentik: only members of the damon-systems-admins group
+  can complete login for this application. the app trusts that.
 */
 
 import { betterAuth } from "better-auth";
@@ -53,14 +55,4 @@ export function getAuth(): ReturnType<typeof createAuth> {
 	}
 
 	return auth;
-}
-
-export function isAdminEmail(email: string | undefined): boolean {
-	if (!email) return false;
-
-	const allow = (process.env.ADMIN_EMAIL ?? "damon@montague.im")
-		.split(",")
-		.map((e) => e.trim().toLowerCase());
-
-	return allow.includes(email.toLowerCase());
 }
