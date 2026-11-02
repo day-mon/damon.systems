@@ -3,10 +3,12 @@ admin portal — oidc-gated. not data-bearing yet; exists to prove the circle:
 trip uploads, secrets, and other operator actions land here next.
 */
 
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link, createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 import { authClient } from "#/lib/authz/client";
 import { mySession } from "#/queries/session/queries";
+import { tripsQuery } from "#/queries/trips/queries";
 
 export const Route = createFileRoute("/admin")({
 	head: () => ({ meta: [{ title: "damon | admin" }] }),
@@ -22,6 +24,7 @@ export const Route = createFileRoute("/admin")({
 
 function AdminPage() {
 	const { session } = Route.useRouteContext();
+	const { data: trips } = useSuspenseQuery(tripsQuery());
 	const navigate = useNavigate();
 
 	return (
@@ -50,15 +53,40 @@ function AdminPage() {
 			</p>
 
 			<section className="mt-10 border border-border p-5">
-				<h2 className="m-0 font-medium text-base">trips</h2>
-				<p className="mt-2 text-muted-foreground text-sm leading-relaxed">
-					upload workflow for now is a script: drop a folder with{" "}
-					<code className="text-foreground">meta.json</code> + photos, run{" "}
-					<code className="text-foreground">
-						bun scripts/travel-upload.ts ./your-trip
-					</code>
-					. a web uploader goes here next.
-				</p>
+				<div className="flex items-baseline justify-between">
+					<h2 className="m-0 font-medium text-base">trips</h2>
+					<Link
+						to="/admin/trips/$slug"
+						params={{ slug: "new" }}
+						className="text-muted-foreground text-xs hover:text-foreground"
+					>
+						+ new trip
+					</Link>
+				</div>
+				<ul className="m-0 mt-3 list-none p-0">
+					{trips.map((t) => (
+						<li key={t.slug} className="border-border/50 border-b py-2 last:border-b-0">
+							<Link
+								to="/admin/trips/$slug"
+								params={{ slug: t.slug }}
+								className="flex items-baseline gap-4 no-underline"
+							>
+								<span className="w-40 truncate text-sm">{t.name}</span>
+								<span className="flex-1 truncate text-muted-foreground text-xs">
+									{t.place}
+								</span>
+								<span className="text-muted-foreground text-xs">
+									{t.photos.length} photos
+								</span>
+							</Link>
+						</li>
+					))}
+					{trips.length === 0 && (
+						<li className="py-2 text-muted-foreground text-xs">
+							no trips yet — create the first one
+						</li>
+					)}
+				</ul>
 			</section>
 
 			<section className="mt-4 border border-border p-5">

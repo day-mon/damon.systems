@@ -18,14 +18,16 @@ import type { JsonObject } from "./json";
 
 let s3: S3Client | null = null;
 
-const BUCKET_NAME = () => process.env.B2_BUCKET_NAME ?? "travel-albums";
+export const BUCKET = () => process.env.B2_BUCKET_NAME ?? "damon-travel";
+
+
 const REGION = () => process.env.B2_REGION ?? "us-west-004";
 
 export function b2Configured(): boolean {
 	return Boolean(process.env.B2_KEY_ID && process.env.B2_APPLICATION_KEY);
 }
 
-function client(): S3Client {
+export function b2S3(): S3Client {
 	if (!s3) {
 		s3 = new S3Client({
 			region: REGION(),
@@ -52,9 +54,9 @@ export async function listPrefix(prefix: string): Promise<PrefixListing> {
 	let token: string | undefined;
 
 	for (;;) {
-		const page = await client().send(
+		const page = await b2S3().send(
 			new ListObjectsV2Command({
-				Bucket: BUCKET_NAME(),
+				Bucket: BUCKET(),
 				Prefix: prefix,
 				Delimiter: "/",
 				ContinuationToken: token,
@@ -79,7 +81,7 @@ export async function listPrefix(prefix: string): Promise<PrefixListing> {
 
 /** absolute public url for an object inside the bucket (bucket must be public-read) */
 export function publicUrlFor(key: string): string {
-	return `https://${BUCKET_NAME()}.s3.${REGION()}.backblazeb2.com/${key
+	return `https://${BUCKET()}.s3.${REGION()}.backblazeb2.com/${key
 		.split("/")
 		.map(encodeURIComponent)
 		.join("/")}`;
