@@ -8,10 +8,25 @@ import satori from "satori";
 
 import { formatTripDates } from "#/lib/trips/types";
 import type { TripMeta } from "#/lib/trips/types";
-import { JB_MONO_BOLD, JB_MONO_REGULAR } from "./fonts";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
+
+function readFont(name: string): Buffer {
+	// public/ is verbatim-copied to dist/client at build; dev reads it in place
+	for (const base of ["public/fonts", "dist/client/fonts"]) {
+		const p = join(process.cwd(), base, name);
+
+		if (existsSync(p)) return readFileSync(p);
+	}
+
+	throw new Error(`og font missing: ${name}`);
+}
+
+const JB_MONO_REGULAR = readFont("jetbrains-mono-regular.ttf");
+const JB_MONO_BOLD = readFont("jetbrains-mono-bold.ttf");
 
 const BG = "#161616";
 const FG = "#f4f4f4";
