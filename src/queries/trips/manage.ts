@@ -9,7 +9,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 
 import { authz } from "#/lib/authz/service";
 import { TripMetaSchema } from "#/lib/trips/types";
-import { renderTripOgImage } from "#/lib/og/trip-card";
+import { renderTripOgImage } from "#/components/trip-og-card";
 import { storage } from "#/lib/trips/storage/service";
 
 
@@ -31,13 +31,20 @@ async function requireSession() {
 }
 
 export const saveTripMeta = createServerFn({ method: "POST" })
-	.validator((d: { slug: string; meta: unknown }) => ({
+	.validator((d: { slug: string; previousSlug?: string; meta: unknown }) => ({
 		slug: sanitizeSlug(d.slug),
+		previousSlug: d.previousSlug ? sanitizeSlug(d.previousSlug) : undefined,
 		meta: TripMetaSchema.parse(d.meta),
 	}))
 	.handler(({ data }) =>
 		requireSession()
-			.then(() => storage.saveMeta(data.slug, data.meta))
+			.then(async () => {
+				if (data.previousSlug && data.previousSlug !== data.slug) {
+					await storage.renameTrip(data.previousSlug, data.slug);
+				}
+
+				return storage.saveMeta(data.slug, data.meta);
+			})
 			// og card regenerate is best-effort — never fail the save over a card
 			.then(() =>
 				storage

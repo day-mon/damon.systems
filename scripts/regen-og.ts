@@ -1,5 +1,5 @@
 /* regenerate og cards for every trip:  bun --env-file=.env.b2 scripts/regen-og.ts */
-import { renderTripOgImage } from "#/lib/og/trip-card";
+import { renderTripOgImage } from "#/components/trip-og-card";
 import { trips } from "#/lib/trips/catalog";
 import { storage } from "#/lib/trips/storage/service";
 

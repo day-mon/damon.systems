@@ -8,7 +8,13 @@ TripsStorage — everything the app does against b2 for trips. bucket layout:
   travel/<slug>/thumb/<digest>.webp     800w  (dome tiles)
 */
 
-import { ListObjectsV2Command, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+	CopyObjectCommand,
+	DeleteObjectCommand,
+	ListObjectsV2Command,
+	PutObjectCommand,
+	S3Client,
+} from "@aws-sdk/client-s3";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 
@@ -149,6 +155,46 @@ export class TripsStorage {
 			large: this.publicUrlFor(`travel/${slug}/large/${digest}.webp`),
 			thumb: this.publicUrlFor(`travel/${slug}/thumb/${digest}.webp`),
 		};
+	}
+
+	/** move every object under travel/old/ to travel/new/ (old keys deleted) */
+	async renameTrip(from: string, to: string): Promise<{ moved: number }> {
+		const { files, folders } = await this.listPrefix(`travel/${from}/`);
+
+		const keys = [...files, ...folders];
+
+		if (folders.length > 0) {
+			// derivative dirs: list their contents too
+			for (const dir of folders) {
+				const { files: inner } = await this.listPrefix(dir);
+
+				keys.push(...inner);
+			}
+		}
+
+		if (keys.length === 0) return { moved: 0 };
+
+		const moved = await Promise.all(
+			keys.map((k) =>
+				this.s3
+					.send(
+						new CopyObjectCommand({
+							Bucket: this.config.bucket,
+							Key: k.replace(`travel/${from}/`, `travel/${to}/`),
+							CopySource: `${this.config.bucket}/${k}`,
+						}),
+					)
+					.then(() => k),
+			),
+		);
+
+		await Promise.all(
+			moved.map((k) =>
+				this.s3.send(new DeleteObjectCommand({ Bucket: this.config.bucket, Key: k })),
+			),
+		);
+
+		return { moved: moved.length };
 	}
 
 	async countPhotos(slug: string): Promise<number> {

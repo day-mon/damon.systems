@@ -134,7 +134,7 @@ export function TripForm({ trip, routeSlug }: Props) {
 			blurb: value.blurb,
 		};
 
-		const metaSaved = await saveTripMeta({ data: { slug: useSlug, meta } })
+		const metaSaved = await saveTripMeta({ data: { slug: useSlug, previousSlug: isNew ? undefined : routeSlug, meta } })
 			.then(() => true)
 			.catch((e) => {
 				form.setErrorMap({ onSubmit: e instanceof Error ? e.message : "save failed" });
