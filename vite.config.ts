@@ -8,6 +8,9 @@ import { defineConfig } from "vite";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
+	// native .node bindings can't be esbuild-prebundled
+	optimizeDeps: { exclude: ["@resvg/resvg-js", "satori"] },
+	ssr: { external: ["@resvg/resvg-js"] },
 	plugins: [
 		tailwindcss(),
 		// markdown: enforce extension so implicit .md/.mdx include logic stays explicit

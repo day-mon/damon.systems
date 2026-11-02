@@ -6,7 +6,7 @@ b2 key lives in process env.
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { createHash } from "node:crypto";
 
-import { BUCKET, b2S3, publicUrlFor } from "./b2";
+import { BUCKET, b2S3, listPrefix, publicUrlFor } from "./b2";
 import type { TripMeta } from "./types";
 
 const photoExt = (name: string): string => {
@@ -27,6 +27,30 @@ export async function saveMeta(slug: string, meta: TripMeta): Promise<void> {
 			CacheControl: "no-cache",
 		}),
 	);
+}
+
+export async function saveOgPng(slug: string, png: Buffer): Promise<string> {
+	const key = `travel/${slug}/og.png`;
+
+	await b2S3().send(
+		new PutObjectCommand({
+			Bucket: BUCKET(),
+			Key: key,
+			Body: png,
+			ContentType: "image/png",
+			// regenerated on every save, so keep caches honest
+			CacheControl: "public, max-age=300, must-revalidate",
+		}),
+	);
+
+	return publicUrlFor(key);
+}
+
+/** count real photos under travel/<slug>/ (ignores meta.json + og.png) */
+export async function countPhotos(slug: string): Promise<number> {
+	const { files } = await listPrefix(`travel/${slug}/`);
+
+	return files.filter((k) => k !== `travel/${slug}/meta.json` && k !== `travel/${slug}/og.png`).length;
 }
 
 export async function uploadPhoto(

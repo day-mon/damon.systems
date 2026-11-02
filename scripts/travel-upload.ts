@@ -16,8 +16,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { readdir, readFile } from "node:fs/promises";
 import { basename, extname, join } from "node:path";
 
-import type { JsonObject } from "#/lib/trips/json";
-import { isTripMeta } from "#/lib/trips/types";
+import { TripMetaSchema } from "#/lib/trips/types";
 
 const CONTENT_TYPES = [
 	[".jpg", "image/jpeg"],
@@ -57,12 +56,15 @@ async function main() {
 
 	const meta = JSON.parse(await readFile(join(dir, "meta.json"), "utf8"));
 
-	// SAFETY: JSON.parse yields any; object-ness is asserted and the shape proven by the guard.
-	if (!isTripMeta(meta as JsonObject)) {
-		console.error("✗ meta.json failed the shape check — needs name, place, dates:[from,to], rating, lat, lng, blurb");
+	const parsed = TripMetaSchema.safeParse(meta);
+
+	if (!parsed.success) {
+		console.error("✗ meta.json failed schema:");
+		console.error(parsed.error.message);
 		process.exit(1);
 	}
 
+	
 	const photos = names.filter((n) => contentTypeExt(n) !== "application/octet-stream");
 
 	if (photos.length === 0) {

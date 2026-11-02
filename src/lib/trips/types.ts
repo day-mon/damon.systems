@@ -4,17 +4,22 @@ meta.json is hand-authored per trip; photos are whatever lands in the folder
 via scripts/travel-upload.ts. keeping the schema deliberately dumb.
 */
 
-import type { JsonObject } from "./json";
+import { z } from "zod";
 
-export interface TripMeta {
-	name: string;
-	place: string;
-	dates: [string, string];
-	rating: number;
-	lat: number;
-	lng: number;
-	blurb: string;
-}
+export const TripMetaSchema = z.object({
+	name: z.string().min(1),
+	place: z.string().min(1),
+	dates: z.tuple([
+		z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+		z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+	]),
+	rating: z.number().min(0).max(5),
+	lat: z.number().min(-90).max(90),
+	lng: z.number().min(-180).max(180),
+	blurb: z.string().min(1),
+});
+
+export type TripMeta = z.infer<typeof TripMetaSchema>;
 
 export interface Trip extends TripMeta {
 	slug: string;
@@ -51,23 +56,11 @@ export function formatCoords(lat: number, lng: number): string {
 	return `${Math.abs(lat).toFixed(2)}° ${ns}, ${Math.abs(lng).toFixed(2)}° ${ew}`;
 }
 
-/**
- * boundary decoder for meta.json — a predicate so b2 json only becomes
- * TripMeta after every field is proven.
- */
-export function isTripMeta(raw: JsonObject): raw is JsonObject & TripMeta {
-	return (
-		typeof raw.name === "string" &&
-		typeof raw.place === "string" &&
-		Array.isArray(raw.dates) &&
-		raw.dates.length === 2 &&
-		typeof raw.dates[0] === "string" &&
-		typeof raw.dates[1] === "string" &&
-		typeof raw.rating === "number" &&
-		typeof raw.lat === "number" &&
-		typeof raw.lng === "number" &&
-		typeof raw.blurb === "string"
-	);
+export const TRAVEL_BASE = "https://damon-travel.s3.us-east-005.backblazeb2.com";
+
+/** public url of a trip's generated share card (refreshed on every save) */
+export function ogImageFor(slug: string, fallback?: string): string {
+	return `${TRAVEL_BASE}/travel/${encodeURIComponent(slug)}/og.png${fallback ? "?v=" : ""}${fallback ?? ""}`;
 }
 
 export function clampRating(rating: number): number {

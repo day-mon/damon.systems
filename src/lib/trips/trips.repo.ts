@@ -7,7 +7,7 @@ the api. ttl keeps edits eventually-visible without a deploy.
 import { logger } from "#/lib/logger";
 
 import { b2Configured, fetchJson, listPrefix, publicUrlFor } from "./b2";
-import { clampRating, isTripMeta, type Trip } from "./types";
+import { TripMetaSchema, clampRating, type Trip } from "./types";
 
 const TRAVEL_PREFIX = "travel/";
 const TTL_MS = 10 * 60 * 1000;
@@ -32,13 +32,15 @@ async function loadAllTrips(): Promise<Trip[]> {
 				listPrefix(`${TRAVEL_PREFIX}${slug}/`),
 			]);
 
-			if (!isTripMeta(metaRaw)) {
-				logger.warn({ slug }, "trip meta.json failed shape check; skipped");
+			const parsed = TripMetaSchema.safeParse(metaRaw);
+
+			if (!parsed.success) {
+				logger.warn({ slug, issues: parsed.error.issues.map((i) => i.path.join(".")) }, "trip meta.json failed schema; skipped");
 
 				continue;
 			}
 
-			const meta = { ...metaRaw, rating: clampRating(metaRaw.rating) };
+			const meta = { ...parsed.data, rating: clampRating(parsed.data.rating) };
 
 			const photoUrls = photos.files
 				.filter((f) => PHOTO_EXT.test(f))

@@ -8,10 +8,33 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { parseAsStringEnum, useQueryState } from "nuqs";
 
 import DomeGallery from "#/components/ui/DomeGallery";
-import { formatCoords, formatTripDates, type Trip } from "#/lib/trips/types";
+import { formatCoords, formatTripDates, ogImageFor, type Trip } from "#/lib/trips/types";
+import { queryClient } from "#/lib/query-client";
 import { tripQuery } from "#/queries/trips/queries";
 
 export const Route = createFileRoute("/travel/$slug")({
+	// prime the query so SSR head() has real trip data for og tags
+	loader: ({ params }) => queryClient.ensureQueryData(tripQuery(params.slug)),
+	head: ({ loaderData }) => {
+		if (!loaderData) return { meta: [{ title: "damon | travel" }] };
+
+		const title = `damon | travel | ${loaderData.name}`;
+		const image = ogImageFor(loaderData.slug);
+
+		return {
+			meta: [
+				{ title },
+				{ name: "description", content: loaderData.blurb },
+				{ property: "og:title", content: title },
+				{ property: "og:description", content: loaderData.blurb },
+				{ property: "og:image", content: image },
+				{ property: "og:image:width", content: "1200" },
+				{ property: "og:image:height", content: "630" },
+				{ property: "og:url", content: `https://damon.systems/travel/${loaderData.slug}` },
+				{ name: "twitter:card", content: "summary_large_image" },
+			],
+		};
+	},
 	component: TripDetailPage,
 });
 

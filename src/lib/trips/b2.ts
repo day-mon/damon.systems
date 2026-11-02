@@ -14,6 +14,8 @@ bucket is public-read for media; keys are still used for listing.
 
 import { ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 
+import { TRAVEL_BASE } from "./types";
+
 import type { JsonObject } from "./json";
 
 let s3: S3Client | null = null;
@@ -81,7 +83,9 @@ export async function listPrefix(prefix: string): Promise<PrefixListing> {
 
 /** absolute public url for an object inside the bucket (bucket must be public-read) */
 export function publicUrlFor(key: string): string {
-	return `https://${BUCKET()}.s3.${REGION()}.backblazeb2.com/${key
+	// TRAVEL_BASE comes from types.ts so route-level (client-safe) code can
+	// reuse the same constant for og urls
+	return `${TRAVEL_BASE}/${key
 		.split("/")
 		.map(encodeURIComponent)
 		.join("/")}`;
