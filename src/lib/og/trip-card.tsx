@@ -3,30 +3,25 @@ trip og card — satori jsx → svg → resvg png. server-only; fonts are embedd
 (./fonts.ts) so the pod renders offline.
 */
 
+const require = createRequire(import.meta.url);
+
 import { Resvg } from "@resvg/resvg-js";
 import satori from "satori";
 
 import { formatTripDates } from "#/lib/trips/types";
 import type { TripMeta } from "#/lib/trips/types";
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 
 export const OG_WIDTH = 1200;
 export const OG_HEIGHT = 630;
 
-function readFont(name: string): Buffer {
-	// public/ is verbatim-copied to dist/client at build; dev reads it in place
-	for (const base of ["public/fonts", "dist/client/fonts"]) {
-		const p = join(process.cwd(), base, name);
+const geistMono = (file: string): Buffer =>
+	readFileSync(join(dirname(require.resolve("geist/package.json")), "dist/fonts/geist-mono", file));
 
-		if (existsSync(p)) return readFileSync(p);
-	}
-
-	throw new Error(`og font missing: ${name}`);
-}
-
-const JB_MONO_REGULAR = readFont("jetbrains-mono-regular.ttf");
-const JB_MONO_BOLD = readFont("jetbrains-mono-bold.ttf");
+const GEIST_MONO_REGULAR = geistMono("GeistMono-Regular.ttf");
+const GEIST_MONO_BOLD = geistMono("GeistMono-Bold.ttf");
 
 const BG = "#161616";
 const FG = "#f4f4f4";
@@ -101,7 +96,7 @@ export async function renderTripOgImage(meta: TripMeta, photoCount: number): Pro
 				height: OG_HEIGHT,
 				background: BG,
 				color: FG,
-				fontFamily: "JetBrains Mono",
+				fontFamily: "Geist Mono",
 				padding: 64,
 			}}
 		>
@@ -149,8 +144,8 @@ export async function renderTripOgImage(meta: TripMeta, photoCount: number): Pro
 			width: OG_WIDTH,
 			height: OG_HEIGHT,
 			fonts: [
-				{ name: "JetBrains Mono", data: JB_MONO_REGULAR, weight: 400, style: "normal" },
-				{ name: "JetBrains Mono", data: JB_MONO_BOLD, weight: 700, style: "normal" },
+				{ name: "Geist Mono", data: GEIST_MONO_REGULAR, weight: 400, style: "normal" },
+				{ name: "Geist Mono", data: GEIST_MONO_BOLD, weight: 700, style: "normal" },
 			],
 		},
 	);
