@@ -82,6 +82,7 @@ async function main() {
 			secretAccessKey: env.B2_APPLICATION_KEY,
 		},
 	});
+
 	const bucket = env.B2_BUCKET_NAME;
 
 	const put = async (name: string) => {
