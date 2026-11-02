@@ -19,7 +19,8 @@ import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
 import { Route as TravelIndexRouteImport } from './routes/travel/index'
 import { Route as TravelSlugRouteImport } from './routes/travel/$slug'
-import { Route as AdminTripsSlugRouteImport } from './routes/admin.trips.$slug'
+import { Route as AdminTripsSlugRouteRouteImport } from './routes/admin.trips.$slug/route'
+import { Route as AdminTripsNewRouteImport } from './routes/admin.trips.new'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
@@ -81,9 +82,14 @@ const TravelSlugRoute = TravelSlugRouteImport.update({
   path: '/travel/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminTripsSlugRoute = AdminTripsSlugRouteImport.update({
+const AdminTripsSlugRouteRoute = AdminTripsSlugRouteRouteImport.update({
   id: '/trips/$slug',
   path: '/trips/$slug',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTripsNewRoute = AdminTripsNewRouteImport.update({
+  id: '/trips/new',
+  path: '/trips/new',
   getParentRoute: () => AdminRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -148,7 +154,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/lab/': typeof LabIndexRoute
   '/travel/': typeof TravelIndexRoute
-  '/admin/trips/$slug': typeof AdminTripsSlugRoute
+  '/admin/trips/$slug': typeof AdminTripsSlugRouteRoute
+  '/admin/trips/new': typeof AdminTripsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -170,7 +177,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/lab': typeof LabIndexRoute
   '/travel': typeof TravelIndexRoute
-  '/admin/trips/$slug': typeof AdminTripsSlugRoute
+  '/admin/trips/$slug': typeof AdminTripsSlugRouteRoute
+  '/admin/trips/new': typeof AdminTripsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -194,7 +202,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/lab/': typeof LabIndexRoute
   '/travel/': typeof TravelIndexRoute
-  '/admin/trips/$slug': typeof AdminTripsSlugRoute
+  '/admin/trips/$slug': typeof AdminTripsSlugRouteRoute
+  '/admin/trips/new': typeof AdminTripsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
@@ -220,6 +229,7 @@ export interface FileRouteTypes {
     | '/lab/'
     | '/travel/'
     | '/admin/trips/$slug'
+    | '/admin/trips/new'
     | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -242,6 +252,7 @@ export interface FileRouteTypes {
     | '/lab'
     | '/travel'
     | '/admin/trips/$slug'
+    | '/admin/trips/new'
     | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/lab/'
     | '/travel/'
     | '/admin/trips/$slug'
+    | '/admin/trips/new'
     | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
@@ -375,7 +387,14 @@ declare module '@tanstack/react-router' {
       id: '/admin/trips/$slug'
       path: '/trips/$slug'
       fullPath: '/admin/trips/$slug'
-      preLoaderRoute: typeof AdminTripsSlugRouteImport
+      preLoaderRoute: typeof AdminTripsSlugRouteRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/trips/new': {
+      id: '/admin/trips/new'
+      path: '/trips/new'
+      fullPath: '/admin/trips/new'
+      preLoaderRoute: typeof AdminTripsNewRouteImport
       parentRoute: typeof AdminRoute
     }
     '/api/auth/$': {
@@ -453,12 +472,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
-  AdminTripsSlugRoute: typeof AdminTripsSlugRoute
+  AdminTripsSlugRouteRoute: typeof AdminTripsSlugRouteRoute
+  AdminTripsNewRoute: typeof AdminTripsNewRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
-  AdminTripsSlugRoute: AdminTripsSlugRoute,
+  AdminTripsSlugRouteRoute: AdminTripsSlugRouteRoute,
+  AdminTripsNewRoute: AdminTripsNewRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

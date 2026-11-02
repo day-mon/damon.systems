@@ -1,25 +1,20 @@
 /*
-admin trip editor — tanstack form fields, map-click coords, photo uploads that
-stream in the background while you're free to wander. same page handles create
-(slug "new") and edit.
+trip form — shared between /admin/trips/new and /admin/trips/$slug. saves
+meta synchronously, streams photos in the background (progress lives in the
+upload pill), navigates to the trip page right after meta lands.
 */
 
 import { useForm } from "@tanstack/react-form";
-import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
 
-import type { TripMeta } from "#/lib/trips/types";
+import type { Trip, TripMeta } from "#/lib/trips/types";
 import { uploadStore } from "#/lib/upload-store";
 import { saveTripMeta } from "#/queries/trips/manage";
-import { tripQuery } from "#/queries/trips/queries";
-import CoordPicker from "./admin.trips.$slug/-coord-picker";
+import CoordPicker from "../routes/admin.trips.$slug/-coord-picker";
 
-export const Route = createFileRoute("/admin/trips/$slug")({
-	component: TripEditorPage,
-});
-
-interface TripForm {
+export interface TripFormValues {
 	slug: string;
 	slugManual: boolean;
 	name: string;
@@ -33,7 +28,7 @@ interface TripForm {
 	photos: File[];
 }
 
-const EMPTY: TripForm = {
+const EMPTY: TripFormValues = {
 	slug: "",
 	slugManual: false,
 	name: "",
@@ -47,6 +42,20 @@ const EMPTY: TripForm = {
 	photos: [],
 };
 
+const fromTrip = (slug: string, t: Trip): TripFormValues => ({
+	slug,
+	slugManual: true,
+	name: t.name,
+	place: t.place,
+	from: t.dates[0],
+	to: t.dates[1],
+	rating: t.rating,
+	lat: String(t.lat),
+	lng: String(t.lng),
+	blurb: t.blurb,
+	photos: [],
+});
+
 function slugify(name: string): string {
 	return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -55,6 +64,14 @@ const INPUT =
 	"w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none focus-visible:border-ring";
 
 const LABEL = "mb-1 block text-muted-foreground text-xs";
+
+function FieldError({ errors }: { errors: (string | undefined)[] }) {
+	const msgs = errors.filter((m): m is string => Boolean(m));
+
+	if (msgs.length === 0) return null;
+
+	return <span className="mt-1 block text-destructive text-xs">{msgs.join(" · ")}</span>;
+}
 
 async function streamPhotos(slug: string, files: File[]): Promise<void> {
 	for (const f of files) {
@@ -75,20 +92,21 @@ async function streamPhotos(slug: string, files: File[]): Promise<void> {
 	}
 }
 
-function TripEditorPage() {
-	const { slug: routeSlug } = Route.useParams();
+interface Props {
+	/** null → create mode; slug edit mode is keyed by the loaded trip */
+	trip: Trip | null;
+	routeSlug: string;
+}
+
+export function TripForm({ trip, routeSlug }: Props) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const isNew = routeSlug === "new";
+	const isNew = trip === null;
 
-	const baseQuery = tripQuery(routeSlug);
-	const { data: trip } = useQuery({ ...baseQuery, queryFn: isNew ? skipToken : baseQuery.queryFn });
-
-	// object-url previews keyed to the actual File objects held in form state
 	const photoPreviews = useRef(new Map<File, string>());
 
 	const form = useForm({
-		defaultValues: EMPTY,
+		defaultValues: trip ? fromTrip(routeSlug, trip) : EMPTY,
 		// typed so setErrorMap can park server failures in the onSubmit slot
 		validators: {
 			onSubmit: (): string | undefined => undefined,
@@ -96,24 +114,7 @@ function TripEditorPage() {
 		onSubmit: ({ value }) => submit(value),
 	});
 
-	// edit mode: once the trip lands, seed every field
-	if (!isNew && trip && form.state.values.name === "") {
-		form.reset({
-			slug: routeSlug,
-			slugManual: true,
-			name: trip.name,
-			place: trip.place,
-			from: trip.dates[0],
-			to: trip.dates[1],
-			rating: trip.rating,
-			lat: String(trip.lat),
-			lng: String(trip.lng),
-			blurb: trip.blurb,
-			photos: [],
-		});
-	}
-
-	const submit = (value: TripForm) => {
+	const submit = (value: TripFormValues) => {
 		const useSlug = value.slug || slugify(value.name);
 
 		const meta: TripMeta = {
@@ -153,10 +154,10 @@ function TripEditorPage() {
 	};
 
 	return (
-		<div className="mt-10">
+		<>
 			<div className="flex items-baseline justify-between">
 				<h2 className="m-0 font-light text-2xl tracking-tight">
-					{isNew ? "new trip" : "edit · trip"}
+					{isNew ? "new trip" : `edit · ${trip.name}`}
 				</h2>
 				<Link to="/admin" className="text-muted-foreground text-xs hover:text-foreground">
 					← admin
@@ -174,11 +175,13 @@ function TripEditorPage() {
 				<div className="col-span-2">
 					<form.Field
 						name="name"
-						validators={{ onSubmit: ({ value }) => (!value.trim() ? "required" : undefined) }}
+						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
 					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>name</label>
+								<label className={LABEL} htmlFor={f.name}>
+									name
+								</label>
 								<input
 									id={f.name}
 									className={INPUT}
@@ -193,6 +196,7 @@ function TripEditorPage() {
 									}}
 									placeholder="alaska"
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
@@ -201,11 +205,13 @@ function TripEditorPage() {
 				<div>
 					<form.Field
 						name="slug"
-						validators={{ onSubmit: ({ value }) => (!value.trim() ? "required" : undefined) }}
+						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
 					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>slug</label>
+								<label className={LABEL} htmlFor={f.name}>
+									slug
+								</label>
 								<input
 									id={f.name}
 									className={INPUT}
@@ -215,6 +221,7 @@ function TripEditorPage() {
 									onChange={(e) => f.handleChange(e.target.value)}
 									placeholder="alaska-2025"
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
@@ -224,7 +231,9 @@ function TripEditorPage() {
 					<form.Field name="place">
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>place (itin)</label>
+								<label className={LABEL} htmlFor={f.name}>
+									place (itin)
+								</label>
 								<input
 									id={f.name}
 									className={INPUT}
@@ -239,10 +248,15 @@ function TripEditorPage() {
 				</div>
 
 				<div>
-					<form.Field name="from" validators={{ onSubmit: ({ value }) => (!value ? "required" : undefined) }}>
+					<form.Field
+						name="from"
+						validators={{ onSubmit: ({ value }) => (value ? undefined : "required") }}
+					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>from</label>
+								<label className={LABEL} htmlFor={f.name}>
+									from
+								</label>
 								<input
 									id={f.name}
 									type="date"
@@ -251,16 +265,22 @@ function TripEditorPage() {
 									onBlur={f.handleBlur}
 									onChange={(e) => f.handleChange(e.target.value)}
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
 				</div>
 
 				<div>
-					<form.Field name="to" validators={{ onSubmit: ({ value }) => (!value ? "required" : undefined) }}>
+					<form.Field
+						name="to"
+						validators={{ onSubmit: ({ value }) => (value ? undefined : "required") }}
+					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>to</label>
+								<label className={LABEL} htmlFor={f.name}>
+									to
+								</label>
 								<input
 									id={f.name}
 									type="date"
@@ -269,6 +289,7 @@ function TripEditorPage() {
 									onBlur={f.handleBlur}
 									onChange={(e) => f.handleChange(e.target.value)}
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
@@ -313,10 +334,15 @@ function TripEditorPage() {
 				</div>
 
 				<div>
-					<form.Field name="lat" validators={{ onSubmit: ({ value }) => (!value ? "pin the map" : undefined) }}>
+					<form.Field
+						name="lat"
+						validators={{ onSubmit: ({ value }) => (value ? undefined : "pin the map") }}
+					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>lat</label>
+								<label className={LABEL} htmlFor={f.name}>
+									lat
+								</label>
 								<input
 									id={f.name}
 									className={INPUT}
@@ -326,16 +352,22 @@ function TripEditorPage() {
 									placeholder="61.2"
 									inputMode="decimal"
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
 				</div>
 
 				<div>
-					<form.Field name="lng" validators={{ onSubmit: ({ value }) => (!value ? "pin the map" : undefined) }}>
+					<form.Field
+						name="lng"
+						validators={{ onSubmit: ({ value }) => (value ? undefined : "pin the map") }}
+					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>lng</label>
+								<label className={LABEL} htmlFor={f.name}>
+									lng
+								</label>
 								<input
 									id={f.name}
 									className={INPUT}
@@ -345,6 +377,7 @@ function TripEditorPage() {
 									placeholder="-149.9"
 									inputMode="decimal"
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
@@ -353,11 +386,13 @@ function TripEditorPage() {
 				<div className="col-span-2">
 					<form.Field
 						name="blurb"
-						validators={{ onSubmit: ({ value }) => (!value.trim() ? "required" : undefined) }}
+						validators={{ onSubmit: ({ value }) => (value.trim() ? undefined : "required") }}
 					>
 						{(f) => (
 							<>
-								<label className={LABEL} htmlFor={f.name}>blurb (wheels-down review)</label>
+								<label className={LABEL} htmlFor={f.name}>
+									blurb (wheels-down review)
+								</label>
 								<textarea
 									id={f.name}
 									className={`${INPUT} min-h-28`}
@@ -366,6 +401,7 @@ function TripEditorPage() {
 									onChange={(e) => f.handleChange(e.target.value)}
 									placeholder="what it felt like when the wheels touched down…"
 								/>
+								<FieldError errors={f.state.meta.errors} />
 							</>
 						)}
 					</form.Field>
@@ -394,7 +430,7 @@ function TripEditorPage() {
 										<div className="mt-3 grid grid-cols-4 gap-2">
 											{f.state.value.map((file) => (
 												<img
-													key={file.name + file.size}
+													key={`${file.name}-${file.size}`}
 													src={photoPreviews.current.get(file)}
 													alt={file.name}
 													className="aspect-square w-full rounded object-cover"
@@ -430,6 +466,6 @@ function TripEditorPage() {
 					}
 				</form.Subscribe>
 			</div>
-		</div>
+		</>
 	);
 }

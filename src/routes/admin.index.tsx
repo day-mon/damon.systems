@@ -20,11 +20,7 @@ function AdminHome() {
 			<section className="mt-10 border border-border p-5">
 				<div className="flex items-baseline justify-between">
 					<h2 className="m-0 font-medium text-base">trips</h2>
-					<Link
-						to="/admin/trips/$slug"
-						params={{ slug: "new" }}
-						className="text-muted-foreground text-xs hover:text-foreground"
-					>
+					<Link to="/admin/trips/new" className="text-muted-foreground text-xs hover:text-foreground">
 						+ new trip
 					</Link>
 				</div>
