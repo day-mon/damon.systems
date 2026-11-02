@@ -10,7 +10,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { getAuth } from "#/lib/authz/better";
 import { TripMetaSchema } from "#/lib/trips/types";
 import { renderTripOgImage } from "#/lib/og/trip-card";
-import { countPhotos, saveMeta, saveOgPng } from "#/lib/trips/write";
+import { storage } from "#/lib/trips/storage/service";
 
 
 
@@ -37,11 +37,13 @@ export const saveTripMeta = createServerFn({ method: "POST" })
 	}))
 	.handler(({ data }) =>
 		requireSession()
-			.then(() => saveMeta(data.slug, data.meta))
+			.then(() => storage.saveMeta(data.slug, data.meta))
 			// og card regenerate is best-effort — never fail the save over a card
 			.then(() =>
-				countPhotos(data.slug).then((n) => renderTripOgImage(data.meta, n))
-					.then((png) => saveOgPng(data.slug, png))
+				storage
+					.countPhotos(data.slug)
+					.then((n) => renderTripOgImage(data.meta, n))
+					.then((png) => storage.saveOgPng(data.slug, png))
 					.catch((e) => console.error("og render failed", e)),
 			)
 			.then(() => ({ ok: true })),

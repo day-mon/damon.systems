@@ -1,17 +1,14 @@
 /*
 shared postgres client + drizzle instance. the pgh-ticket repo hangs
-off these singletons so the pool is one per process, not one
-per module.
+off these singletons so the pool is one per process, not per module.
 */
 
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-const PG_URL =
-	(typeof process !== "undefined" && process.env.PGH_DATABASE_URL) ||
-	"postgresql://pgh_ticket:pgh_ticket@localhost:5432/pgh_ticket";
+import { env } from "#/lib/env";
 
-export const postgresClient = postgres(PG_URL, { max: 5 });
+export const postgresClient = postgres(env.PGH_DATABASE_URL, { max: 5 });
 export const db = drizzle(postgresClient);
 
 export type DrizzleDb = typeof db;

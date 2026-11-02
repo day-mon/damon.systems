@@ -78,7 +78,9 @@ async function streamPhotos(slug: string, files: File[]): Promise<void> {
 		fd.set("slug", slug);
 		fd.set("photo", f);
 
+		// oxlint-disable-next-line no-await-in-loop -- deliberate serialization: one photo in flight keeps progress truthful and throttles b2
 		const res = await fetch("/api/trips/upload-photo", { method: "POST", body: fd });
+		// oxlint-disable-next-line no-await-in-loop
 		const body: { url?: string; error?: string } = await res.json().catch(() => ({}));
 
 		if (!res.ok || !body.url) {

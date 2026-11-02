@@ -6,7 +6,7 @@ auth = authentik session (group-gated upstream).
 import { createFileRoute } from "@tanstack/react-router";
 
 import { getAuth } from "#/lib/authz/better";
-import { uploadPhoto } from "#/lib/trips/write";
+import { storage } from "#/lib/trips/storage/service";
 
 const SLUG = /^[a-z0-9][a-z0-9-]{0,63}$/;
 
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/trips/upload-photo")({
 						if (!(file instanceof File)) throw new Error("no photo");
 
 						return file.arrayBuffer().then(async (ab) => {
-							const url = await uploadPhoto(slug, file.name, Buffer.from(ab));
+							const url = await storage.uploadPhoto(slug, file.name, Buffer.from(ab));
 
 							return Response.json({ url });
 						});

@@ -17,9 +17,9 @@ import { betterAuth } from "better-auth";
 import { genericOAuth } from "better-auth/plugins";
 import { Pool } from "pg";
 
-const ISSUER = () =>
-	process.env.AUTHENTIK_ISSUER ??
-	"https://auth.montague.im/application/o/damon-systems/";
+import { env } from "#/lib/env";
+
+const ISSUER = () => env.AUTHENTIK_ISSUER;
 
 let auth: ReturnType<typeof createAuth> | null = null;
 
@@ -28,17 +28,17 @@ function createAuth() {
 		// never derive from proxy headers: tls is terminated at traefik and the
 		// in-cluster request is http, which would poison the oidc redirect uri
 		baseURL: "https://damon.systems",
-		secret: process.env.SESSION_SECRET,
+		secret: env.SESSION_SECRET,
 		database: new Pool({
-			connectionString: process.env.PGH_DATABASE_URL,
+			connectionString: env.PGH_DATABASE_URL,
 		}),
 		plugins: [
 			genericOAuth({
 				config: [
 					{
 						providerId: "authentik",
-						clientId: process.env.OIDC_CLIENT_ID ?? "",
-						clientSecret: process.env.OIDC_CLIENT_SECRET ?? "",
+						clientId: env.OIDC_CLIENT_ID ?? "",
+						clientSecret: env.OIDC_CLIENT_SECRET ?? "",
 						discoveryUrl: `${ISSUER()}.well-known/openid-configuration`,
 						scopes: ["openid", "email", "profile"],
 						pkce: true,

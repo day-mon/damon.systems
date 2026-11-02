@@ -1,15 +1,15 @@
 import { queryOptions } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 
-import { getTrip, getTrips } from "#/lib/trips/trips.repo";
+import { trips } from "#/lib/trips/catalog";
 
 export const listTripsServer = createServerFn({ method: "GET" }).handler(() =>
-	getTrips(),
+	trips.list(),
 );
 
 export const tripDetailServer = createServerFn({ method: "GET" })
 	.validator((slug: string) => slug)
-	.handler(({ data: slug }) => getTrip(slug));
+	.handler(({ data: slug }) => trips.get(slug));
 
 export const tripsQuery = () =>
 	queryOptions({

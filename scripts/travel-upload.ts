@@ -103,9 +103,8 @@ async function main() {
 
 	await put("meta.json");
 
-	for (const name of photos.toSorted()) {
-		await put(name);
-	}
+	// parallel — every photo is an independent object PUT
+	await Promise.all(photos.toSorted().map((name) => put(name)));
 
 	console.log("done — live within ~10 min of the repo cache window");
 }

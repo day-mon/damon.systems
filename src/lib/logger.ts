@@ -7,7 +7,9 @@ log ingestion stays cheap later.
 
 import pino from "pino";
 
+import { env } from "#/lib/env";
+
 export const logger = pino({
-	level: process.env.LOG_LEVEL ?? "info",
+	level: env.LOG_LEVEL,
 	base: { service: "damon.systems" },
 });
