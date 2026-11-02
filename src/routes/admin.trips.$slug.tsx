@@ -7,7 +7,7 @@ stream in the background while you're free to wander. same page handles create
 import { useForm } from "@tanstack/react-form";
 import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 import type { TripMeta } from "#/lib/trips/types";
 import { uploadStore } from "#/lib/upload-store";
@@ -84,12 +84,15 @@ function TripEditorPage() {
 	const baseQuery = tripQuery(routeSlug);
 	const { data: trip } = useQuery({ ...baseQuery, queryFn: isNew ? skipToken : baseQuery.queryFn });
 
-	const [serverError, setServerError] = useState<string | null>(null);
 	// object-url previews keyed to the actual File objects held in form state
 	const photoPreviews = useRef(new Map<File, string>());
 
 	const form = useForm({
 		defaultValues: EMPTY,
+		// typed so setErrorMap can park server failures in the onSubmit slot
+		validators: {
+			onSubmit: (): string | undefined => undefined,
+		},
 		onSubmit: ({ value }) => submit(value),
 	});
 
@@ -144,7 +147,9 @@ function TripEditorPage() {
 
 				navigate({ to: "/travel/$slug", params: { slug: useSlug } });
 			})
-			.catch((e) => setServerError(e instanceof Error ? e.message : "save failed"));
+			.catch((e) =>
+				form.setErrorMap({ onSubmit: e instanceof Error ? e.message : "save failed" }),
+			);
 	};
 
 	return (
@@ -417,7 +422,13 @@ function TripEditorPage() {
 						</button>
 					)}
 				</form.Subscribe>
-				{serverError && <span className="text-destructive text-xs">{serverError}</span>}
+				<form.Subscribe selector={(s) => s.errorMap.onSubmit}>
+					{(onSubmitError) =>
+						onSubmitError ? (
+							<span className="text-destructive text-xs">{onSubmitError}</span>
+						) : null
+					}
+				</form.Subscribe>
 			</div>
 		</div>
 	);
