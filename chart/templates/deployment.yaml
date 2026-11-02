@@ -37,6 +37,9 @@ spec:
             - secretRef:
                 name: personal-site-b2
                 optional: true
+            - secretRef:
+                name: personal-site-runtime
+                optional: true
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

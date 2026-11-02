@@ -16,3 +16,4 @@ todos.json
 # jetbrains
 .idea/
 .env.b2
+.env.site

@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as AuthLoginRouteImport } from './routes/auth.login'
 import { Route as LabIndexRouteImport } from './routes/lab/index'
 import { Route as TravelIndexRouteImport } from './routes/travel/index'
 import { Route as TravelSlugRouteImport } from './routes/travel/$slug'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiLabFiltersRouteImport } from './routes/api/lab/filters'
 import { Route as ApiLabPointsRouteImport } from './routes/api/lab/points'
 import { Route as ApiLabStatsRouteImport } from './routes/api/lab/stats'
@@ -35,6 +38,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -43,6 +51,11 @@ const ContactRoute = ContactRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabIndexRoute = LabIndexRouteImport.update({
@@ -58,6 +71,11 @@ const TravelIndexRoute = TravelIndexRouteImport.update({
 const TravelSlugRoute = TravelSlugRouteImport.update({
   id: '/travel/$slug',
   path: '/travel/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiLabFiltersRoute = ApiLabFiltersRouteImport.update({
@@ -104,11 +122,14 @@ const LabSlugDemoRoute = LabSlugDemoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/auth/login': typeof AuthLoginRoute
   '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
   '/travel/': typeof TravelIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -121,11 +142,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/auth/login': typeof AuthLoginRoute
   '/travel/$slug': typeof TravelSlugRoute
   '/lab': typeof LabIndexRoute
   '/travel': typeof TravelIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -139,11 +163,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/projects': typeof ProjectsRoute
+  '/auth/login': typeof AuthLoginRoute
   '/travel/$slug': typeof TravelSlugRoute
   '/lab/': typeof LabIndexRoute
   '/travel/': typeof TravelIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/lab/filters': typeof ApiLabFiltersRoute
   '/api/lab/points': typeof ApiLabPointsRoute
   '/api/lab/stats': typeof ApiLabStatsRoute
@@ -158,11 +185,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/projects'
+    | '/auth/login'
     | '/travel/$slug'
     | '/lab/'
     | '/travel/'
+    | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -175,11 +205,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/projects'
+    | '/auth/login'
     | '/travel/$slug'
     | '/lab'
     | '/travel'
+    | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -192,11 +225,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/contact'
     | '/projects'
+    | '/auth/login'
     | '/travel/$slug'
     | '/lab/'
     | '/travel/'
+    | '/api/auth/$'
     | '/api/lab/filters'
     | '/api/lab/points'
     | '/api/lab/stats'
@@ -210,11 +246,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   ProjectsRoute: typeof ProjectsRoute
+  AuthLoginRoute: typeof AuthLoginRoute
   TravelSlugRoute: typeof TravelSlugRoute
   LabIndexRoute: typeof LabIndexRoute
   TravelIndexRoute: typeof TravelIndexRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiLabFiltersRoute: typeof ApiLabFiltersRoute
   ApiLabPointsRoute: typeof ApiLabPointsRoute
   ApiLabStatsRoute: typeof ApiLabStatsRoute
@@ -241,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -253,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lab/': {
@@ -274,6 +327,13 @@ declare module '@tanstack/react-router' {
       path: '/travel/$slug'
       fullPath: '/travel/$slug'
       preLoaderRoute: typeof TravelSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/lab/filters': {
@@ -338,11 +398,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   ProjectsRoute: ProjectsRoute,
+  AuthLoginRoute: AuthLoginRoute,
   TravelSlugRoute: TravelSlugRoute,
   LabIndexRoute: LabIndexRoute,
   TravelIndexRoute: TravelIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiLabFiltersRoute: ApiLabFiltersRoute,
   ApiLabPointsRoute: ApiLabPointsRoute,
   ApiLabStatsRoute: ApiLabStatsRoute,
