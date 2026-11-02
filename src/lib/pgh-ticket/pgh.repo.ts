@@ -9,12 +9,7 @@ the table shapes still live declared in lib/db/schema.ts.
 */
 
 import { type PgClient, postgresClient } from "#/lib/db/client";
-import {
-	type DashboardBreakdowns,
-	type DashboardCounts,
-	type DashboardFilterOptions,
-	readSnapshot,
-} from "#/lib/pgh-ticket/dashboard-snapshot";
+import { dashboardSnapshot } from "#/lib/pgh-ticket/dashboard-snapshot";
 import type {
 	StatItem,
 	TicketFilters,
@@ -96,7 +91,7 @@ export class PghTicketRepo {
 	async fetchCounts(filters: TicketFilters = {}) {
 		// frozen dataset: the unfiltered payload lives in dashboard_snapshot
 		if (!hasAnyFilter(filters)) {
-			const snap = await readSnapshot<DashboardCounts>("counts");
+			const snap = await dashboardSnapshot.read("counts");
 
 			if (snap) return snap;
 		}
@@ -138,7 +133,7 @@ export class PghTicketRepo {
 
 	async fetchBreakdowns(filters: TicketFilters = {}) {
 		if (!hasAnyFilter(filters)) {
-			const snap = await readSnapshot<DashboardBreakdowns>("breakdowns");
+			const snap = await dashboardSnapshot.read("breakdowns");
 
 			if (snap) return snap;
 		}
@@ -199,7 +194,7 @@ export class PghTicketRepo {
 
 		const snapTotal =
 			hasAnyFilter(filters) === false
-				? ((await readSnapshot<DashboardCounts>("counts"))?.total ?? null)
+				? ((await dashboardSnapshot.read("counts"))?.total ?? null)
 				: null;
 
 		const [countResult, rows] = await Promise.all([
@@ -246,7 +241,7 @@ export class PghTicketRepo {
 	}
 
 	async fetchFilterOptions() {
-		const snap = await readSnapshot<DashboardFilterOptions>("filter_options");
+		const snap = await dashboardSnapshot.read("filter_options");
 
 		if (snap) return snap;
 

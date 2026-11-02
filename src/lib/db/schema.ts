@@ -8,7 +8,7 @@ no app-owned tables exist right now; add yours alongside, not into, the
 pgh declarations.
 */
 
-import { date, numeric, pgTable, text } from "drizzle-orm/pg-core";
+import { date, jsonb, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const pghTickets = pgTable("tickets", {
 	ticketNumber: text("ticket_number"),
@@ -27,4 +27,11 @@ export const pghLocations = pgTable("locations", {
 	rawLocation: text("raw_location"),
 	latitude: numeric("latitude"),
 	longitude: numeric("longitude"),
+});
+
+// app-owned: pgh dashboard snapshot cache (see dashboard-snapshot.ts)
+export const dashboardSnapshotTable = pgTable("dashboard_snapshot", {
+	key: text("key").primaryKey(),
+	payload: jsonb("payload").notNull(),
+	computedAt: timestamp("computed_at", { withTimezone: true }).defaultNow().notNull(),
 });
